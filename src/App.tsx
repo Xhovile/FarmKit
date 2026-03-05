@@ -25,7 +25,8 @@ import {
   Droplets,
   Crown,
   UserCircle,
-  MessageCircle
+  MessageCircle,
+  Languages
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -75,38 +76,34 @@ export default function App() {
         </div>
       )}
 
-      {/* Language Switcher */}
-      <div className="fixed top-4 left-4 z-40 flex gap-2 glass px-2 py-1 rounded-lg shadow-sm">
-        <button 
-          onClick={() => switchLanguage('en')} 
-          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${lang === 'en' ? 'bg-primary text-white' : 'hover:bg-white/20'}`}
-        >
-          EN
-        </button>
-        <button 
-          onClick={() => switchLanguage('ny')} 
-          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${lang === 'ny' ? 'bg-primary text-white' : 'hover:bg-white/20'}`}
-        >
-          NY
-        </button>
-      </div>
-
       {/* Header */}
       <header className="bg-primary text-white sticky top-0 z-30 shadow-xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 shadow-inner border border-white/20">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 shadow-inner border border-white/20 shrink-0">
                 <Sprout className="w-8 h-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-black tracking-tighter uppercase">FarmKit Pro</h1>
-                <p className="text-indigo-100/80 text-xs font-medium tracking-wide">
-                  {t('Complete Agricultural Platform for Malawi', 'Malo Onse a Ulimi wa ku Malawi')}
+              <div className="min-w-[140px]">
+                <h1 className="text-2xl font-bold tracking-tight font-serif">
+                  <span className="text-green-400">Farm</span><span className="text-amber-300">Kit</span>
+                </h1>
+                <p className="text-indigo-100/80 text-xs font-medium tracking-wide truncate">
+                  {t('Complete Agricultural Platform', 'Malo Onse a Ulimi')}
                 </p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 items-center justify-center">
+              {/* Language Toggle */}
+              <button 
+                onClick={() => switchLanguage(lang === 'en' ? 'ny' : 'en')}
+                className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-bold border border-white/20 flex items-center shadow-sm hover:bg-white/20 transition-all group"
+                title={t('Switch to Chichewa', 'Sinthani kukhala Chingerezi')}
+              >
+                <Languages className="w-4 h-4 mr-2 opacity-70 group-hover:rotate-12 transition-transform" />
+                <span className="uppercase">{lang}</span>
+              </button>
+
               <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-semibold border border-white/20 flex items-center shadow-sm">
                 <UserCircle className="w-4 h-4 mr-2 opacity-70" /> {user ? user.name : t('Guest', 'Mlendo')}
               </span>
@@ -392,9 +389,20 @@ export default function App() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 transition-colors">
+                  <button 
+                    onClick={() => {
+                      if (user) {
+                        const newTier = user.tier === 'Premium' ? 'Free' : 'Premium';
+                        setUser({ ...user, tier: newTier });
+                        alert(t(`Your tier has been updated to ${newTier}!`, `Gulu lanu lasinthidwa kukhala ${newTier}!`));
+                      } else {
+                        alert(t('Please sign in to upgrade to Premium.', 'Chonde lowani kuti mukhale membala wa Premium.'));
+                      }
+                    }}
+                    className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
                     <Star className="w-5 h-5 mr-3 text-accent" />
-                    <span className="font-medium">{t('Premium Subscription', 'Zosankhika')}</span>
+                    <span className="font-medium">{user?.tier === 'Premium' ? t('Manage Subscription', 'Sinthani Kulembetsa') : t('Upgrade to Premium', 'Khalani Membala wa Premium')}</span>
                   </button>
                   <button className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 transition-colors">
                     <Clock className="w-5 h-5 mr-3 text-primary" />
@@ -437,7 +445,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div>
-              <h2 className="text-xl font-bold mb-4">🌾 FarmKit Pro</h2>
+              <h2 className="text-xl font-bold mb-4 font-serif">
+                <span className="text-green-500">Farm</span><span className="text-indigo-600 dark:text-indigo-400">Kit</span>
+              </h2>
               <p className="text-gray-400 mb-4">
                 {t('Empowering farmers across Malawi with information and market access.', 'Kupatsapo mphamvu kwa alimi ku Malawi ndi chidziwitso ndi mwayi wofikira misika.')}
               </p>
@@ -476,7 +486,7 @@ export default function App() {
           </div>
           <div className="border-t border-gray-700 mt-8 pt-6 text-center">
             <p className="text-gray-400 text-sm">
-              © 2023 FarmKit Pro. {t('All rights reserved.', 'Ufulu wonse ndi wathu.')}
+              © 2023 <span className="font-serif font-bold"><span className="text-green-500">Farm</span>Kit</span>. {t('All rights reserved.', 'Ufulu wonse ndi wathu.')}
             </p>
           </div>
         </div>
