@@ -64,6 +64,11 @@ import {
   Filter
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { auth, db } from './lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import AuthModal from './components/AuthModal';
+import { Toaster, toast } from 'react-hot-toast';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 type Language = 'en' | 'ny';
 type Tab = 'info' | 'market' | 'community' | 'account';
@@ -365,6 +370,8 @@ export default function App() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [user, setUser] = useState<{ 
+    uid: string;
+    email: string;
     name: string; 
     tier: string; 
     location: string; 
@@ -372,6 +379,7 @@ export default function App() {
     avatar?: string;
     bio?: string;
   } | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileFormData, setProfileFormData] = useState({
     name: '',
@@ -395,35 +403,54 @@ export default function App() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Simulate login
-    const timer = setTimeout(() => {
-      const userData = { 
-        name: 'John Phiri', 
-        tier: 'Verified Seller',
-        location: 'Dedza Boma',
-        phone: '0999 123 456',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100',
-        bio: 'Passionate maize and soya farmer from Dedza. Always looking for better ways to improve yield.'
-      };
-      setUser(userData);
-      setProfileFormData({
-        name: userData.name,
-        location: userData.location,
-        phone: userData.phone,
-        bio: userData.bio
-      });
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch additional user data from Firestore
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            name: data.name || firebaseUser.displayName || 'Farmer',
+            tier: data.tier || 'Free',
+            location: data.location || '',
+            phone: data.phone || '',
+            avatar: data.avatar || firebaseUser.photoURL || '',
+            bio: data.bio || ''
+          });
+        } else {
+          // Create initial user doc if it doesn't exist
+          const initialData = {
+            name: firebaseUser.displayName || 'Farmer',
+            tier: 'Free',
+            location: '',
+            phone: '',
+            avatar: firebaseUser.photoURL || '',
+            bio: ''
+          };
+          await setDoc(doc(db, 'users', firebaseUser.uid), initialData);
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            ...initialData
+          });
+        }
 
-      // Check if first time (simulated)
-      const hasSeenTour = localStorage.getItem('hasSeenTour');
-      if (!hasSeenTour) {
-        setShowTour(true);
+        // Check if first time
+        const hasSeenTour = localStorage.getItem('hasSeenTour');
+        if (!hasSeenTour) {
+          setShowTour(true);
+        }
+      } else {
+        setUser(null);
       }
-    }, 3000);
+    });
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      clearTimeout(timer);
+      unsubscribe();
     };
   }, []);
 
@@ -433,6 +460,12 @@ export default function App() {
 
   return (
     <div className="bg-neutral-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
+      <Toaster position="top-center" />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        t={t} 
+      />
       {/* Offline Indicator */}
       {!isOnline && (
         <div className="fixed top-2.5 right-2.5 z-50 bg-red-500 text-white px-3 py-1 rounded-lg text-sm shadow-lg flex items-center animate-bounce">
@@ -468,17 +501,26 @@ export default function App() {
                 <span className="uppercase">{lang}</span>
               </button>
 
-              <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-semibold border border-white/20 flex items-center shadow-sm">
-                <UserCircle className="w-4 h-4 mr-2 opacity-70" /> {user ? user.name : t('Guest', 'Mlendo')}
-              </span>
-              {user && (
-                <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center ${user.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white border border-white/20'}`}>
-                  {user.tier === 'Verified Seller' ? (
-                    <><ThumbsUp className="w-4 h-4 mr-2" /> {t('Verified', 'Wotsimikizika')}</>
-                  ) : (
-                    <><UserCircle className="w-4 h-4 mr-2 opacity-70" /> {t('Free', 'Waulere')}</>
-                  )}
-                </span>
+              {user ? (
+                <>
+                  <span className="px-4 py-1.5 bg-white/10 backdrop-blur-md text-white rounded-full text-sm font-semibold border border-white/20 flex items-center shadow-sm">
+                    <UserCircle className="w-4 h-4 mr-2 opacity-70" /> {user.name}
+                  </span>
+                  <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center ${user.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white border border-white/20'}`}>
+                    {user.tier === 'Verified Seller' ? (
+                      <><ThumbsUp className="w-4 h-4 mr-2" /> {t('Verified', 'Wotsimikizika')}</>
+                    ) : (
+                      <><UserCircle className="w-4 h-4 mr-2 opacity-70" /> {t('Free', 'Waulere')}</>
+                    )}
+                  </span>
+                </>
+              ) : (
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-6 py-1.5 bg-amber-400 text-primary rounded-full text-sm font-bold shadow-lg hover:bg-amber-300 transition-all flex items-center gap-2"
+                >
+                  <UserCircle className="w-4 h-4" /> {t('Login', 'Lowani')}
+                </button>
               )}
               <div className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 shadow-sm border ${isOnline ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30'}`}>
                 <span className={`inline-block w-2 h-2 rounded-full pulse ${isOnline ? 'bg-emerald-400' : 'bg-rose-400'}`}></span> 
@@ -1521,7 +1563,24 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               className="space-y-6"
             >
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
+              {!user ? (
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-12 text-center">
+                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <UserCircle className="w-10 h-10 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">{t('Sign in to your account', 'Lowani mu akaunti yanu')}</h2>
+                  <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                    {t('Access your profile, manage your listings, and connect with the community.', 'Pitani pa mbiri yanu, sinthani zokolola zanu, ndipo lumikizanani ndi gulu.')}
+                  </p>
+                  <button 
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+                  >
+                    {t('Login / Sign Up', 'Lowani / Lembetsani')}
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
                 {/* Profile Header */}
                 <div className="h-32 bg-gradient-to-r from-primary to-emerald-600 relative">
                   <button 
@@ -1612,17 +1671,22 @@ export default function App() {
                           {t('Cancel', 'Tiyeni Tileke')}
                         </button>
                         <button 
-                          onClick={() => {
+                          onClick={async () => {
                             if (user) {
-                              setUser({
-                                ...user,
+                              const updatedData = {
                                 name: profileFormData.name,
                                 location: profileFormData.location,
                                 phone: profileFormData.phone,
                                 bio: profileFormData.bio
-                              });
-                              setIsEditingProfile(false);
-                              alert(t('Profile updated successfully!', 'Mbiri yanu yasinthidwa bwino!'));
+                              };
+                              try {
+                                await setDoc(doc(db, 'users', user.uid), updatedData, { merge: true });
+                                setUser({ ...user, ...updatedData });
+                                setIsEditingProfile(false);
+                                toast.success(t('Profile updated successfully!', 'Mbiri yanu yasinthidwa bwino!'));
+                              } catch (error: any) {
+                                toast.error(error.message);
+                              }
                             }
                           }}
                           className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
@@ -1699,7 +1763,13 @@ export default function App() {
                           </div>
                           <span className="text-xs font-bold text-gray-500">{t('Share Profile', 'Gawanani')}</span>
                         </button>
-                        <button className="flex flex-col items-center gap-2 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-2xl transition-all group">
+                        <button 
+                          onClick={() => {
+                            auth.signOut();
+                            toast.success(t('Logged out successfully.', 'Mwatuluka bwino.'));
+                          }}
+                          className="flex-col items-center gap-2 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-2xl transition-all group hidden md:flex"
+                        >
                           <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-full flex items-center justify-center transition-all">
                             <LogOut className="w-6 h-6" />
                           </div>
@@ -1710,6 +1780,7 @@ export default function App() {
                   )}
                 </div>
               </div>
+            )}
 
               {/* Verified Seller CTA */}
               {!isEditingProfile && user?.tier !== 'Verified Seller' && (
@@ -1722,9 +1793,16 @@ export default function App() {
                       {t('Get a verified badge, list unlimited products, and reach more buyers across Malawi.', 'Pezani chizindikiro chotsimikizika, lembani zokolola zambiri, ndipo pezani ogula ambiri m\'Malawi muno.')}
                     </p>
                     <button 
-                      onClick={() => {
-                        setUser({...user!, tier: 'Verified Seller'});
-                        alert(t('Congratulations! You are now a Verified Seller.', 'Zabwino zonse! Tsopano ndinu Wogulitsa Wotsimikizika.'));
+                      onClick={async () => {
+                        if (user) {
+                          try {
+                            await setDoc(doc(db, 'users', user.uid), { tier: 'Verified Seller' }, { merge: true });
+                            setUser({...user, tier: 'Verified Seller'});
+                            toast.success(t('Congratulations! You are now a Verified Seller.', 'Zabwino zonse! Tsopano ndinu Wogulitsa Wotsimikizika.'));
+                          } catch (error: any) {
+                            toast.error(error.message);
+                          }
+                        }
                       }}
                       className="px-8 py-3 bg-white text-primary font-bold rounded-xl shadow-lg hover:bg-indigo-50 transition-all"
                     >

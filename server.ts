@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
@@ -8,11 +9,25 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
+
+  app.use(express.json({ limit: "1mb" }));
 
   // API routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.post("/api/ai", async (req, res) => {
+    try {
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
+      }
+      // For now, just confirm the route works
+      return res.json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ error: "AI proxy failed" });
+    }
   });
 
   // Vite middleware for development
