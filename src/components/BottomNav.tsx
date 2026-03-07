@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book, Store, Users, UserCircle } from 'lucide-react';
+import { Book, Store, GraduationCap, UserCircle } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: string;
@@ -37,10 +37,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t
             label={t('Market', 'Msika')} 
           />
           <NavAction 
-            active={activeTab === 'community'} 
-            onClick={() => setActiveTab('community')} 
-            icon={<Users className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('Social', 'Gulu')} 
+            active={activeTab === 'experts'} 
+            onClick={() => setActiveTab('experts')} 
+            icon={<GraduationCap className="w-5 h-5 md:w-4 md:h-4" />} 
+            label={t('Experts', 'Akatswiri')} 
           />
           <NavAction 
             active={activeTab === 'account'} 

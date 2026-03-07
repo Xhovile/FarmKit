@@ -16,17 +16,17 @@ import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { HomePage } from './pages/HomePage';
 import { MarketPage } from './pages/MarketPage';
-import { CommunityPage } from './pages/CommunityPage';
+import { ExpertPage } from './pages/ExpertPage';
 import { AccountPage } from './pages/AccountPage';
 import { ChatWidget } from './components/ChatWidget';
 import { WelcomeTour } from './components/WelcomeTour';
 import { DetailModal } from './components/DetailModal';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
-import { tourSteps, communityPosts, experts, successStories } from './data/mockData';
+import { tourSteps, experts, successStories } from './data/mockData';
 
 type Language = 'en' | 'ny';
-type Tab = 'info' | 'market' | 'community' | 'account';
+type Tab = 'info' | 'market' | 'experts' | 'account';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('en');
@@ -58,7 +58,7 @@ export default function App() {
   });
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
-  const [communityTab, setCommunityTab] = useState<'forum' | 'experts' | 'stories'>('forum');
+  const [communityTab, setCommunityTab] = useState<'experts' | 'stories'>('experts');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([
@@ -217,13 +217,12 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'community' && (
-            <CommunityPage 
+          {activeTab === 'experts' && (
+            <ExpertPage 
               t={t} 
               lang={lang} 
-              communityTab={communityTab} 
-              setCommunityTab={setCommunityTab} 
-              communityPosts={communityPosts} 
+              communityTab={communityTab as any} 
+              setCommunityTab={setCommunityTab as any} 
               experts={experts} 
               successStories={successStories} 
             />

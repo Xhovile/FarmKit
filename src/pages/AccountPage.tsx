@@ -58,7 +58,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
         <h2 className="text-2xl font-bold mb-2">{t('Sign in to your account', 'Lowani mu akaunti yanu')}</h2>
         <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-          {t('Access your profile, manage your listings, and connect with the community.', 'Pitani pa mbiri yanu, sinthani zokolola zanu, ndipo lumikizanani ndi gulu.')}
+          {t('Access your profile, manage your listings, and get expert farming advice.', 'Pitani pa mbiri yanu, sinthani zokolola zanu, ndipo pezani malangizo a akatswiri.')}
         </p>
         <button 
           onClick={() => setIsAuthModalOpen(true)}

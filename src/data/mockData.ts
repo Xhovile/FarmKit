@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sprout, Book, Store, Users } from 'lucide-react';
+import { Sprout, Book, Store, GraduationCap } from 'lucide-react';
 
 export const marketplaceListings = [
   {
@@ -323,11 +323,11 @@ export const tourSteps = [
     color: "bg-amber-500"
   },
   {
-    title: "Community",
-    titleNy: "Gulu",
-    content: "Connect with other farmers and share your success stories.",
-    contentNy: "Lumikizanani ndi alimi ena ndipo gawanani nzeru zanu.",
-    icon: Users,
+    title: "Expert Knowledge",
+    titleNy: "Akatswiri",
+    content: "Access curated guides and verified training from NGOs and experts.",
+    contentNy: "Pezani malangizo a akatswiri ndi maphunziro kuchokera ku mabungwe.",
+    icon: GraduationCap,
     color: "bg-indigo-500"
   }
 ];
@@ -365,39 +365,14 @@ export const experts = [
   }
 ];
 
-export const communityPosts = [
-  {
-    id: 1,
-    author: "Grace Chaima",
-    location: "Mchinji",
-    content: "Has anyone tried the new hybrid maize variety from SeedCo? How is the yield in sandy soils?",
-    contentNy: "Kodi alipo amene wayesapo mtundu watsopano wa chimanga cha hybrid kuchokera ku SeedCo? Kodi zokolola zake zili bwanji m'nthaka yamchenga?",
-    likes: 24,
-    comments: 8,
-    time: "2h ago",
-    category: "Crops"
-  },
-  {
-    id: 2,
-    author: "Samuel Phiri",
-    location: "Salima",
-    content: "My tomatoes are showing yellow spots on leaves. Is this early blight or something else?",
-    contentNy: "Mapulogalamu anga akuonetsa mawanga achikasu pamasamba. Kodi uwu ndi nthenda ya blight kapena chinachake?",
-    likes: 15,
-    comments: 12,
-    time: "5h ago",
-    category: "Pests"
-  }
-];
-
 export const successStories = [
   {
     id: 1,
     author: "Banda Family Farm",
     title: "From 10 Bags to 50 Bags!",
     titleNy: "Kuchokera pa Matumba 10 kufika pa 50!",
-    content: "By following the organic fertilizer guides on FarmKit, we tripled our harvest this year without buying expensive chemicals.",
-    contentNy: "Potsatira malangizo a manyowa achilengedwe pa FarmKit, tinachulukitsa zokolola zathu katsatu chaka chino popanda kugula mankhwala okwera mtengo.",
+    content: "Verified Case Study: By following the organic fertilizer guides on FarmKit, the Banda family tripled their harvest this year without buying expensive chemicals.",
+    contentNy: "Umboni: Potsatira malangizo a manyowa achilengedwe pa FarmKit, banja la a Banda linachulukitsa zokolola zawo katsatu chaka chino popanda kugula mankhwala okwera mtengo.",
     image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400",
     likes: 142
   }
