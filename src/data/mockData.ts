@@ -448,3 +448,90 @@ export const successStories = [
     likes: 142
   }
 ];
+
+export const pesticideSellers = [
+  {
+    id: 'ps1',
+    businessName: "Agro-Tech Solutions",
+    ownerName: "Chifundo Phiri",
+    location: "Lilongwe, Area 2",
+    district: "Lilongwe",
+    phone: "+265 888 123 456",
+    verified: true,
+    products: [
+      { name: "Cypermethrin 10EC", category: "Insecticide", availability: "In Stock" },
+      { name: "Glyphosate 480SL", category: "Herbicide", availability: "In Stock" },
+      { name: "Mancozeb 80WP", category: "Fungicide", availability: "Low Stock" }
+    ]
+  },
+  {
+    id: 'ps2',
+    businessName: "Banda Agro-Dealers",
+    ownerName: "John Banda",
+    location: "Blantyre, Limbe Market",
+    district: "Blantyre",
+    phone: "+265 999 654 321",
+    verified: true,
+    products: [
+      { name: "Belt (Flubendiamide)", category: "Insecticide", availability: "In Stock" },
+      { name: "Paraquat 200SL", category: "Herbicide", availability: "In Stock" }
+    ]
+  },
+  {
+    id: 'ps3',
+    businessName: "Mzuzu Farm Inputs",
+    ownerName: "Grace Mwale",
+    location: "Mzuzu, Central",
+    district: "Mzimba",
+    phone: "+265 881 789 012",
+    verified: true,
+    products: [
+      { name: "Coragen", category: "Insecticide", availability: "In Stock" },
+      { name: "Atrazine 500SC", category: "Herbicide", availability: "In Stock" },
+      { name: "Copper Oxychloride", category: "Fungicide", availability: "In Stock" }
+    ]
+  }
+];
+
+export const authenticityGuidance = {
+  title: "How to Identify Genuine Pesticides",
+  titleNy: "Momwe Mungadziwire Mankhwala Abwino",
+  tips: [
+    {
+      title: "Check the Seal",
+      titleNy: "Onani Chidindo",
+      description: "Genuine products always have an intact, tamper-proof seal. If the seal is broken or looks glued, do not buy.",
+      descriptionNy: "Mankhwala abwino amakhala ndi chidindo chomwe sichinatsegulidwe. Ngati chidindo chili chotsegula kapena chomata, musagule."
+    },
+    {
+      title: "Verify the Label",
+      titleNy: "Onani Chizindikiro",
+      description: "Labels should be clear, professionally printed, and include the registration number from the Pesticides Control Board (PCB).",
+      descriptionNy: "Zizindikiro ziyenera kukhala zomveka bwino ndipo zikhale ndi nambala yovomerezeka kuchokera ku bungwe la PCB."
+    },
+    {
+      title: "Smell and Appearance",
+      titleNy: "Fungo ndi Maonekedwe",
+      description: "Unusual smells or strange colors in the liquid/powder can be a sign of a counterfeit product.",
+      descriptionNy: "Fungo lachilendo kapena mtundu wachilendo wa mankhwala ukhoza kukhala chizindikiro cha mankhwala onyenga."
+    },
+    {
+      title: "Price Check",
+      titleNy: "Onani Mtengo",
+      description: "If the price is significantly lower than the market average, it might be a fake or expired product.",
+      descriptionNy: "Ngati mtengo uli wotsika kwambiri poyerekeza ndi mitengo ina, ukhoza kukhala mankhwala onyenga kapena otha ntchito."
+    }
+  ],
+  warningSigns: [
+    "Hand-written labels or missing expiration dates.",
+    "Spelling errors on the packaging.",
+    "Sellers who refuse to provide a receipt.",
+    "Products sold in unbranded or recycled containers."
+  ],
+  warningSignsNy: [
+    "Zizindikiro zolembedwa ndi manja kapena kusowa kwa tsiku lotha ntchito.",
+    "Zolakwika pa kalembedwe pa katundu.",
+    "Ogulitsa omwe akukana kupereka risiti.",
+    "Mankhwala ogulitsidwa m'mabotolo omwe alibe zizindikiro kapena ogwiritsidwa ntchito kale."
+  ]
+};

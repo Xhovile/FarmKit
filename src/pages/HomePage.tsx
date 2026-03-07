@@ -39,6 +39,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
+import { PesticideMarketMap } from '../components/PesticideMarketMap';
 
 interface HomePageProps {
   t: (en: string, ny: string) => string;
@@ -338,24 +339,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 featureName="Pesticide Market Map" 
                 featureNameNy="Mapu a Mankhwala a Ulimi"
               >
-                <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 text-center">
-                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <MapIcon className="w-10 h-10 text-primary" />
-                  </div>
-                  <h3 className="text-2xl font-black mb-4">{t('Pesticide Market Map', 'Mapu a Mankhwala')}</h3>
-                  <p className="text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
-                    {t('Find verified pesticide suppliers, compare prices across districts, and check stock availability in real-time.', 'Pezani ogulitsa mankhwala otsimikizika, yerekezerani mitengo m\'maboma, ndipo onani zomwe zilipo.')}
-                  </p>
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-3xl flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-inner overflow-hidden relative">
-                    <img src="https://picsum.photos/seed/map/1200/800" alt="Map" className="w-full h-full object-cover opacity-50" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white/90 dark:bg-gray-800/90 p-4 rounded-2xl shadow-xl flex items-center gap-3">
-                        <div className="w-3 h-3 bg-primary rounded-full animate-ping" />
-                        <span className="font-bold text-sm">{t('Loading Live Map Data...', 'Kutsegula Mapu...')}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <PesticideMarketMap t={t} />
               </PremiumLock>
             </div>
           )}
