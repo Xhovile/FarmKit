@@ -14,7 +14,9 @@ import {
   MapPin,
   Clock,
   ExternalLink,
-  LayoutDashboard
+  LayoutDashboard,
+  Map as MapIcon,
+  Crown
 } from 'lucide-react';
 import { 
   cropGuides, 
@@ -36,14 +38,17 @@ import {
   Legend, 
   ResponsiveContainer 
 } from 'recharts';
+import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 
 interface HomePageProps {
   t: (en: string, ny: string) => string;
-  infoCategory: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts';
-  setInfoCategory: (cat: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts') => void;
+  infoCategory: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map';
+  setInfoCategory: (cat: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   setSelectedItem: (item: any) => void;
+  user: any;
+  setActiveTab: (tab: any) => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ 
@@ -52,8 +57,13 @@ export const HomePage: React.FC<HomePageProps> = ({
   setInfoCategory, 
   searchQuery, 
   setSearchQuery, 
-  setSelectedItem 
+  setSelectedItem,
+  user,
+  setActiveTab
 }) => {
+  const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
+  const onUpgrade = () => setActiveTab('account');
+
   return (
     <motion.div 
       key="info"
@@ -69,16 +79,23 @@ export const HomePage: React.FC<HomePageProps> = ({
           { id: 'crops', icon: Leaf, label: t('Crop Guides', 'Mbewu') },
           { id: 'livestock', icon: Beef, label: t('Livestock', 'Ziweto') },
           { id: 'prices', icon: TrendingUp, label: t('Price Trends', 'Mitengo') },
-          { id: 'markets', icon: Store, label: t('Markets', 'Misika') },
+          { id: 'markets', icon: Store, label: t('Markets', 'Misika'), premium: true },
+          { id: 'pesticide_map', icon: MapIcon, label: t('Pesticide Map', 'Mapu a Mankhwala'), premium: true },
           { id: 'training', icon: GraduationCap, label: t('Training', 'Maphunziro') },
           { id: 'alerts', icon: AlertTriangle, label: t('Alerts', 'Machenjezo') },
         ].map((cat) => (
           <button 
             key={cat.id}
             onClick={() => setInfoCategory(cat.id as any)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold whitespace-nowrap transition-all ${infoCategory === cat.id ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold whitespace-nowrap transition-all relative ${infoCategory === cat.id ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
           >
-            <cat.icon className="w-4 h-4" /> {cat.label}
+            <cat.icon className="w-4 h-4" /> 
+            {cat.label}
+            {cat.premium && !isPremium && (
+              <div className="absolute -top-1 -right-1">
+                <Crown className="w-3 h-3 text-amber-500 fill-amber-500" />
+              </div>
+            )}
           </button>
         ))}
       </div>
@@ -265,37 +282,83 @@ export const HomePage: React.FC<HomePageProps> = ({
           )}
 
           {/* Performing Markets */}
-          {infoCategory === 'markets' && performingMarkets
-            .filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()))
-            .map(market => (
-            <motion.div 
-              layout
-              key={market.id}
-              className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                  <Store className="w-6 h-6" />
-                </div>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${market.trend === 'Upward' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                  {market.trend} Trend
-                </span>
-              </div>
-              <h3 className="text-lg font-bold mb-1">{market.name}</h3>
-              <div className="flex items-center text-xs text-gray-500 mb-4">
-                <MapPin className="w-3 h-3 mr-1" /> {market.location}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">{market.description}</p>
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('Top Commodities', 'Zofunika Kwambiri')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {market.topCommodities.map((c, i) => (
-                    <span key={i} className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-medium">{c}</span>
+          {infoCategory === 'markets' && (
+            <div className="col-span-full">
+              <PremiumLock 
+                isLocked={!isPremium} 
+                t={t} 
+                onUpgrade={onUpgrade} 
+                featureName="Performing Markets" 
+                featureNameNy="Misika Opindulitsa"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {performingMarkets
+                    .filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map(market => (
+                    <motion.div 
+                      layout
+                      key={market.id}
+                      className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                          <Store className="w-6 h-6" />
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${market.trend === 'Upward' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                          {market.trend} Trend
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-bold mb-1">{market.name}</h3>
+                      <div className="flex items-center text-xs text-gray-500 mb-4">
+                        <MapPin className="w-3 h-3 mr-1" /> {market.location}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">{market.description}</p>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('Top Commodities', 'Zofunika Kwambiri')}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {market.topCommodities.map((c, i) => (
+                            <span key={i} className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-medium">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </PremiumLock>
+            </div>
+          )}
+
+          {/* Pesticide Market Map */}
+          {infoCategory === 'pesticide_map' && (
+            <div className="col-span-full">
+              <PremiumLock 
+                isLocked={!isPremium} 
+                t={t} 
+                onUpgrade={onUpgrade} 
+                featureName="Pesticide Market Map" 
+                featureNameNy="Mapu a Mankhwala a Ulimi"
+              >
+                <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 text-center">
+                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <MapIcon className="w-10 h-10 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-black mb-4">{t('Pesticide Market Map', 'Mapu a Mankhwala')}</h3>
+                  <p className="text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+                    {t('Find verified pesticide suppliers, compare prices across districts, and check stock availability in real-time.', 'Pezani ogulitsa mankhwala otsimikizika, yerekezerani mitengo m\'maboma, ndipo onani zomwe zilipo.')}
+                  </p>
+                  <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-3xl flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-inner overflow-hidden relative">
+                    <img src="https://picsum.photos/seed/map/1200/800" alt="Map" className="w-full h-full object-cover opacity-50" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-white/90 dark:bg-gray-800/90 p-4 rounded-2xl shadow-xl flex items-center gap-3">
+                        <div className="w-3 h-3 bg-primary rounded-full animate-ping" />
+                        <span className="font-bold text-sm">{t('Loading Live Map Data...', 'Kutsegula Mapu...')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </PremiumLock>
+            </div>
+          )}
 
           {/* Verified Training */}
           {infoCategory === 'training' && verifiedTraining

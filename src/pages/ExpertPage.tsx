@@ -9,8 +9,10 @@ import {
   GraduationCap, 
   Award,
   BookOpen,
-  ShieldCheck
+  ShieldCheck,
+  Crown
 } from 'lucide-react';
+import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 
 interface ExpertPageProps {
   t: (en: string, ny: string) => string;
@@ -19,6 +21,8 @@ interface ExpertPageProps {
   setCommunityTab: (tab: 'experts' | 'stories') => void;
   experts: any[];
   successStories: any[];
+  user: any;
+  setActiveTab: (tab: any) => void;
 }
 
 export const ExpertPage: React.FC<ExpertPageProps> = ({
@@ -27,8 +31,12 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
   communityTab,
   setCommunityTab,
   experts,
-  successStories
+  successStories,
+  user,
+  setActiveTab
 }) => {
+  const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
+  const onUpgrade = () => setActiveTab('account');
   return (
     <motion.div 
       key="experts"
@@ -65,8 +73,13 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
                 <button className="px-6 py-3 bg-white text-indigo-600 font-bold rounded-xl shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-2 text-sm">
                   <MessageCircle className="w-5 h-5" /> {t('Consult Expert', 'Lankhulani ndi Katswiri')}
                 </button>
-                <button className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-400 transition-all flex items-center gap-2 text-sm border border-indigo-400">
-                  <BookOpen className="w-5 h-5" /> {t('NGO Guides', 'Malangizo a NGO')}
+                <button 
+                  onClick={() => !isPremium && onUpgrade()}
+                  className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-400 transition-all flex items-center gap-2 text-sm border border-indigo-400 relative"
+                >
+                  <BookOpen className="w-5 h-5" /> 
+                  {t('NGO Guides', 'Malangizo a NGO')}
+                  {!isPremium && <Crown className="w-3 h-3 absolute -top-1 -right-1 text-amber-300 fill-amber-300" />}
                 </button>
               </div>
             </div>
@@ -121,45 +134,59 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
             </div>
           </div>
 
-          {successStories.map(story => (
-            <motion.div 
-              key={story.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-50 dark:border-gray-700"
-            >
-              <div className="h-48 relative">
-                <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
-                  <h3 className="text-xl font-bold text-white leading-tight">
-                    {lang === 'en' ? story.title : story.titleNy}
-                  </h3>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 font-bold text-xs">
-                    {story.author[0]}
+          {successStories.map((story, index) => (
+            <div key={story.id} className="relative">
+              <PremiumLock 
+                isLocked={index > 0 && !isPremium} 
+                t={t} 
+                onUpgrade={onUpgrade} 
+                featureName="Premium NGO Content" 
+                featureNameNy="Malangizo a NGO"
+              >
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-50 dark:border-gray-700"
+                >
+                  <div className="h-48 relative">
+                    <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                      <h3 className="text-xl font-bold text-white leading-tight">
+                        {lang === 'en' ? story.title : story.titleNy}
+                      </h3>
+                    </div>
+                    {index > 0 && (
+                      <div className="absolute top-4 right-4">
+                        <PremiumBadge t={t} />
+                      </div>
+                    )}
                   </div>
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{story.author}</span>
-                  <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">
-                    Expert Verified
-                  </span>
-                </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
-                  {lang === 'en' ? story.content : story.contentNy}
-                </p>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2 text-gray-400">
-                    <Award className="w-5 h-5" />
-                    <span className="text-xs font-bold">{t('Best Practice', 'Njira Yabwino')}</span>
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 font-bold text-xs">
+                        {story.author[0]}
+                      </div>
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{story.author}</span>
+                      <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">
+                        Expert Verified
+                      </span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">
+                      {lang === 'en' ? story.content : story.contentNy}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <Award className="w-5 h-5" />
+                        <span className="text-xs font-bold">{t('Best Practice', 'Njira Yabwino')}</span>
+                      </div>
+                      <button className="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                        {t('Read Full Guide', 'Werengani Malangizo')} <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button className="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
-                    {t('Read Full Guide', 'Werengani Malangizo')} <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              </PremiumLock>
+            </div>
           ))}
         </div>
       )}

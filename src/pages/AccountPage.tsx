@@ -114,8 +114,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             
             {!isEditingProfile && (
               <div className="flex gap-2 mb-2">
-                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${user?.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
-                  {user?.tier === 'Verified Seller' ? t('Verified Seller', 'Wotsimikizika') : t('Free Member', 'Waulere')}
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${user?.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : user?.tier === 'Premium' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
+                  {user?.tier === 'Verified Seller' ? t('Verified Seller', 'Wotsimikizika') : user?.tier === 'Premium' ? t('Premium Member', 'Chapamwamba') : t('Free Member', 'Waulere')}
                 </span>
               </div>
             )}
@@ -283,8 +283,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       </div>
 
-      {/* Seller Dashboard (Only for Verified Sellers) */}
-      {user?.tier === 'Verified Seller' && (
+      {/* Seller Dashboard (Only for Verified Sellers or Premium) */}
+      {(user?.tier === 'Verified Seller' || user?.tier === 'Premium') && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-4 mb-6">
@@ -404,16 +404,85 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       </div>
 
-      {/* Verified Seller CTA */}
-      {!isEditingProfile && user?.tier !== 'Verified Seller' && (
-        <div className="bg-gradient-to-br from-indigo-600 to-primary p-8 rounded-3xl text-white shadow-xl relative overflow-hidden group">
+      {/* Premium Upgrade CTA */}
+      {!isEditingProfile && user?.tier === 'Free' && (
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
           <div className="relative z-10">
-            <Crown className="w-10 h-10 mb-4 text-amber-300" />
-            <h3 className="text-2xl font-bold mb-2">{t('Upgrade to Verified Seller', 'Khalani Wogulitsa Wotsimikizika')}</h3>
-            <p className="text-indigo-100 mb-6 max-w-md">
-              {t('Get a verified badge, list unlimited products, and reach more buyers across Malawi.', 'Pezani chizindikiro chotsimikizika, lembani zokolola zambiri, ndipo pezani ogula ambiri m\'Malawi muno.')}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                <Crown className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-2xl font-black">{t('Unlock FarmKit Premium', 'Pezani FarmKit Chapamwamba')}</h3>
+            </div>
+            <p className="text-amber-50 mb-8 max-w-xl leading-relaxed">
+              {t('Get exclusive access to Market Analytics, Live Pesticide Maps, and Premium NGO Expert Content to maximize your farm\'s productivity.', 'Pezani malangizo a msika, mapu a mankhwala, ndi malangizo a akatswiri a NGO kuti mupindule kwambiri pa famu yanu.')}
             </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
+                <TrendingUp className="w-5 h-5 text-amber-200" />
+                <span className="text-sm font-bold">{t('Market Analytics', 'Zotsatira za Msika')}</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
+                <MapPin className="w-5 h-5 text-amber-200" />
+                <span className="text-sm font-bold">{t('Pesticide Market Map', 'Mapu a Mankhwala')}</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
+                <CheckCircle2 className="w-5 h-5 text-amber-200" />
+                <span className="text-sm font-bold">{t('Premium NGO Content', 'Malangizo a NGO')}</span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
+                <Star className="w-5 h-5 text-amber-200" />
+                <span className="text-sm font-bold">{t('Priority Support', 'Thandizo Loyamba')}</span>
+              </div>
+            </div>
+            <button 
+              onClick={async () => {
+                if (user) {
+                  try {
+                    await setDoc(doc(db, 'users', user.uid), { tier: 'Premium' }, { merge: true });
+                    setUser({...user, tier: 'Premium'});
+                    toast.success(t('Congratulations! You are now a Premium Member.', 'Zabwino zonse! Tsopano ndinu membala wa Chapamwamba.'));
+                  } catch (error: any) {
+                    toast.error(error.message);
+                  }
+                }
+              }}
+              className="px-10 py-4 bg-white text-amber-600 font-black rounded-2xl shadow-xl hover:bg-amber-50 transition-all flex items-center gap-2 active:scale-95"
+            >
+              {t('Upgrade to Premium', 'Sinthani Tsopano')} <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Verified Seller CTA */}
+      {!isEditingProfile && user?.tier !== 'Verified Seller' && (
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center">
+                <Building2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white">{t('Become a Verified Seller', 'Khalani Wogulitsa Wotsimikizika')}</h3>
+            </div>
+            <p className="text-gray-500 mb-8 max-w-xl leading-relaxed">
+              {t('List unlimited products, get a verification badge, and reach more buyers across Malawi. Perfect for commercial farmers and agro-dealers.', 'Lembani zokolola zambiri, pezani chizindikiro chotsimikizika, ndipo pezani ogula ambiri m\'Malawi muno.')}
+            </p>
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                {t('Unlimited Listings', 'Zogulitsa Zambiri')}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                {t('Verified Badge', 'Chizindikiro')}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                {t('Priority Search', 'Kuoneka Pamwamba')}
+              </div>
+            </div>
             <button 
               onClick={async () => {
                 if (user) {
@@ -426,9 +495,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   }
                 }
               }}
-              className="px-8 py-3 bg-white text-primary font-bold rounded-xl shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-2"
+              className="px-10 py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center gap-2 active:scale-95"
             >
-              {t('Upgrade Now', 'Sinthani Tsopano')} <ArrowRight className="w-4 h-4" />
+              {t('Apply for Verification', 'Lembetsani Tsopano')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>

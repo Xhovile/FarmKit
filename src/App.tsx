@@ -204,6 +204,8 @@ export default function App() {
               searchQuery={searchQuery} 
               setSearchQuery={setSearchQuery} 
               setSelectedItem={setSelectedItem} 
+              user={user}
+              setActiveTab={setActiveTab}
             />
           )}
 
@@ -226,6 +228,8 @@ export default function App() {
               setCommunityTab={setCommunityTab as any} 
               experts={experts} 
               successStories={successStories} 
+              user={user}
+              setActiveTab={setActiveTab}
             />
           )}
 
