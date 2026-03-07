@@ -25,12 +25,12 @@ import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { AddListingForm, AddRequestForm } from './components/MarketplaceForms';
 import { tourSteps, experts, successStories } from './data/mockData';
+import { useTranslation } from './hooks/useTranslation';
 
-type Language = 'en' | 'ny';
 type Tab = 'info' | 'market' | 'experts' | 'account';
 
 export default function App() {
-  const [lang, setLang] = useState<Language>('en');
+  const { t, lang, setLang } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const [infoCategory, setInfoCategory] = useState<'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts'>('overview');
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -133,7 +133,7 @@ export default function App() {
     };
   }, []);
 
-  const t = (en: string, ny: string) => lang === 'en' ? en : ny;
+  const t_old = (en: string, ny: string) => lang === 'en' ? en : ny;
 
   return (
     <div className="bg-neutral-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
@@ -148,7 +148,7 @@ export default function App() {
       {/* Offline Indicator */}
       {!isOnline && (
         <div className="fixed top-2.5 right-2.5 z-50 bg-red-500 text-white px-3 py-1 rounded-lg text-sm shadow-lg flex items-center animate-bounce">
-          <Wifi className="w-4 h-4 mr-1" /> {t('Offline Mode', 'Popanda Intaneti')}
+          <Wifi className="w-4 h-4 mr-1" /> {t('common.offline')}
         </div>
       )}
 
@@ -167,11 +167,11 @@ export default function App() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm md:text-base">
             <div className="flex items-center bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
               <CloudSun className="w-5 h-5 mr-3 text-amber-300" />
-              <span className="font-medium">{t('Lilongwe: 24°C, Partly Cloudy', 'Lilongwe: 24°C, Mitambo')}</span>
+              <span className="font-medium">{t('home.lilongweWeather')}</span>
             </div>
             <div className="flex items-center bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/10">
               <Droplets className="w-5 h-5 mr-3 text-indigo-300 animate-bounce" />
-              <span className="font-medium">{t('Rainy Season Alert: Plant beans now!', 'Mvula: Dzala nyemba tsopano!')}</span>
+              <span className="font-medium">{t('home.rainySeasonAlert')}</span>
             </div>
           </div>
         </div>

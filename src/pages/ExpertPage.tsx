@@ -15,7 +15,7 @@ import {
 import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 
 interface ExpertPageProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   lang: 'en' | 'ny';
   communityTab: 'experts' | 'stories';
   setCommunityTab: (tab: 'experts' | 'stories') => void;
@@ -50,13 +50,13 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
           onClick={() => setCommunityTab('experts')}
           className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'experts' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <GraduationCap className="w-4 h-4" /> {t('Experts', 'Akatswiri')}
+          <GraduationCap className="w-4 h-4" /> {t('common.experts')}
         </button>
         <button 
           onClick={() => setCommunityTab('stories')}
           className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'stories' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <Award className="w-4 h-4" /> {t('Case Studies', 'Zitsanzo')}
+          <Award className="w-4 h-4" /> {t('common.stories')}
         </button>
       </div>
 
@@ -65,20 +65,20 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
           <div className="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-2">{t('Verified Expert Support', 'Thandizo la Akatswiri')}</h3>
+              <h3 className="text-2xl font-bold mb-2">{t('experts.verifiedSupport')}</h3>
               <p className="text-indigo-100 mb-6 max-w-md text-sm leading-relaxed">
-                {t('Access professional advice from certified agricultural extension officers and NGO specialists. All content is vetted for accuracy.', 'Pezani malangizo a akatswiri kuchokera kwa alangizi a ulimi ndi akatswiri a mabungwe. Malangizo onse ndi otsimikizika.')}
+                {t('experts.expertAdvice')}
               </p>
               <div className="flex flex-wrap gap-3">
                 <button className="px-6 py-3 bg-white text-indigo-600 font-bold rounded-xl shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-2 text-sm">
-                  <MessageCircle className="w-5 h-5" /> {t('Consult Expert', 'Lankhulani ndi Katswiri')}
+                  <MessageCircle className="w-5 h-5" /> {t('experts.connectNow')}
                 </button>
                 <button 
                   onClick={() => !isPremium && onUpgrade()}
                   className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-400 transition-all flex items-center gap-2 text-sm border border-indigo-400 relative"
                 >
                   <BookOpen className="w-5 h-5" /> 
-                  {t('NGO Guides', 'Malangizo a NGO')}
+                  {t('common.training')}
                   {!isPremium && <Crown className="w-3 h-3 absolute -top-1 -right-1 text-amber-300 fill-amber-300" />}
                 </button>
               </div>
@@ -129,8 +129,8 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-lg">{t('Verified Case Studies', 'Zitsanzo Otsimikizika')}</h3>
-              <p className="text-xs text-gray-500">{t('Real success stories vetted by agricultural experts.', 'Zitsanzo za ulimi opindulitsa zotsimikizika ndi akatswiri.')}</p>
+              <h3 className="font-bold text-lg">{t('experts.successStories')}</h3>
+              <p className="text-xs text-gray-500">{t('experts.learnFromFarmers')}</p>
             </div>
           </div>
 
@@ -177,10 +177,10 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-gray-400">
                         <Award className="w-5 h-5" />
-                        <span className="text-xs font-bold">{t('Best Practice', 'Njira Yabwino')}</span>
+                        <span className="text-xs font-bold">{t('common.experts')}</span>
                       </div>
                       <button className="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
-                        {t('Read Full Guide', 'Werengani Malangizo')} <ChevronRight className="w-4 h-4" />
+                        {t('experts.readFullStory')} <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

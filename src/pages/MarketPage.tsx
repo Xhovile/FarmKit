@@ -51,7 +51,7 @@ import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 import { toast } from 'react-hot-toast';
 
 interface MarketPageProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   marketSearchQuery: string;
   setMarketSearchQuery: (query: string) => void;
   user: any;
@@ -104,33 +104,33 @@ export const MarketPage: React.FC<MarketPageProps> = ({
           onClick={() => setMarketTab('supply')}
           className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'supply' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <LayoutGrid className="w-4 h-4" /> {t('Supply', 'Zogulitsa')}
+          <LayoutGrid className="w-4 h-4" /> {t('market.supply')}
         </button>
         <button 
           onClick={() => setMarketTab('demand')}
           className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'demand' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <ClipboardList className="w-4 h-4" /> {t('Demand', 'Zofunika')}
+          <ClipboardList className="w-4 h-4" /> {t('market.demand')}
         </button>
         <button 
           onClick={() => setMarketTab('verified_sellers')}
           className={`flex-1 min-w-[130px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'verified_sellers' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <ShieldCheck className="w-4 h-4" /> {t('Verified Sellers', 'Ogulitsa')}
+          <ShieldCheck className="w-4 h-4" /> {t('market.verifiedSellers')}
         </button>
         <button 
           onClick={() => setMarketTab('trends')}
           className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 relative ${marketTab === 'trends' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <TrendingUp className="w-4 h-4" /> 
-          {t('Trends', 'Mitengo')}
+          {t('market.trends')}
           {!isPremium && <Crown className="w-3 h-3 absolute -top-1 -right-1 text-amber-500 fill-amber-500" />}
         </button>
         <button 
           onClick={() => setMarketTab('my_activity')}
           className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'my_activity' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
-          <History className="w-4 h-4" /> {t('My Activity', 'Zanga')}
+          <History className="w-4 h-4" /> {t('market.myActivity')}
         </button>
       </div>
 
@@ -146,10 +146,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-2xl font-bold flex items-center gap-2">
                 <ChartLine className="w-6 h-6 text-primary" />
-                {t('Market Prices (MK)', 'Mitengo ya pa Msika (MK)')}
+                {t('account.premiumBenefits')}
               </h2>
               <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-                {t('Updated: Today', 'Zasinthidwa: Lero')}
+                {t('common.activeAlerts')}
               </span>
             </div>
             
@@ -158,11 +158,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-700">
-                      <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">{t('Commodity', 'Zokolola')}</th>
+                      <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">{t('common.cropGuides')}</th>
                       <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Limbe</th>
                       <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Lilongwe</th>
                       <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Mzuzu</th>
-                      <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">{t('Unit', 'Muyeso')}</th>
+                      <th className="py-4 px-2 text-sm font-bold text-gray-500 uppercase tracking-wider">{t('common.unit')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -267,16 +267,16 @@ export const MarketPage: React.FC<MarketPageProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-                {marketTab === 'supply' ? t('Available Supply', 'Zogulitsa Zomwe Zilipo') : 
-                 marketTab === 'demand' ? t('Current Demand', 'Zofunika za Ogula') :
-                 marketTab === 'verified_sellers' ? t('Verified Sellers', 'Ogulitsa Otsimikizika') :
-                 t('My Activity', 'Zanga Zomwe Ndalemba')}
+                {marketTab === 'supply' ? t('market.availableSupply') : 
+                 marketTab === 'demand' ? t('market.currentDemand') :
+                 marketTab === 'verified_sellers' ? t('market.verifiedSellers') :
+                 t('market.myActivity')}
               </h2>
               <p className="text-sm text-gray-500">
-                {marketTab === 'supply' ? t('Browse verified products from farmers across Malawi.', 'Onani zokolola zotsimikizika kuchokera kwa alimi m\'Malawi muno.') : 
-                 marketTab === 'demand' ? t('See what buyers are looking for and fulfill their needs.', 'Onani zomwe ogula akufuna ndipo gulitsani zokolola zanu.') :
-                 marketTab === 'verified_sellers' ? t('Connect with trusted and verified agricultural suppliers.', 'Lumikizanani ndi ogulitsa otsimikizika ndi odalirika.') :
-                 t('Manage your listings and buyer requests in one place.', 'Sinthani zokolola zanu ndi zofunika zanu pamalo amodzi.')}
+                {marketTab === 'supply' ? t('market.browseVerified') : 
+                 marketTab === 'demand' ? t('market.seeWhatBuyersWant') :
+                 marketTab === 'verified_sellers' ? t('market.connectTrusted') :
+                 t('market.manageActivity')}
               </p>
             </div>
             
@@ -287,13 +287,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                     setIsAddProductModalOpen(true);
                     setFormStep(marketTab === 'supply' ? 1 : 10); // 10 is start of buyer request form
                   } else {
-                    alert(t('Please sign in to post on the marketplace.', 'Chonde lowani mu akaunti yanu kuti mulembe pa msika.'));
+                    alert(t('account.signIn'));
                   }
                 }}
                 className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${marketTab === 'supply' ? 'bg-primary text-white shadow-primary/20' : 'bg-indigo-600 text-white shadow-indigo-500/20'}`}
               >
                 <PlusCircle className="w-5 h-5" />
-                {marketTab === 'supply' ? t('Add Listing', 'Wonjezani Zogulitsa') : t('Post Request', 'Lembani Chofunika')}
+                {marketTab === 'supply' ? t('market.addListing') : t('market.postRequest')}
               </button>
             )}
           </div>
@@ -363,7 +363,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
               <div>
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Package className="w-5 h-5 text-primary" />
-                  {t('My Listings', 'Zokolola Zanga')}
+                  {t('market.myListings')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {marketplaceListings.filter(l => l.seller.id === 's1').map(item => (
@@ -374,7 +374,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
               <div>
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <ClipboardList className="w-5 h-5 text-indigo-600" />
-                  {t('My Requests', 'Zofunika Zanga')}
+                  {t('market.myRequests')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {buyerRequests.slice(0, 1).map(req => (
@@ -398,7 +398,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-xl font-black flex items-center gap-2 text-rose-600">
                 <Flag className="w-6 h-6" />
-                {t('Report Suspicious Activity', 'Nenerani Zokaywitsa')}
+                {t('market.reportSuspicious')}
               </h3>
               <button onClick={() => setReportingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
                 <X className="w-5 h-5" />
@@ -406,17 +406,17 @@ export const MarketPage: React.FC<MarketPageProps> = ({
             </div>
             <div className="p-6 space-y-4">
               <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('Reporting', 'Mukudandaula za')}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.reporting')}</p>
                 <p className="font-bold">{reportingItem.title || reportingItem.businessName}</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  {t('Reason for Report', 'Chifukwa Chomwe Mukunenera')}
+                  {t('market.reasonForReport')}
                 </label>
                 <textarea 
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  placeholder={t('Describe the issue (e.g., fake product, suspicious seller, wrong price)...', 'Fotokozani vutolo (mwachitsanzo, katundu onyenga, wogulitsa okaywitsa)...')}
+                  placeholder={t('market.describeIssue')}
                   rows={4}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-rose-500 outline-none text-sm"
                 />
@@ -426,13 +426,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   onClick={() => setReportingItem(null)}
                   className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
                 >
-                  {t('Cancel', 'Tiyeni Tileke')}
+                  {t('common.cancel')}
                 </button>
                 <button 
                   onClick={handleReport}
                   className="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-700 transition-all"
                 >
-                  {t('Submit Report', 'Tumizani Lipoti')}
+                  {t('market.submitReport')}
                 </button>
               </div>
             </div>

@@ -42,7 +42,7 @@ import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 import { PesticideMarketMap } from '../components/PesticideMarketMap';
 
 interface HomePageProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   infoCategory: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map';
   setInfoCategory: (cat: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map') => void;
   searchQuery: string;
@@ -76,14 +76,14 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* Category Navigation */}
       <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
         {[
-          { id: 'overview', icon: LayoutDashboard, label: t('Overview', 'Chidule') },
-          { id: 'crops', icon: Leaf, label: t('Crop Guides', 'Mbewu') },
-          { id: 'livestock', icon: Beef, label: t('Livestock', 'Ziweto') },
-          { id: 'prices', icon: TrendingUp, label: t('Price Trends', 'Mitengo') },
-          { id: 'markets', icon: Store, label: t('Markets', 'Misika'), premium: true },
-          { id: 'pesticide_map', icon: MapIcon, label: t('Pesticide Map', 'Mapu a Mankhwala'), premium: true },
-          { id: 'training', icon: GraduationCap, label: t('Training', 'Maphunziro') },
-          { id: 'alerts', icon: AlertTriangle, label: t('Alerts', 'Machenjezo') },
+          { id: 'overview', icon: LayoutDashboard, label: t('common.overview') },
+          { id: 'crops', icon: Leaf, label: t('common.cropGuides') },
+          { id: 'livestock', icon: Beef, label: t('common.livestock') },
+          { id: 'prices', icon: TrendingUp, label: t('common.priceTrends') },
+          { id: 'markets', icon: Store, label: t('common.markets'), premium: true },
+          { id: 'pesticide_map', icon: MapIcon, label: t('common.pesticideMap'), premium: true },
+          { id: 'training', icon: GraduationCap, label: t('common.training') },
+          { id: 'alerts', icon: AlertTriangle, label: t('common.alerts') },
         ].map((cat) => (
           <button 
             key={cat.id}
@@ -110,7 +110,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('Search guides, markets, or alerts...', 'Sakani malangizo, misika, kapena machenjezo...')}
+              placeholder={t('common.search')}
               className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700/50 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none text-sm"
             />
           </div>
@@ -130,10 +130,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <div className="w-10 h-10 bg-rose-500 text-white rounded-xl flex items-center justify-center">
                     <AlertTriangle className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">{t('Active Alerts', 'Machenjezo')}</span>
+                  <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">{t('common.activeAlerts')}</span>
                 </div>
-                <h3 className="text-lg font-bold mb-2">{t(seasonalAlerts[0].title, seasonalAlerts[0].titleNy)}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{t(seasonalAlerts[0].content, seasonalAlerts[0].contentNy)}</p>
+                <h3 className="text-lg font-bold mb-2">{lang === 'en' ? seasonalAlerts[0].title : seasonalAlerts[0].titleNy}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{lang === 'en' ? seasonalAlerts[0].content : seasonalAlerts[0].contentNy}</p>
               </div>
 
               {/* Price Trend Summary */}
@@ -145,10 +145,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center">
                     <TrendingUp className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{t('Market Trends', 'Mitengo')}</span>
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">{t('common.marketTrends')}</span>
                 </div>
-                <h3 className="text-lg font-bold mb-2">{t('Maize Prices Up', 'Chimanga Chakwera')}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{t('Maize prices have risen by 15% in Limbe this week.', 'Mitengo ya chimanga yakwera ndi 15% ku Limbe sabata ino.')}</p>
+                <h3 className="text-lg font-bold mb-2">{t('home.maizePricesUp')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{t('home.maizePricesUpDesc')}</p>
               </div>
 
               {/* Training Summary */}
@@ -160,7 +160,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <div className="w-10 h-10 bg-blue-500 text-white rounded-xl flex items-center justify-center">
                     <GraduationCap className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{t('New Training', 'Maphunziro')}</span>
+                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{t('common.newTraining')}</span>
                 </div>
                 <h3 className="text-lg font-bold mb-2">{verifiedTraining[0].title}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{verifiedTraining[0].description}</p>
@@ -169,10 +169,10 @@ export const HomePage: React.FC<HomePageProps> = ({
               {/* Quick Links to Modules */}
               <div className="col-span-full grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                 {[
-                  { id: 'crops', icon: Leaf, label: t('Crops', 'Mbewu'), color: 'bg-emerald-500' },
-                  { id: 'livestock', icon: Beef, label: t('Livestock', 'Ziweto'), color: 'bg-amber-500' },
-                  { id: 'markets', icon: Store, label: t('Markets', 'Misika'), color: 'bg-indigo-500' },
-                  { id: 'training', icon: GraduationCap, label: t('Training', 'Maphunziro'), color: 'bg-blue-500' },
+                  { id: 'crops', icon: Leaf, label: t('common.cropGuides'), color: 'bg-emerald-500' },
+                  { id: 'livestock', icon: Beef, label: t('common.livestock'), color: 'bg-amber-500' },
+                  { id: 'markets', icon: Store, label: t('common.markets'), color: 'bg-indigo-500' },
+                  { id: 'training', icon: GraduationCap, label: t('common.training'), color: 'bg-blue-500' },
                 ].map((item) => (
                   <button 
                     key={item.id}
@@ -211,7 +211,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">{crop.tips}</p>
                 <div className="mt-5 flex items-center text-primary font-bold text-sm group-hover:gap-2 transition-all">
-                  {t('View Full Guide', 'Onani Malangizo')} <ArrowRight className="w-4 h-4 ml-1" />
+                  {t('home.viewFullGuide')} <ArrowRight className="w-4 h-4 ml-1" />
                 </div>
               </div>
             </motion.div>
@@ -236,7 +236,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="p-5">
                 <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-4">{guide.tips}</p>
                 <div className="flex items-center text-primary font-bold text-sm group-hover:gap-2 transition-all">
-                  {t('Management Guide', 'Kasungidwe')} <ArrowRight className="w-4 h-4 ml-1" />
+                  {t('home.managementGuide')} <ArrowRight className="w-4 h-4 ml-1" />
                 </div>
               </div>
             </motion.div>
@@ -248,7 +248,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-6 border border-gray-100 dark:border-gray-700">
                 <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                   <TrendingUp className="w-6 h-6 text-primary" />
-                  {t('Market Price Trends', 'Kayendedwe ka Mitengo')}
+                  {t('home.marketPriceTrends')}
                 </h3>
                 <div className="h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -258,8 +258,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} tickFormatter={(value) => `MK${value}`} />
                       <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }} />
                       <Legend iconType="circle" />
-                      <Line type="monotone" dataKey="maize" name={t('Maize', 'Chimanga')} stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
-                      <Line type="monotone" dataKey="beans" name={t('Beans', 'Nyemba')} stroke="#f59e0b" strokeWidth={4} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} />
+                      <Line type="monotone" dataKey="maize" name={lang === 'en' ? 'Maize' : 'Chimanga'} stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="beans" name={lang === 'en' ? 'Beans' : 'Nyemba'} stroke="#f59e0b" strokeWidth={4} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -315,7 +315,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">{market.description}</p>
                       <div className="space-y-2">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('Top Commodities', 'Zofunika Kwambiri')}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('home.topCommodities')}</p>
                         <div className="flex flex-wrap gap-2">
                           {market.topCommodities.map((c, i) => (
                             <span key={i} className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-medium">{c}</span>
@@ -366,7 +366,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <p className="text-xs text-primary font-medium mb-3">{course.provider}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-2 leading-relaxed">{course.description}</p>
                 <button className="w-full py-3 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all">
-                  {t('Enroll Now', 'Lembetsani Tsopano')} <ExternalLink className="w-4 h-4" />
+                  {t('common.enrollNow')} <ExternalLink className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
@@ -394,10 +394,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                   </div>
                 </div>
               </div>
-              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">{t(alert.title, alert.titleNy)}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{t(alert.content, alert.contentNy)}</p>
+              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">{lang === 'en' ? alert.title : alert.titleNy}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{lang === 'en' ? alert.content : alert.contentNy}</p>
               <button className={`mt-6 text-sm font-bold flex items-center gap-1 hover:gap-2 transition-all ${alert.severity === 'Critical' ? 'text-rose-600' : alert.severity === 'High' ? 'text-amber-600' : 'text-blue-600'}`}>
-                {t('Take Action', 'Chitapo Kanthu')} <ArrowRight className="w-4 h-4" />
+                {t('common.takeAction')} <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
           ))}
@@ -411,9 +411,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
               <Lightbulb className="w-6 h-6" />
             </div>
-            {t('Expert Tips', 'Malangizo a Akatswiri')}
+            {t('common.expertTips')}
           </h2>
-          <button className="text-sm font-bold text-primary hover:underline">{t('View All', 'Onani Onse')}</button>
+          <button className="text-sm font-bold text-primary hover:underline">{t('common.viewAll')}</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

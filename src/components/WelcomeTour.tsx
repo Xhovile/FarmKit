@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight } from 'lucide-react';
 
 interface WelcomeTourProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   showTour: boolean;
   setShowTour: (val: boolean) => void;
   tourStep: number;
@@ -69,10 +69,10 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({
               animate={{ opacity: 1, y: 0 }}
             >
               <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
-                {t(tourSteps[tourStep].title, tourSteps[tourStep].titleNy)}
+                {t(`tour.step${tourStep + 1}Title`)}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
-                {t(tourSteps[tourStep].content, tourSteps[tourStep].contentNy)}
+                {t(`tour.step${tourStep + 1}Content`)}
               </p>
             </motion.div>
             <button 
@@ -86,7 +86,7 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({
               }}
               className="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
             >
-              {tourStep === tourSteps.length - 1 ? t("Get Started", "Yambani Tsopano") : t("Next", "Chotsatira")}
+              {tourStep === tourSteps.length - 1 ? t("tour.getStarted") : t("tour.next")}
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>

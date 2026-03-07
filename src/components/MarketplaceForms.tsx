@@ -45,8 +45,8 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t('Add New Listing', 'Wonjezani Zogulitsa')}</h2>
-          <p className="text-sm text-gray-500">{t('Step', 'Gawo')} {step} {t('of', 'mwa')} 3</p>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t('forms.addListing')}</h2>
+          <p className="text-sm text-gray-500">{t('common.step')} {step} {t('common.of')} 3</p>
         </div>
         <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
           <X className="w-6 h-6" />
@@ -58,29 +58,29 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
           <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800 flex items-start gap-3 mb-6">
             <Info className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <p className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
-              {t('As a Verified Seller, your listings will appear with a trust badge and reach more premium buyers.', 'Monga wogulitsa wotsimikizika, zogulitsa zanu zidzaoneka ndi chizindikiro chodalirika.')}
+              {t('forms.verifiedSellerTip')}
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Product Name', 'Dzina la Zokolola')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('forms.productName')}</label>
             <input 
               type="text" 
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
-              placeholder={t('e.g. Hybrid Maize', 'mwachitsanzo Chimanga cha Hybrid')}
+              placeholder={t('forms.productNamePlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Category', 'Gulu')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.category')}</label>
             <select 
               value={formData.category}
               onChange={e => setFormData({...formData, category: e.target.value})}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none appearance-none"
             >
-              <option value="">{t('Select Category', 'Sankhani Gulu')}</option>
+              <option value="">{t('forms.selectCategory')}</option>
               {marketCategories.map(cat => (
                 <option key={cat.id} value={cat.id}>{t(cat.name, cat.nameNy)}</option>
               ))}
@@ -92,7 +92,7 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
             disabled={!formData.title || !formData.category}
             className="w-full py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t('Next Step', 'Chotsatira')} <ChevronRight className="w-5 h-5" />
+            {t('common.next')} <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       )}
@@ -101,40 +101,40 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Price (MK)', 'Mtengo (MK)')}</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.price')}</label>
               <input 
                 type="number" 
                 value={formData.price}
                 onChange={e => setFormData({...formData, price: e.target.value})}
-                placeholder="45000"
+                placeholder={t('forms.pricePlaceholder')}
                 className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Unit', 'Muyeso')}</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.unit')}</label>
               <input 
                 type="text" 
                 value={formData.unit}
                 onChange={e => setFormData({...formData, unit: e.target.value})}
-                placeholder="50kg Bag"
+                placeholder={t('forms.unitPlaceholder')}
                 className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Quantity Available', 'Kuchuluka Komwe Kuli')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.quantity')}</label>
             <input 
               type="number" 
               value={formData.quantity}
               onChange={e => setFormData({...formData, quantity: e.target.value})}
-              placeholder="100"
+              placeholder={t('forms.quantityPlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Delivery Method', 'Mayendedwe')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('forms.deliveryMethod')}</label>
             <div className="grid grid-cols-1 gap-2">
               {deliveryMethods.map(method => (
                 <button 
@@ -151,14 +151,14 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
 
           <div className="flex gap-3 pt-4">
             <button onClick={prevStep} className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-2xl hover:bg-gray-200 transition-all">
-              {t('Back', 'Kubwerera')}
+              {t('common.back')}
             </button>
             <button 
               onClick={nextStep}
               disabled={!formData.price || !formData.quantity}
               className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {t('Next Step', 'Chotsatira')} <ChevronRight className="w-5 h-5" />
+              {t('common.next')} <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -167,31 +167,31 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
       {step === 3 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Description', 'Zambiri')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.description')}</label>
             <textarea 
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}
               rows={3}
-              placeholder={t('Describe quality, harvest date, etc.', 'Fotokozani za mtundu, tsiku lokolola, ndi zina.')}
+              placeholder={t('forms.descriptionPlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none resize-none"
             />
           </div>
 
           <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary transition-all cursor-pointer">
             <Camera className="w-8 h-8" />
-            <span className="text-xs font-bold uppercase tracking-widest">{t('Upload Product Image', 'Ikani Chithunzi')}</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('forms.uploadImage')}</span>
           </div>
 
           <div className="flex gap-3 pt-4">
             <button onClick={prevStep} className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-2xl hover:bg-gray-200 transition-all">
-              {t('Back', 'Kubwerera')}
+              {t('common.back')}
             </button>
             <button 
               onClick={() => onSubmit(formData)}
               className="flex-[2] py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              {t('Publish Listing', 'Lembani Tsopano')}
+              {t('forms.publishListing')}
             </button>
           </div>
         </div>
@@ -219,8 +219,8 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t('Post Buyer Request', 'Lembani Chofunika')}</h2>
-          <p className="text-sm text-gray-500">{t('Step', 'Gawo')} {step - 9} {t('of', 'mwa')} 2</p>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t('forms.postRequest')}</h2>
+          <p className="text-sm text-gray-500">{t('common.step')} {step - 9} {t('common.of')} 2</p>
         </div>
         <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
           <X className="w-6 h-6" />
@@ -232,24 +232,24 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
           <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 flex items-start gap-3 mb-6">
             <AlertCircle className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
             <p className="text-xs text-indigo-700 dark:text-indigo-400 leading-relaxed">
-              {t('Posting a request helps sellers find you. Specify exactly what you need to get the best offers.', 'Kulemba chofunika kumathandiza ogulitsa kukupezani. Fotokozani bwino zomwe mukufuna.')}
+              {t('forms.buyerRequestTip')}
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Commodity Wanted', 'Zofunika')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('forms.commodityWanted')}</label>
             <input 
               type="text" 
               value={formData.commodity}
               onChange={e => setFormData({...formData, commodity: e.target.value})}
-              placeholder={t('e.g. Soya Beans', 'mwachitsanzo Soya')}
+              placeholder={t('forms.commodityPlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Quantity', 'Kuchuluka')}</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.quantity')}</label>
               <input 
                 type="text" 
                 value={formData.quantity}
@@ -259,7 +259,7 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Unit', 'Muyeso')}</label>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.unit')}</label>
               <input 
                 type="text" 
                 value={formData.unit}
@@ -275,7 +275,7 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
             disabled={!formData.commodity || !formData.quantity}
             className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {t('Next Step', 'Chotsatira')} <ChevronRight className="w-5 h-5" />
+            {t('common.next')} <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       )}
@@ -283,37 +283,37 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
       {step === 11 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Target Price Range', 'Mtengo Omwe Mukufuna')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('forms.targetPriceRange')}</label>
             <input 
               type="text" 
               value={formData.priceRange}
               onChange={e => setFormData({...formData, priceRange: e.target.value})}
-              placeholder="MK 800 - MK 950 per kg"
+              placeholder={t('forms.priceRangePlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('Location / District', 'Malo / Boma')}</label>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.location')}</label>
             <input 
               type="text" 
               value={formData.location}
               onChange={e => setFormData({...formData, location: e.target.value})}
-              placeholder="Lilongwe, Kanengo"
+              placeholder={t('forms.locationPlaceholder')}
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
             />
           </div>
 
           <div className="flex gap-3 pt-4">
             <button onClick={prevStep} className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-2xl hover:bg-gray-200 transition-all">
-              {t('Back', 'Kubwerera')}
+              {t('common.back')}
             </button>
             <button 
               onClick={() => onSubmit(formData)}
               className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              {t('Post Request', 'Lembani Tsopano')}
+              {t('forms.postNow')}
             </button>
           </div>
         </div>

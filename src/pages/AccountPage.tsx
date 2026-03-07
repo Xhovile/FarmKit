@@ -28,7 +28,7 @@ import { toast } from 'react-hot-toast';
 import { marketplaceListings, buyerRequests } from '../data/mockData';
 
 interface AccountPageProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   user: any;
   setUser: (user: any) => void;
   isEditingProfile: boolean;
@@ -61,15 +61,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
           <UserCircle className="w-10 h-10 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold mb-2">{t('Sign in to your account', 'Lowani mu akaunti yanu')}</h2>
+        <h2 className="text-2xl font-bold mb-2">{t('account.signInTitle')}</h2>
         <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-          {t('Access your profile, manage your listings, and get expert farming advice.', 'Pitani pa mbiri yanu, sinthani zokolola zanu, ndipo pezani malangizo a akatswiri.')}
+          {t('account.signInDesc')}
         </p>
         <button 
           onClick={() => setIsAuthModalOpen(true)}
           className="px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
         >
-          {t('Login / Sign Up', 'Lowani / Lembetsani')}
+          {t('account.loginSignUp')}
         </button>
       </motion.div>
     );
@@ -115,7 +115,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             {!isEditingProfile && (
               <div className="flex gap-2 mb-2">
                 <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${user?.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : user?.tier === 'Premium' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
-                  {user?.tier === 'Verified Seller' ? t('Verified Seller', 'Wotsimikizika') : user?.tier === 'Premium' ? t('Premium Member', 'Chapamwamba') : t('Free Member', 'Waulere')}
+                  {user?.tier === 'Verified Seller' ? t('account.verifiedSeller') : user?.tier === 'Premium' ? t('account.premiumMember') : t('account.freeMember')}
                 </span>
               </div>
             )}
@@ -129,7 +129,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('Full Name', 'Dzina Lonse')}</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('account.fullName')}</label>
                   <input 
                     type="text" 
                     value={profileFormData.name}
@@ -138,7 +138,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('Location', 'Malo')}</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('common.location')}</label>
                   <input 
                     type="text" 
                     value={profileFormData.location}
@@ -147,7 +147,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('Phone Number', 'Nambala ya Foni')}</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('account.phoneNumber')}</label>
                   <input 
                     type="tel" 
                     value={profileFormData.phone}
@@ -156,7 +156,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('Bio / About Farm', 'Za Ife / Famu Yathu')}</label>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('account.bio')}</label>
                   <textarea 
                     value={profileFormData.bio}
                     onChange={e => setProfileFormData({...profileFormData, bio: e.target.value})}
@@ -170,7 +170,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   onClick={() => setIsEditingProfile(false)}
                   className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
                 >
-                  {t('Cancel', 'Tiyeni Tileke')}
+                  {t('common.cancel')}
                 </button>
                 <button 
                   onClick={async () => {
@@ -185,7 +185,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         await setDoc(doc(db, 'users', user.uid), updatedData, { merge: true });
                         setUser({ ...user, ...updatedData });
                         setIsEditingProfile(false);
-                        toast.success(t('Profile updated successfully!', 'Mbiri yanu yasinthidwa bwino!'));
+                        toast.success(t('account.profileUpdated'));
                       } catch (error: any) {
                         toast.error(error.message);
                       }
@@ -193,7 +193,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   }}
                   className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
                 >
-                  <Save className="w-5 h-5" /> {t('Save Changes', 'Sungani')}
+                  <Save className="w-5 h-5" /> {t('common.save')}
                 </button>
               </div>
             </motion.div>
@@ -208,7 +208,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
               {user?.bio && (
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('About', 'Za Ife')}</h4>
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('account.about')}</h4>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">"{user.bio}"</p>
                 </div>
               )}
@@ -219,7 +219,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     <Package className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">{t('Listings', 'Zokolola')}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase">{t('common.listings')}</p>
                     <p className="text-lg font-bold">12</p>
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     <Star className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">{t('Rating', 'Mulingo')}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase">{t('account.rating')}</p>
                     <p className="text-lg font-bold">4.8/5</p>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     <ThumbsUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">{t('Followers', 'Otsatira')}</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase">{t('account.followers')}</p>
                     <p className="text-lg font-bold">156</p>
                   </div>
                 </div>
@@ -248,7 +248,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 group-hover:bg-primary/10 group-hover:text-primary rounded-full flex items-center justify-center transition-all">
                     <Settings className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-gray-500">{t('Settings', 'Zosintha')}</span>
+                  <span className="text-xs font-bold text-gray-500">{t('common.settings')}</span>
                 </button>
                 <button 
                   onClick={() => setShowTour(true)}
@@ -257,25 +257,25 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 group-hover:bg-primary/10 group-hover:text-primary rounded-full flex items-center justify-center transition-all">
                     <HelpCircle className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-gray-500">{t('Help Tour', 'Thandizo')}</span>
+                  <span className="text-xs font-bold text-gray-500">{t('account.helpTour')}</span>
                 </button>
                 <button className="flex flex-col items-center gap-2 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-2xl transition-all group">
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 group-hover:bg-primary/10 group-hover:text-primary rounded-full flex items-center justify-center transition-all">
                     <Share2 className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-gray-500">{t('Share Profile', 'Gawanani')}</span>
+                  <span className="text-xs font-bold text-gray-500">{t('account.shareProfile')}</span>
                 </button>
                 <button 
                   onClick={() => {
                     auth.signOut();
-                    toast.success(t('Logged out successfully.', 'Mwatuluka bwino.'));
+                    toast.success(t('account.loggedOut'));
                   }}
                   className="flex-col items-center gap-2 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-2xl transition-all group flex"
                 >
                   <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-full flex items-center justify-center transition-all">
                     <LogOut className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-rose-500">{t('Logout', 'Tulukani')}</span>
+                  <span className="text-xs font-bold text-rose-500">{t('common.logout')}</span>
                 </button>
               </div>
             </div>
@@ -292,21 +292,21 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-black">{t('Seller Insights', 'Zotsatira za Malonda')}</h3>
-                <p className="text-xs text-gray-500 uppercase tracking-widest">{t('Performance Overview', 'Momwe Mukugulitsira')}</p>
+                <h3 className="text-xl font-black">{t('account.sellerInsights')}</h3>
+                <p className="text-xs text-gray-500 uppercase tracking-widest">{t('account.performanceOverview')}</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                <span className="text-sm font-bold text-gray-500">{t('Total Views', 'Omwe Aona')}</span>
+                <span className="text-sm font-bold text-gray-500">{t('account.totalViews')}</span>
                 <span className="text-lg font-black">1,240</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                <span className="text-sm font-bold text-gray-500">{t('Active Leads', 'Ochita Chidwi')}</span>
+                <span className="text-sm font-bold text-gray-500">{t('account.activeLeads')}</span>
                 <span className="text-lg font-black text-primary">42</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
-                <span className="text-sm font-bold text-gray-500">{t('Conversion Rate', 'Kugula')}</span>
+                <span className="text-sm font-bold text-gray-500">{t('account.conversionRate')}</span>
                 <span className="text-lg font-black text-emerald-600">8.4%</span>
               </div>
             </div>
@@ -318,25 +318,25 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 <Building2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-xl font-black">{t('Business Profile', 'Mbiri ya Bizinesi')}</h3>
-                <p className="text-xs text-gray-500 uppercase tracking-widest">{t('Public Identity', 'Momwe Mukudziwikira')}</p>
+                <h3 className="text-xl font-black">{t('account.businessProfile')}</h3>
+                <p className="text-xs text-gray-500 uppercase tracking-widest">{t('account.publicIdentity')}</p>
               </div>
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span className="font-bold">{t('Verified Status', 'Mwatitsimikizira')}</span>
+                <span className="font-bold">{t('account.verifiedStatus')}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span className="font-bold">{t('Listing Priority', 'Zokolola Zidzaoneka Pamwamba')}</span>
+                <span className="font-bold">{t('account.listingPriority')}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span className="font-bold">{t('Direct WhatsApp Leads', 'Mauthenga a WhatsApp')}</span>
+                <span className="font-bold">{t('account.directLeads')}</span>
               </div>
               <button className="w-full mt-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all">
-                {t('Edit Business Details', 'Sinthani Zambiri')}
+                {t('account.editBusinessDetails')}
               </button>
             </div>
           </div>
@@ -349,10 +349,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-black flex items-center gap-2">
               <Package className="w-6 h-6 text-primary" />
-              {t('My Listings', 'Zokolola Zanga')}
+              {t('account.myListings')}
             </h3>
             <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-              {marketplaceListings.filter(l => l.seller.id === 's1').length} {t('Active', 'Zomwe Zilipo')}
+              {marketplaceListings.filter(l => l.seller.id === 's1').length} {t('common.active')}
             </span>
           </div>
           <div className="space-y-3">
@@ -369,7 +369,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             ))}
             <button className="w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 font-bold text-sm hover:border-primary hover:text-primary transition-all">
-              + {t('Add New Listing', 'Wonjezani Zogulitsa')}
+              + {t('forms.addListing')}
             </button>
           </div>
         </div>
@@ -378,10 +378,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-black flex items-center gap-2">
               <ClipboardList className="w-6 h-6 text-indigo-600" />
-              {t('My Requests', 'Zofunika Zanga')}
+              {t('account.myRequests')}
             </h3>
             <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-              2 {t('Active', 'Zomwe Zilipo')}
+              2 {t('common.active')}
             </span>
           </div>
           <div className="space-y-3">
@@ -398,7 +398,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             ))}
             <button className="w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl text-gray-400 font-bold text-sm hover:border-indigo-600 hover:text-indigo-600 transition-all">
-              + {t('Post New Request', 'Lembani Chofunika')}
+              + {t('forms.postRequest')}
             </button>
           </div>
         </div>
@@ -413,27 +413,27 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
                 <Crown className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-2xl font-black">{t('Unlock FarmKit Premium', 'Pezani FarmKit Chapamwamba')}</h3>
+              <h3 className="text-2xl font-black">{t('account.unlockPremium')}</h3>
             </div>
             <p className="text-amber-50 mb-8 max-w-xl leading-relaxed">
-              {t('Get exclusive access to Market Analytics, Live Pesticide Maps, and Premium NGO Expert Content to maximize your farm\'s productivity.', 'Pezani malangizo a msika, mapu a mankhwala, ndi malangizo a akatswiri a NGO kuti mupindule kwambiri pa famu yanu.')}
+              {t('account.premiumDesc')}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
                 <TrendingUp className="w-5 h-5 text-amber-200" />
-                <span className="text-sm font-bold">{t('Market Analytics', 'Zotsatira za Msika')}</span>
+                <span className="text-sm font-bold">{t('market.trends')}</span>
               </div>
               <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
                 <MapPin className="w-5 h-5 text-amber-200" />
-                <span className="text-sm font-bold">{t('Pesticide Market Map', 'Mapu a Mankhwala')}</span>
+                <span className="text-sm font-bold">{t('market.pesticideMap')}</span>
               </div>
               <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
                 <CheckCircle2 className="w-5 h-5 text-amber-200" />
-                <span className="text-sm font-bold">{t('Premium NGO Content', 'Malangizo a NGO')}</span>
+                <span className="text-sm font-bold">{t('common.training')}</span>
               </div>
               <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl border border-white/10">
                 <Star className="w-5 h-5 text-amber-200" />
-                <span className="text-sm font-bold">{t('Priority Support', 'Thandizo Loyamba')}</span>
+                <span className="text-sm font-bold">{t('account.prioritySupport')}</span>
               </div>
             </div>
             <button 
@@ -442,7 +442,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   try {
                     await setDoc(doc(db, 'users', user.uid), { tier: 'Premium' }, { merge: true });
                     setUser({...user, tier: 'Premium'});
-                    toast.success(t('Congratulations! You are now a Premium Member.', 'Zabwino zonse! Tsopano ndinu membala wa Chapamwamba.'));
+                    toast.success(t('account.premiumSuccess'));
                   } catch (error: any) {
                     toast.error(error.message);
                   }
@@ -450,7 +450,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               }}
               className="px-10 py-4 bg-white text-amber-600 font-black rounded-2xl shadow-xl hover:bg-amber-50 transition-all flex items-center gap-2 active:scale-95"
             >
-              {t('Upgrade to Premium', 'Sinthani Tsopano')} <ArrowRight className="w-5 h-5" />
+              {t('account.upgradeNow')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -464,23 +464,23 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center">
                 <Building2 className="w-7 h-7" />
               </div>
-              <h3 className="text-2xl font-black text-gray-900 dark:text-white">{t('Become a Verified Seller', 'Khalani Wogulitsa Wotsimikizika')}</h3>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white">{t('account.becomeVerifiedSeller')}</h3>
             </div>
             <p className="text-gray-500 mb-8 max-w-xl leading-relaxed">
-              {t('List unlimited products, get a verification badge, and reach more buyers across Malawi. Perfect for commercial farmers and agro-dealers.', 'Lembani zokolola zambiri, pezani chizindikiro chotsimikizika, ndipo pezani ogula ambiri m\'Malawi muno.')}
+              {t('account.verifiedSellerDesc')}
             </p>
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                {t('Unlimited Listings', 'Zogulitsa Zambiri')}
+                {t('account.unlimitedListings')}
               </div>
               <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                {t('Verified Badge', 'Chizindikiro')}
+                {t('account.verifiedBadge')}
               </div>
               <div className="flex items-center gap-2 text-sm font-bold text-gray-600 dark:text-gray-400">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                {t('Priority Search', 'Kuoneka Pamwamba')}
+                {t('account.prioritySearch')}
               </div>
             </div>
             <button 
@@ -489,7 +489,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   try {
                     await setDoc(doc(db, 'users', user.uid), { tier: 'Verified Seller' }, { merge: true });
                     setUser({...user, tier: 'Verified Seller'});
-                    toast.success(t('Congratulations! You are now a Verified Seller.', 'Zabwino zonse! Tsopano ndinu Wogulitsa Wotsimikizika.'));
+                    toast.success(t('account.verifiedSellerSuccess'));
                   } catch (error: any) {
                     toast.error(error.message);
                   }
@@ -497,7 +497,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               }}
               className="px-10 py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center gap-2 active:scale-95"
             >
-              {t('Apply for Verification', 'Lembetsani Tsopano')} <ArrowRight className="w-5 h-5" />
+              {t('account.applyForVerification')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>

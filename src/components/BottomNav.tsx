@@ -4,7 +4,7 @@ import { Book, Store, GraduationCap, UserCircle } from 'lucide-react';
 interface BottomNavProps {
   activeTab: string;
   setActiveTab: (tab: any) => void;
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
 }
 
 const NavAction: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
@@ -28,25 +28,25 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t
             active={activeTab === 'info'} 
             onClick={() => setActiveTab('info')} 
             icon={<Book className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('Info', 'Zidziwitso')} 
+            label={t('common.home')} 
           />
           <NavAction 
             active={activeTab === 'market'} 
             onClick={() => setActiveTab('market')} 
             icon={<Store className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('Market', 'Msika')} 
+            label={t('common.market')} 
           />
           <NavAction 
             active={activeTab === 'experts'} 
             onClick={() => setActiveTab('experts')} 
             icon={<GraduationCap className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('Experts', 'Akatswiri')} 
+            label={t('common.experts')} 
           />
           <NavAction 
             active={activeTab === 'account'} 
             onClick={() => setActiveTab('account')} 
             icon={<UserCircle className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('Account', 'Inu')} 
+            label={t('common.account')} 
           />
         </div>
       </div>
