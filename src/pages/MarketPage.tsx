@@ -16,7 +16,11 @@ import {
   Truck,
   Info,
   AlertCircle,
-  Crown
+  Crown,
+  ShieldCheck,
+  History,
+  Flag,
+  X
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -40,9 +44,11 @@ import {
   ListingCard, 
   BuyerRequestCard, 
   MarketplaceFilters,
-  SellerOnboardingCTA
+  SellerOnboardingCTA,
+  SellerCard
 } from '../components/MarketplaceComponents';
 import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
+import { toast } from 'react-hot-toast';
 
 interface MarketPageProps {
   t: (en: string, ny: string) => string;
@@ -63,10 +69,27 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   setFormStep,
   setActiveTab
 }) => {
-  const [marketTab, setMarketTab] = React.useState<'supply' | 'demand' | 'trends'>('supply');
+  const [marketTab, setMarketTab] = React.useState<'supply' | 'demand' | 'trends' | 'verified_sellers' | 'my_activity'>('supply');
   const [activeCategory, setActiveCategory] = React.useState('all');
+  const [reportingItem, setReportingItem] = React.useState<any>(null);
+  const [reportReason, setReportReason] = React.useState('');
+
   const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
   const onUpgrade = () => setActiveTab('account');
+
+  const handleReport = () => {
+    if (!reportReason.trim()) {
+      toast.error(t('Please provide a reason.', 'Chonde perekani chifukwa.'));
+      return;
+    }
+    toast.success(t('Report submitted. We will investigate.', 'Lipoti lalandiridwa. Tikufufuza.'));
+    setReportingItem(null);
+    setReportReason('');
+  };
+
+  const verifiedSellers = Array.from(new Set(marketplaceListings.map(l => l.seller.id)))
+    .map(id => marketplaceListings.find(l => l.seller.id === id)?.seller)
+    .filter(s => s?.verified);
 
   return (
     <motion.div 
@@ -79,23 +102,35 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-2 flex gap-2 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setMarketTab('supply')}
-          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${marketTab === 'supply' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'supply' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <LayoutGrid className="w-4 h-4" /> {t('Supply', 'Zogulitsa')}
         </button>
         <button 
           onClick={() => setMarketTab('demand')}
-          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${marketTab === 'demand' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'demand' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <ClipboardList className="w-4 h-4" /> {t('Demand', 'Zofunika')}
         </button>
         <button 
+          onClick={() => setMarketTab('verified_sellers')}
+          className={`flex-1 min-w-[130px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'verified_sellers' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+        >
+          <ShieldCheck className="w-4 h-4" /> {t('Verified Sellers', 'Ogulitsa')}
+        </button>
+        <button 
           onClick={() => setMarketTab('trends')}
-          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 relative ${marketTab === 'trends' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 relative ${marketTab === 'trends' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <TrendingUp className="w-4 h-4" /> 
           {t('Trends', 'Mitengo')}
           {!isPremium && <Crown className="w-3 h-3 absolute -top-1 -right-1 text-amber-500 fill-amber-500" />}
+        </button>
+        <button 
+          onClick={() => setMarketTab('my_activity')}
+          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'my_activity' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+        >
+          <History className="w-4 h-4" /> {t('My Activity', 'Zanga')}
         </button>
       </div>
 
@@ -209,7 +244,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
         </PremiumLock>
       )}
 
-      {(marketTab === 'supply' || marketTab === 'demand') && (
+      {(marketTab === 'supply' || marketTab === 'demand' || marketTab === 'verified_sellers' || marketTab === 'my_activity') && (
         <>
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
             <div className="relative">
@@ -218,7 +253,12 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 type="text" 
                 value={marketSearchQuery}
                 onChange={(e) => setMarketSearchQuery(e.target.value)}
-                placeholder={marketTab === 'supply' ? t('Search products or locations...', 'Sakani zokolola kapena malo...') : t('Search buyer requests...', 'Sakani zofunika za ogula...')}
+                placeholder={
+                  marketTab === 'supply' ? t('Search products or locations...', 'Sakani zokolola kapena malo...') : 
+                  marketTab === 'demand' ? t('Search buyer requests...', 'Sakani zofunika za ogula...') :
+                  marketTab === 'verified_sellers' ? t('Search verified sellers...', 'Sakani ogulitsa otsimikizika...') :
+                  t('Search my activity...', 'Sakani zanga...')
+                }
                 className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700/50 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none text-sm"
               />
             </div>
@@ -227,27 +267,35 @@ export const MarketPage: React.FC<MarketPageProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-                {marketTab === 'supply' ? t('Available Supply', 'Zogulitsa Zomwe Zilipo') : t('Current Demand', 'Zofunika za Ogula')}
+                {marketTab === 'supply' ? t('Available Supply', 'Zogulitsa Zomwe Zilipo') : 
+                 marketTab === 'demand' ? t('Current Demand', 'Zofunika za Ogula') :
+                 marketTab === 'verified_sellers' ? t('Verified Sellers', 'Ogulitsa Otsimikizika') :
+                 t('My Activity', 'Zanga Zomwe Ndalemba')}
               </h2>
               <p className="text-sm text-gray-500">
-                {marketTab === 'supply' ? t('Browse verified products from farmers across Malawi.', 'Onani zokolola zotsimikizika kuchokera kwa alimi m\'Malawi muno.') : t('See what buyers are looking for and fulfill their needs.', 'Onani zomwe ogula akufuna ndipo gulitsani zokolola zanu.')}
+                {marketTab === 'supply' ? t('Browse verified products from farmers across Malawi.', 'Onani zokolola zotsimikizika kuchokera kwa alimi m\'Malawi muno.') : 
+                 marketTab === 'demand' ? t('See what buyers are looking for and fulfill their needs.', 'Onani zomwe ogula akufuna ndipo gulitsani zokolola zanu.') :
+                 marketTab === 'verified_sellers' ? t('Connect with trusted and verified agricultural suppliers.', 'Lumikizanani ndi ogulitsa otsimikizika ndi odalirika.') :
+                 t('Manage your listings and buyer requests in one place.', 'Sinthani zokolola zanu ndi zofunika zanu pamalo amodzi.')}
               </p>
             </div>
             
-            <button 
-              onClick={() => {
-                if (user) {
-                  setIsAddProductModalOpen(true);
-                  setFormStep(marketTab === 'supply' ? 1 : 10); // 10 is start of buyer request form
-                } else {
-                  alert(t('Please sign in to post on the marketplace.', 'Chonde lowani mu akaunti yanu kuti mulembe pa msika.'));
-                }
-              }}
-              className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${marketTab === 'supply' ? 'bg-primary text-white shadow-primary/20' : 'bg-indigo-600 text-white shadow-indigo-500/20'}`}
-            >
-              <PlusCircle className="w-5 h-5" />
-              {marketTab === 'supply' ? t('Add Listing', 'Wonjezani Zogulitsa') : t('Post Request', 'Lembani Chofunika')}
-            </button>
+            {(marketTab === 'supply' || marketTab === 'demand') && (
+              <button 
+                onClick={() => {
+                  if (user) {
+                    setIsAddProductModalOpen(true);
+                    setFormStep(marketTab === 'supply' ? 1 : 10); // 10 is start of buyer request form
+                  } else {
+                    alert(t('Please sign in to post on the marketplace.', 'Chonde lowani mu akaunti yanu kuti mulembe pa msika.'));
+                  }
+                }}
+                className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${marketTab === 'supply' ? 'bg-primary text-white shadow-primary/20' : 'bg-indigo-600 text-white shadow-indigo-500/20'}`}
+              >
+                <PlusCircle className="w-5 h-5" />
+                {marketTab === 'supply' ? t('Add Listing', 'Wonjezani Zogulitsa') : t('Post Request', 'Lembani Chofunika')}
+              </button>
+            )}
           </div>
 
           {marketTab === 'supply' && (
@@ -268,14 +316,14 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                     item.seller.location.toLowerCase().includes(marketSearchQuery.toLowerCase()))
                   )
                   .map(item => (
-                    <ListingCard key={item.id} listing={item as any} t={t} />
+                    <ListingCard key={item.id} listing={item as any} t={t} onReport={setReportingItem} />
                   ))
                 }
               </div>
 
               {user?.tier !== 'Verified Seller' && (
                 <div className="mt-12">
-                  <SellerOnboardingCTA t={t} onUpgrade={() => {}} />
+                  <SellerOnboardingCTA t={t} onUpgrade={onUpgrade} />
                 </div>
               )}
             </>
@@ -295,7 +343,101 @@ export const MarketPage: React.FC<MarketPageProps> = ({
               }
             </div>
           )}
+
+          {marketTab === 'verified_sellers' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {verifiedSellers
+                .filter(s => 
+                  s?.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                  s?.location.toLowerCase().includes(marketSearchQuery.toLowerCase())
+                )
+                .map(seller => (
+                  <SellerCard key={seller?.id} seller={seller as any} t={t} onReport={setReportingItem} />
+                ))
+              }
+            </div>
+          )}
+
+          {marketTab === 'my_activity' && (
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-primary" />
+                  {t('My Listings', 'Zokolola Zanga')}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {marketplaceListings.filter(l => l.seller.id === 's1').map(item => (
+                    <ListingCard key={item.id} listing={item as any} t={t} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <ClipboardList className="w-5 h-5 text-indigo-600" />
+                  {t('My Requests', 'Zofunika Zanga')}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {buyerRequests.slice(0, 1).map(req => (
+                    <BuyerRequestCard key={req.id} request={req as any} t={t} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </>
+      )}
+
+      {/* Report Modal */}
+      {reportingItem && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
+          >
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-xl font-black flex items-center gap-2 text-rose-600">
+                <Flag className="w-6 h-6" />
+                {t('Report Suspicious Activity', 'Nenerani Zokaywitsa')}
+              </h3>
+              <button onClick={() => setReportingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('Reporting', 'Mukudandaula za')}</p>
+                <p className="font-bold">{reportingItem.title || reportingItem.businessName}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                  {t('Reason for Report', 'Chifukwa Chomwe Mukunenera')}
+                </label>
+                <textarea 
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  placeholder={t('Describe the issue (e.g., fake product, suspicious seller, wrong price)...', 'Fotokozani vutolo (mwachitsanzo, katundu onyenga, wogulitsa okaywitsa)...')}
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-rose-500 outline-none text-sm"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button 
+                  onClick={() => setReportingItem(null)}
+                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
+                >
+                  {t('Cancel', 'Tiyeni Tileke')}
+                </button>
+                <button 
+                  onClick={handleReport}
+                  className="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-700 transition-all"
+                >
+                  {t('Submit Report', 'Tumizani Lipoti')}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       )}
     </motion.div>
   );

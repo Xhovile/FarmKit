@@ -2,12 +2,19 @@ import React from 'react';
 import { Sprout, Book, Store, GraduationCap } from 'lucide-react';
 
 export const marketCategories = [
-  { id: 'grains', name: 'Grains & Cereals', nameNy: 'Zambewu' },
-  { id: 'legumes', name: 'Legumes', nameNy: 'Nyemba' },
-  { id: 'vegetables', name: 'Vegetables', nameNy: 'Masamba' },
-  { id: 'fruits', name: 'Fruits', nameNy: 'Zipatso' },
+  { id: 'crops', name: 'Crops', nameNy: 'Zokolola' },
   { id: 'livestock', name: 'Livestock', nameNy: 'Ziweto' },
-  { id: 'inputs', name: 'Farm Inputs', nameNy: 'Zofunika pa Famu' },
+  { id: 'animal_products', name: 'Animal Products', nameNy: 'Zochokera ku Ziweto' },
+  { id: 'fish', name: 'Fish & Fingerlings', nameNy: 'Nsomba' },
+  { id: 'seeds', name: 'Seeds', nameNy: 'Mbewu' },
+  { id: 'fertilizers', name: 'Fertilizers', nameNy: 'Feteleza' },
+  { id: 'pesticides', name: 'Pesticides', nameNy: 'Mankhwala a Tizilombo' },
+  { id: 'vet_products', name: 'Veterinary Products', nameNy: 'Mankhwala a Ziweto' },
+  { id: 'feed', name: 'Animal Feed', nameNy: 'Chakudya cha Ziweto' },
+  { id: 'tools', name: 'Tools & Equipment', nameNy: 'Zida za Ulimi' },
+  { id: 'irrigation', name: 'Irrigation Tech', nameNy: 'Zida za Thira' },
+  { id: 'services', name: 'Farm Services', nameNy: 'Ntchito za Ulimi' },
+  { id: 'other', name: 'Other', nameNy: 'Zina' },
 ];
 
 export const deliveryMethods = [
@@ -49,7 +56,7 @@ export const marketplaceListings = [
   {
     id: 1,
     title: "Fresh Organic Maize",
-    category: "grains",
+    category: "crops",
     price: 45000,
     unit: "50kg Bag",
     stockStatus: "In Stock",
@@ -71,7 +78,7 @@ export const marketplaceListings = [
   {
     id: 2,
     title: "Red Kidney Beans",
-    category: "legumes",
+    category: "crops",
     price: 1200,
     unit: "kg",
     stockStatus: "Low Stock",
@@ -93,7 +100,7 @@ export const marketplaceListings = [
   {
     id: 3,
     title: "Hybrid Tomato Seedlings",
-    category: "inputs",
+    category: "seeds",
     price: 5000,
     unit: "Tray (50)",
     stockStatus: "In Stock",
@@ -109,6 +116,50 @@ export const marketplaceListings = [
       location: "Ntcheu",
       phone: "265881112233",
       type: "Nursery Specialist",
+      verified: true
+    }
+  },
+  {
+    id: 4,
+    title: "Solar Irrigation Pump",
+    category: "irrigation",
+    price: 250000,
+    unit: "Unit",
+    stockStatus: "In Stock",
+    quantity: 5,
+    image: "https://picsum.photos/seed/pump/800/600",
+    description: "High-efficiency solar pump for small to medium farms. Includes 2 panels and controller.",
+    deliveryMethod: "seller_delivery",
+    seller: {
+      id: "s4",
+      name: "Isaac Tembo",
+      businessName: "Eco-Farm Solutions",
+      avatar: "https://picsum.photos/seed/seller4/100/100",
+      location: "Blantyre, Ginnery Corner",
+      phone: "265888777666",
+      type: "Agro-Dealer",
+      verified: true
+    }
+  },
+  {
+    id: 5,
+    title: "Layer Chicken Feed",
+    category: "feed",
+    price: 35000,
+    unit: "50kg Bag",
+    stockStatus: "In Stock",
+    quantity: 200,
+    image: "https://picsum.photos/seed/feed/800/600",
+    description: "Premium layer mash for high egg production. Fortified with essential vitamins and minerals.",
+    deliveryMethod: "third_party",
+    seller: {
+      id: "s5",
+      name: "Mary Kachale",
+      businessName: "Kachale Feeds",
+      avatar: "https://picsum.photos/seed/seller5/100/100",
+      location: "Mzuzu, Luwinga",
+      phone: "265999444555",
+      type: "Feed Manufacturer",
       verified: true
     }
   }

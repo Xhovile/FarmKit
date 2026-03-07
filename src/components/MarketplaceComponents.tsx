@@ -14,7 +14,11 @@ import {
   Filter,
   ArrowRight,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck,
+  Flag,
+  Phone,
+  ExternalLink
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -73,7 +77,7 @@ export const SellerBadge: React.FC<{ verified: boolean; t: any }> = ({ verified,
   </div>
 );
 
-export const ListingCard: React.FC<{ listing: Listing; t: any }> = ({ listing, t }) => {
+export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listing: Listing) => void }> = ({ listing, t, onReport }) => {
   return (
     <motion.div 
       whileHover={{ y: -5 }}
@@ -90,6 +94,19 @@ export const ListingCard: React.FC<{ listing: Listing; t: any }> = ({ listing, t
           <span className="px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full text-xs font-black text-primary shadow-lg">
             MK {listing.price.toLocaleString()} / {listing.unit}
           </span>
+        </div>
+        <div className="absolute top-4 right-4 flex gap-2">
+          {onReport && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onReport(listing);
+              }}
+              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full text-gray-400 hover:text-rose-500 transition-all shadow-lg"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          )}
         </div>
         <div className="absolute bottom-4 right-4">
           <SellerBadge verified={listing.seller.verified} t={t} />
@@ -190,6 +207,66 @@ export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any }> = ({ 
         <ArrowRight className="w-5 h-5" />
         {t('Fulfill Request', 'Gwiritsani Ntchito')}
       </button>
+    </motion.div>
+  );
+};
+
+export const SellerCard: React.FC<{ seller: Seller; t: any; onReport?: (seller: Seller) => void }> = ({ seller, t, onReport }) => {
+  return (
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 overflow-hidden border border-gray-200 dark:border-gray-600">
+            <img src={seller.avatar} alt={seller.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{seller.businessName}</h3>
+            <p className="text-sm text-gray-500">{seller.name}</p>
+            <div className="mt-1">
+              <SellerBadge verified={seller.verified} t={t} />
+            </div>
+          </div>
+        </div>
+        {onReport && (
+          <button 
+            onClick={() => onReport(seller as any)}
+            className="p-2 text-gray-400 hover:text-rose-500 transition-colors"
+          >
+            <Flag className="w-5 h-5" />
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <MapPin className="w-4 h-4 text-primary" />
+          {seller.location}
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <Tag className="w-4 h-4 text-primary" />
+          {seller.type}
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <a 
+          href={`tel:${seller.phone}`}
+          className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition-all"
+        >
+          <Phone className="w-4 h-4" /> {t('Call', 'Imani')}
+        </a>
+        <a 
+          href={`https://wa.me/${seller.phone}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all"
+        >
+          <MessageCircle className="w-4 h-4" /> WhatsApp
+        </a>
+      </div>
     </motion.div>
   );
 };
