@@ -3,13 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Clock, Share2, MessageCircle, ArrowRight } from 'lucide-react';
 
 interface DetailModalProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
+  lang: string;
   selectedItem: any;
   setSelectedItem: (item: any) => void;
 }
 
 export const DetailModal: React.FC<DetailModalProps> = ({
   t,
+  lang,
   selectedItem,
   setSelectedItem
 }) => {
@@ -42,7 +44,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     {selectedItem.category || selectedItem.type}
                   </span>
                   <h3 className="text-3xl font-bold text-white leading-tight">
-                    {t(selectedItem.title || selectedItem.name, selectedItem.titleNy || selectedItem.nameNy)}
+                    {lang === 'en' ? (selectedItem.title || selectedItem.name) : (selectedItem.titleNy || selectedItem.nameNy)}
                   </h3>
                 </div>
               </div>
@@ -73,7 +75,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </div>
               <div className="prose dark:prose-invert max-w-none">
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg mb-6">
-                  {t(selectedItem.description || selectedItem.content, selectedItem.descriptionNy || selectedItem.contentNy)}
+                  {lang === 'en' ? (selectedItem.description || selectedItem.content) : (selectedItem.descriptionNy || selectedItem.contentNy)}
                 </p>
 
                 {selectedItem.type === 'livestock' && (
@@ -81,21 +83,21 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Housing', 'Nyumba')}
+                        {t('common.housing')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.housing}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Feeding', 'Chakudya')}
+                        {t('common.feeding')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.feeding}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Health', 'Umoyo')}
+                        {t('common.health')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.health}</p>
                     </div>
@@ -107,21 +109,21 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Planting Dates', 'Nthawi Yodzala')}
+                        {t('common.plantingDates')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.plantingDates}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Spacing', 'Mipata')}
+                        {t('common.spacing')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.spacing}</p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                       <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full" />
-                        {t('Fertilizer', 'Feteleza')}
+                        {t('common.fertilizer')}
                       </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedItem.fertilizer}</p>
                     </div>
@@ -130,7 +132,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </div>
               <div className="flex gap-4 mt-10">
                 <button className="flex-1 py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
-                  {selectedItem.price ? t('Contact Seller', 'Lumikizanani ndi Wogulitsa') : t('Learn More', 'Dziwani Zambiri')}
+                  {selectedItem.price ? t('market.contactSeller') : t('common.learnMore')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <div className="flex gap-2">

@@ -5,10 +5,9 @@ import { Lock, Crown, ArrowRight } from 'lucide-react';
 interface PremiumLockProps {
   children: React.ReactNode;
   isLocked: boolean;
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   onUpgrade: () => void;
-  featureName: string;
-  featureNameNy: string;
+  featureKey: string;
 }
 
 export const PremiumLock: React.FC<PremiumLockProps> = ({ 
@@ -16,8 +15,7 @@ export const PremiumLock: React.FC<PremiumLockProps> = ({
   isLocked, 
   t, 
   onUpgrade,
-  featureName,
-  featureNameNy
+  featureKey
 }) => {
   if (!isLocked) return <>{children}</>;
 
@@ -36,17 +34,17 @@ export const PremiumLock: React.FC<PremiumLockProps> = ({
             <Crown className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-xl font-black mb-2 text-gray-900 dark:text-white">
-            {t(featureName, featureNameNy)}
+            {t(featureKey)}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            {t('This is a premium FarmKit feature. Upgrade your account to unlock advanced agricultural insights and expert tools.', 'Ichi ndi chinthu chapamwamba pa FarmKit. Sinthani akaunti yanu kuti mupeze malangizo apamwamba a ulimi.')}
+            {t('account.premiumFeatureDesc')}
           </p>
           <button 
             onClick={onUpgrade}
             className="w-full py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 active:scale-95"
           >
             <Lock className="w-5 h-5" />
-            {t('Unlock Now', 'Tsegulani Tsopano')}
+            {t('account.unlockNow')}
             <ArrowRight className="w-5 h-5" />
           </button>
         </motion.div>
@@ -55,9 +53,9 @@ export const PremiumLock: React.FC<PremiumLockProps> = ({
   );
 };
 
-export const PremiumBadge: React.FC<{ t: any }> = ({ t }) => (
+export const PremiumBadge: React.FC<{ t: (key: string) => string }> = ({ t }) => (
   <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-200 dark:border-amber-800 shadow-sm">
     <Crown className="w-3 h-3" />
-    {t('Premium', 'Chapamwamba')}
+    {t('account.premium')}
   </div>
 );

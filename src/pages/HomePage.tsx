@@ -43,6 +43,7 @@ import { PesticideMarketMap } from '../components/PesticideMarketMap';
 
 interface HomePageProps {
   t: (key: string) => string;
+  lang: string;
   infoCategory: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map';
   setInfoCategory: (cat: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map') => void;
   searchQuery: string;
@@ -54,6 +55,7 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ 
   t, 
+  lang,
   infoCategory, 
   setInfoCategory, 
   searchQuery, 
@@ -258,8 +260,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} tickFormatter={(value) => `MK${value}`} />
                       <Tooltip contentStyle={{ backgroundColor: '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }} />
                       <Legend iconType="circle" />
-                      <Line type="monotone" dataKey="maize" name={lang === 'en' ? 'Maize' : 'Chimanga'} stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
-                      <Line type="monotone" dataKey="beans" name={lang === 'en' ? 'Beans' : 'Nyemba'} stroke="#f59e0b" strokeWidth={4} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} />
+                          <Line type="monotone" dataKey="maize" name={t('common.maize')} stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="beans" name={t('common.beans')} stroke="#f59e0b" strokeWidth={4} dot={{ r: 6, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -270,11 +272,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <div key={i} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-gray-900 dark:text-white">{price.commodity}</h4>
-                      <p className="text-xs text-gray-500">Unit: {price.unit}</p>
+                      <p className="text-xs text-gray-500">{t('common.unit')}: {price.unit}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-black text-primary">MK {price.lilongwe}</p>
-                      <p className="text-[10px] text-emerald-500 font-bold">Avg. Lilongwe</p>
+                      <p className="text-[10px] text-emerald-500 font-bold">{t('home.avgLilongwe')}</p>
                     </div>
                   </div>
                 ))}
@@ -289,8 +291,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 isLocked={!isPremium} 
                 t={t} 
                 onUpgrade={onUpgrade} 
-                featureName="Performing Markets" 
-                featureNameNy="Misika Opindulitsa"
+                featureKey="home.performingMarkets"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {performingMarkets
@@ -306,7 +307,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                           <Store className="w-6 h-6" />
                         </div>
                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${market.trend === 'Upward' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {market.trend} Trend
+                          {market.trend} {t('common.trend')}
                         </span>
                       </div>
                       <h3 className="text-lg font-bold mb-1">{market.name}</h3>
@@ -336,10 +337,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                 isLocked={!isPremium} 
                 t={t} 
                 onUpgrade={onUpgrade} 
-                featureName="Pesticide Market Map" 
-                featureNameNy="Mapu a Mankhwala a Ulimi"
+                featureKey="common.pesticideMap"
               >
-                <PesticideMarketMap t={t} />
+                <PesticideMarketMap t={t} lang={lang} />
               </PremiumLock>
             </div>
           )}
@@ -422,7 +422,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               author: "James Banda",
               avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100",
               time: "2 days ago",
-              content: t("When planting maize, ensure spacing of 75cm between rows and 25cm between plants for optimal yield.", "Pobzyala chimanga, siyani mpata wa 75cm pakati pa mizere ndi 25cm pakati pa mbewu kuti zokolola zikhale zambiri."),
+              content: t("chat.aiResponse"),
               likes: 45,
               comments: 12
             },
@@ -430,7 +430,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               author: "Grace Mbewe",
               avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100",
               time: "5 days ago",
-              content: t("Mix wood ash with your compost to add potassium and reduce acidity. Great for tomatoes and peppers!", "Sakanizani phulusa ndi manyowa kuti muonjezere potassium ndikuchotsa acidity. Zabwino kwa mapuno ndi tsabola!"),
+              content: t("chat.aiResponse"),
               image: "https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?auto=format&fit=crop&q=80&w=400",
               likes: 78,
               comments: 23

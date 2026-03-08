@@ -52,6 +52,7 @@ import { toast } from 'react-hot-toast';
 
 interface MarketPageProps {
   t: (key: string) => string;
+  lang: string;
   marketSearchQuery: string;
   setMarketSearchQuery: (query: string) => void;
   user: any;
@@ -62,6 +63,7 @@ interface MarketPageProps {
 
 export const MarketPage: React.FC<MarketPageProps> = ({ 
   t, 
+  lang,
   marketSearchQuery, 
   setMarketSearchQuery, 
   user, 
@@ -79,10 +81,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
 
   const handleReport = () => {
     if (!reportReason.trim()) {
-      toast.error(t('Please provide a reason.', 'Chonde perekani chifukwa.'));
+      toast.error(t('market.provideReason'));
       return;
     }
-    toast.success(t('Report submitted. We will investigate.', 'Lipoti lalandiridwa. Tikufufuza.'));
+    toast.success(t('market.reportSuccess'));
     setReportingItem(null);
     setReportReason('');
   };
@@ -139,8 +141,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
           isLocked={!isPremium} 
           t={t} 
           onUpgrade={onUpgrade} 
-          featureName="Market Analytics" 
-          featureNameNy="Zotsatira za Msika"
+          featureKey="home.marketAnalytics"
         >
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden">
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
@@ -184,7 +185,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
             <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700">
               <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                {t('Price Trends (Last 5 Months)', 'Kayendedwe ka Mitengo (Myezi 5 Yapitayi)')}
+                {t('market.priceTrends')}
               </h3>
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -211,31 +212,31 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                       }} 
                     />
                     <Legend iconType="circle" />
-                    <Line 
-                      type="monotone" 
-                      dataKey="maize" 
-                      name={t('Maize', 'Chimanga')} 
-                      stroke="#10b981" 
-                      strokeWidth={3} 
-                      dot={{ r: 4, fill: '#10b981' }} 
-                      activeDot={{ r: 6 }} 
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="beans" 
-                      name={t('Beans', 'Nyemba')} 
-                      stroke="#f59e0b" 
-                      strokeWidth={3} 
-                      dot={{ r: 4, fill: '#f59e0b' }} 
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="rice" 
-                      name={t('Rice', 'Mpunga')} 
-                      stroke="#6366f1" 
-                      strokeWidth={3} 
-                      dot={{ r: 4, fill: '#6366f1' }} 
-                    />
+                      <Line 
+                        type="monotone" 
+                        dataKey="maize" 
+                        name={t('common.maize')} 
+                        stroke="#10b981" 
+                        strokeWidth={3} 
+                        dot={{ r: 4, fill: '#10b981' }} 
+                        activeDot={{ r: 6 }} 
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="beans" 
+                        name={t('common.beans')} 
+                        stroke="#f59e0b" 
+                        strokeWidth={3} 
+                        dot={{ r: 4, fill: '#f59e0b' }} 
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="rice" 
+                        name={t('common.rice')} 
+                        stroke="#6366f1" 
+                        strokeWidth={3} 
+                        dot={{ r: 4, fill: '#6366f1' }} 
+                      />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -254,10 +255,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 value={marketSearchQuery}
                 onChange={(e) => setMarketSearchQuery(e.target.value)}
                 placeholder={
-                  marketTab === 'supply' ? t('Search products or locations...', 'Sakani zokolola kapena malo...') : 
-                  marketTab === 'demand' ? t('Search buyer requests...', 'Sakani zofunika za ogula...') :
-                  marketTab === 'verified_sellers' ? t('Search verified sellers...', 'Sakani ogulitsa otsimikizika...') :
-                  t('Search my activity...', 'Sakani zanga...')
+                  marketTab === 'supply' ? t('market.searchProducts') : 
+                  marketTab === 'demand' ? t('market.searchRequests') :
+                  marketTab === 'verified_sellers' ? t('market.searchSellers') :
+                  t('market.searchActivity')
                 }
                 className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700/50 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none text-sm"
               />

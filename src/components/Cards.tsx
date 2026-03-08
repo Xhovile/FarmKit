@@ -41,7 +41,7 @@ export function MarketListingCard({ item, t }: any) {
           className="flex items-center justify-center w-full py-3 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl font-bold transition-all gap-2 shadow-lg shadow-green-500/20 active:scale-95"
         >
           <MessageCircle className="w-5 h-5" />
-          {t('WhatsApp Seller', 'Lankhulani pa WhatsApp')}
+          {t('common.whatsAppSeller')}
         </a>
       </div>
     </div>
@@ -73,7 +73,7 @@ export function TipCard({ author, avatar, time, content, image, likes, comments,
             </button>
             <button className="flex items-center text-gray-500 hover:text-primary transition-colors">
               <Share2 className="w-4 h-4 mr-1" />
-              {t('Share', 'Gawani')}
+              {t('common.share')}
             </button>
           </div>
         </div>
@@ -101,7 +101,7 @@ export function EventCard({ day, month, location, title, description, time, colo
               <Clock className="w-4 h-4 mr-1" /> {time}
             </span>
             <button className={`${color} text-white px-3 py-1 rounded-lg hover:opacity-90 transition-colors text-sm`}>
-              {t('Register Now', 'Lembetsani Tsopano')}
+              {t('common.registerNow')}
             </button>
           </div>
         </div>

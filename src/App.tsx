@@ -179,6 +179,7 @@ export default function App() {
 
       <DetailModal 
         t={t} 
+        lang={lang}
         selectedItem={selectedItem} 
         setSelectedItem={setSelectedItem} 
       />
@@ -199,6 +200,7 @@ export default function App() {
           {activeTab === 'info' && (
             <HomePage 
               t={t} 
+              lang={lang}
               infoCategory={infoCategory} 
               setInfoCategory={setInfoCategory} 
               searchQuery={searchQuery} 
@@ -212,6 +214,7 @@ export default function App() {
           {activeTab === 'market' && (
             <MarketPage 
               t={t} 
+              lang={lang}
               marketSearchQuery={marketSearchQuery} 
               setMarketSearchQuery={setMarketSearchQuery} 
               user={user} 

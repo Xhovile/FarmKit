@@ -106,7 +106,7 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                      Verified
+                      {t('common.verified')}
                     </span>
                     <p className="text-[10px] text-gray-500 flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> {expert.location}
@@ -136,13 +136,12 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
 
           {successStories.map((story, index) => (
             <div key={story.id} className="relative">
-              <PremiumLock 
-                isLocked={index > 0 && !isPremium} 
-                t={t} 
-                onUpgrade={onUpgrade} 
-                featureName="Premium NGO Content" 
-                featureNameNy="Malangizo a NGO"
-              >
+                <PremiumLock 
+                  isLocked={index > 0 && !isPremium} 
+                  t={t} 
+                  onUpgrade={onUpgrade} 
+                  featureKey="experts.premiumNGOContent"
+                >
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -168,7 +167,7 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
                       </div>
                       <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{story.author}</span>
                       <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">
-                        Expert Verified
+                        {t('experts.expertVerified')}
                       </span>
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6">

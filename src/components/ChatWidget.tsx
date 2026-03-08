@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send } from 'lucide-react';
 
 interface ChatWidgetProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
   isChatOpen: boolean;
   setIsChatOpen: (val: boolean) => void;
   chatMessage: string;
@@ -31,7 +31,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     // Simulate AI response
     setTimeout(() => {
       setMessages([...newMessages, { 
-        text: t("That's a great question! Based on current weather in Lilongwe, I recommend checking your soil moisture before applying more fertilizer.", "Limenelo ndi funso labwino kwambiri! Potengera nyengo ya ku Lilongwe masiku ano, ndikukulangizani kuti muyese kaye chinyezi cha nthaka musanathire feteleza wina."), 
+        text: t("chat.aiResponse"), 
         isUser: false 
       }]);
     }, 1000);
@@ -63,7 +63,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
                 <div>
                   <h3 className="font-bold text-sm">FarmKit AI Assistant</h3>
                   <p className="text-[10px] text-emerald-100 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> {t('Online', 'Pa Intaneti')}
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> {t('chat.online')}
                   </p>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
                 value={chatMessage}
                 onChange={(e) => setChatMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder={t('Ask anything...', 'Funzani chilichonse...')}
+                placeholder={t('chat.askAnything')}
                 className="flex-1 bg-gray-50 dark:bg-gray-700 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
               />
               <button 

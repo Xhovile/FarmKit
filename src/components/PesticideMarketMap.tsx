@@ -17,10 +17,11 @@ import { pesticideSellers, authenticityGuidance } from '../data/mockData';
 import { toast } from 'react-hot-toast';
 
 interface PesticideMarketMapProps {
-  t: (en: string, ny: string) => string;
+  t: (key: string) => string;
+  lang: string;
 }
 
-export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => {
+export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedSeller, setSelectedSeller] = React.useState<any>(null);
   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
@@ -34,12 +35,12 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
 
   const handleReport = () => {
     if (!reportReason.trim()) {
-      toast.error(t('Please provide a reason for reporting.', 'Chonde perekani chifukwa chomwe mukunenera.'));
+      toast.error(t('market.provideReason'));
       return;
     }
     // In a real app, this would be a database call
     console.log(`Reporting seller ${selectedSeller?.businessName} for: ${reportReason}`);
-    toast.success(t('Report submitted successfully. Our team will investigate.', 'Lipoti lanu lalandiridwa. Tikufufuza.'));
+    toast.success(t('market.reportSuccess'));
     setIsReportModalOpen(false);
     setReportReason('');
   };
@@ -52,10 +53,10 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
           <div>
             <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
               <ShieldCheck className="w-7 h-7 text-primary" />
-              {t('Verified Pesticide Market Map', 'Mapu a Mankhwala Otsimikizika')}
+              {t('common.pesticideMap')}
             </h2>
             <p className="text-sm text-gray-500">
-              {t('Find verified sellers and authentic agricultural inputs across Malawi.', 'Pezani ogulitsa otsimikizika ndi mankhwala abwino m\'Malawi muno.')}
+              {t('home.pesticideMapDesc')}
             </p>
           </div>
           <div className="relative w-full md:w-72">
@@ -64,7 +65,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('Search by district or shop...', 'Sakani boma kapena shopu...')}
+              placeholder={t('common.search')}
               className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none text-sm"
             />
           </div>
@@ -76,9 +77,9 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
             <Info className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">{t('Safety First!', 'Chitetezo Choyamba!') }</h4>
+            <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">{t('common.safetyFirst') }</h4>
             <p className="text-xs text-amber-700 dark:text-amber-300">
-              {t('Always check for the PCB registration number on every pesticide container.', 'Nthawi zonse onetsetsani nambala ya PCB pa katundu aliyense.')}
+              {t('common.pcbCheck')}
             </p>
           </div>
           <button 
@@ -88,7 +89,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
             }}
             className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
           >
-            {t('Learn More', 'Dziwani Zambiri')} <ExternalLink className="w-3 h-3" />
+            {t('common.learnMore')} <ExternalLink className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -114,7 +115,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
                     </h3>
                     <div className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                       <ShieldCheck className="w-3 h-3" />
-                      {t('Verified Seller', 'Wotsimikizika')}
+                      {t('market.verifiedSeller')}
                     </div>
                   </div>
                 </div>
@@ -124,7 +125,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
                     setIsReportModalOpen(true);
                   }}
                   className="p-2 text-gray-400 hover:text-rose-500 transition-colors"
-                  title={t('Report Seller', 'Nenerani Wogulitsa')}
+                  title={t('market.reportSuspicious')}
                 >
                   <AlertTriangle className="w-5 h-5" />
                 </button>
@@ -143,7 +144,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
 
               <div className="space-y-2">
                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
-                  {t('Products Carried', 'Zomwe Amagulitsa')}
+                  {t('common.allProducts')}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {seller.products.map((product: any, idx: number) => (
@@ -164,7 +165,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
                 href={`tel:${seller.phone}`}
                 className="flex-1 py-2 bg-primary text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
               >
-                <Phone className="w-4 h-4" /> {t('Call', 'Imani')}
+                <Phone className="w-4 h-4" /> {t('common.call')}
               </a>
               <a 
                 href={`https://wa.me/${seller.phone.replace(/\s+/g, '')}`}
@@ -186,8 +187,8 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
             <ShieldCheck className="w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-2xl font-black">{t(authenticityGuidance.title, authenticityGuidance.titleNy)}</h2>
-            <p className="text-sm text-gray-500">{t('Protect your farm from counterfeit inputs.', 'Tetezani famu yanu ku mankhwala onyenga.')}</p>
+            <h2 className="text-2xl font-black">{lang === 'en' ? authenticityGuidance.title : authenticityGuidance.titleNy}</h2>
+            <p className="text-sm text-gray-500">{t('home.pesticideMapDesc')}</p>
           </div>
         </div>
 
@@ -198,8 +199,8 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
                 0{idx + 1}
               </div>
               <div>
-                <h4 className="font-bold mb-1">{t(tip.title, tip.titleNy)}</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">{t(tip.description, tip.descriptionNy)}</p>
+                <h4 className="font-bold mb-1">{lang === 'en' ? tip.title : tip.titleNy}</h4>
+                <p className="text-sm text-gray-500 leading-relaxed">{lang === 'en' ? tip.description : tip.descriptionNy}</p>
               </div>
             </div>
           ))}
@@ -208,10 +209,10 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
         <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 p-6 rounded-3xl">
           <h4 className="text-rose-900 dark:text-rose-200 font-black flex items-center gap-2 mb-4">
             <AlertTriangle className="w-5 h-5" />
-            {t('Warning Signs of Counterfeits', 'Zizindikiro za Mankhwala Onyenga')}
+            {lang === 'en' ? authenticityGuidance.title : authenticityGuidance.titleNy}
           </h4>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {t(authenticityGuidance.warningSigns, authenticityGuidance.warningSignsNy).map((sign: string, idx: number) => (
+            {(lang === 'en' ? authenticityGuidance.warningSigns : authenticityGuidance.warningSignsNy).map((sign: string, idx: number) => (
               <li key={idx} className="flex items-start gap-2 text-sm text-rose-700 dark:text-rose-300">
                 <div className="w-1.5 h-1.5 bg-rose-400 rounded-full mt-1.5 flex-shrink-0" />
                 {sign}
@@ -232,7 +233,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-xl font-black flex items-center gap-2 text-rose-600">
                 <AlertTriangle className="w-6 h-6" />
-                {t('Report Seller', 'Nenerani Wogulitsa')}
+                {t('market.reportSuspicious')}
               </h3>
               <button onClick={() => setIsReportModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
                 <X className="w-5 h-5" />
@@ -240,17 +241,17 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
             </div>
             <div className="p-6 space-y-4">
               <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('Reporting Shop', 'Shopu Yomwe Mukunenera')}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.reporting')}</p>
                 <p className="font-bold">{selectedSeller?.businessName}</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  {t('Reason for Report', 'Chifukwa Chomwe Mukunenera')}
+                  {t('market.reasonForReport')}
                 </label>
                 <textarea 
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  placeholder={t('Describe the issue (e.g., suspicious labels, expired products)...', 'Fotokozani vutolo (mwachitsanzo, zizindikiro zachilendo, mankhwala otha ntchito)...')}
+                  placeholder={t('market.describeIssue')}
                   rows={4}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-rose-500 outline-none text-sm"
                 />
@@ -260,13 +261,13 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t }) => 
                   onClick={() => setIsReportModalOpen(false)}
                   className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
                 >
-                  {t('Cancel', 'Tiyeni Tileke')}
+                  {t('common.cancel')}
                 </button>
                 <button 
                   onClick={handleReport}
                   className="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-700 transition-all"
                 >
-                  {t('Submit Report', 'Tumizani Lipoti')}
+                  {t('market.submitReport')}
                 </button>
               </div>
             </div>
