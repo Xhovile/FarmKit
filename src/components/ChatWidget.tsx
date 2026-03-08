@@ -21,20 +21,43 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
   messages,
   setMessages
 }) => {
-  const handleSendMessage = () => {
-    if (!chatMessage.trim()) return;
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isLoading) return;
     
-    const newMessages = [...messages, { text: chatMessage, isUser: true }];
+    setIsLoading(true);
+    const userMessage = { text: chatMessage, isUser: true };
+    const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setChatMessage('');
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: chatMessage,
+          history: messages.slice(-5)
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to get AI response');
+      const data = await response.json();
+      
       setMessages([...newMessages, { 
-        text: t("chat.aiResponse"), 
+        text: data.text || t("chat.aiResponse"), 
         isUser: false 
       }]);
-    }, 1000);
+    } catch (error) {
+      console.error("Chat Error:", error);
+      setMessages([...newMessages, { 
+        text: "Sorry, I'm having trouble connecting right now. Please try again later.", 
+        isUser: false 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,6 +103,15 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl rounded-tl-none flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex gap-2">
@@ -89,11 +121,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
                 onChange={(e) => setChatMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder={t('chat.askAnything')}
-                className="flex-1 bg-gray-50 dark:bg-gray-700 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
+                disabled={isLoading}
+                className="flex-1 bg-gray-50 dark:bg-gray-700 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none disabled:opacity-50"
               />
               <button 
                 onClick={handleSendMessage}
-                className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary/90 transition-colors"
+                disabled={isLoading}
+                className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
               </button>

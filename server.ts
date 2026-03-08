@@ -20,13 +20,30 @@ async function startServer() {
 
   app.post("/api/ai", async (req, res) => {
     try {
+      const { message, history } = req.body;
       if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
       }
-      // For now, just confirm the route works
-      return res.json({ ok: true });
-    } catch (e) {
-      return res.status(500).json({ error: "AI proxy failed" });
+
+      const { GoogleGenAI } = await import("@google/genai");
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [
+          { role: "user", parts: [{ text: "You are FarmKit AI, a helpful agricultural assistant for farmers in Malawi. Provide practical, localized advice. Keep responses concise and helpful." }] },
+          ...(history || []).map((m: any) => ({
+            role: m.isUser ? "user" : "model",
+            parts: [{ text: m.text }]
+          })),
+          { role: "user", parts: [{ text: message }] }
+        ],
+      });
+
+      return res.json({ text: response.text });
+    } catch (e: any) {
+      console.error("AI Error:", e);
+      return res.status(500).json({ error: e.message || "AI proxy failed" });
     }
   });
 
