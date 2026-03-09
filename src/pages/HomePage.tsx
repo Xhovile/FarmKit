@@ -231,7 +231,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 {[
                   { id: 'crops', icon: Leaf, label: t('common.cropGuides'), color: 'bg-emerald-500' },
                   { id: 'livestock', icon: Beef, label: t('common.livestock'), color: 'bg-amber-500' },
-                  { id: 'markets', icon: Store, label: t('common.markets'), color: 'bg-indigo-500' },
+                  { id: 'markets', icon: Store, label: t('common.markets'), color: 'bg-emerald-500' },
                   { id: 'training', icon: GraduationCap, label: t('common.training'), color: 'bg-blue-500' },
                 ].map((item) => (
                   <button 
@@ -257,11 +257,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               layout
               key={crop.id} 
               onClick={() => setSelectedItem({ ...crop, type: 'crop' })}
-              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300"
             >
               <div className="h-44 overflow-hidden relative">
                 <img src={crop.image} alt={crop.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-black/40 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">{crop.name}</h3>
                 </div>
               </div>
@@ -285,11 +285,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               layout
               key={guide.id} 
               onClick={() => setSelectedItem({ ...guide, type: 'livestock' })}
-              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300"
             >
               <div className="h-44 overflow-hidden relative">
                 <img src={guide.image} alt={guide.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-black/40 flex items-end p-4">
                   <h3 className="text-white font-bold text-lg">{guide.name}</h3>
                 </div>
               </div>
@@ -358,7 +358,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <motion.div 
                       layout
                       key={market.id}
-                      className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all"
+                      className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
@@ -409,7 +409,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <motion.div 
               layout
               key={course.id}
-              className="group bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all"
+              className="group bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all"
             >
               <div className="h-40 relative">
                 <img src={course.image} alt={course.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />

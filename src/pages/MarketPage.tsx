@@ -105,19 +105,19 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-2 flex gap-2 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setMarketTab('supply')}
-          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'supply' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'supply' ? 'bg-primary text-white shadow-md shadow-primary/10' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <LayoutGrid className="w-4 h-4" /> {t('market.supply')}
         </button>
         <button 
           onClick={() => setMarketTab('demand')}
-          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'demand' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${marketTab === 'demand' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/10' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <ClipboardList className="w-4 h-4" /> {t('market.demand')}
         </button>
         <button 
           onClick={() => setMarketTab('trends')}
-          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 relative ${marketTab === 'trends' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[100px] py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 relative ${marketTab === 'trends' ? 'bg-amber-500 text-white shadow-md shadow-amber-500/10' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <TrendingUp className="w-4 h-4" /> 
           {t('market.trends')}
@@ -274,7 +274,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                     alert(t('account.signIn'));
                   }
                 }}
-                className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${marketTab === 'supply' ? 'bg-primary text-white shadow-primary/20' : 'bg-indigo-600 text-white shadow-indigo-500/20'}`}
+                className={`px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 ${marketTab === 'supply' ? 'bg-primary text-white shadow-primary/10' : 'bg-indigo-600 text-white shadow-indigo-500/10'}`}
               >
                 <PlusCircle className="w-5 h-5" />
                 {marketTab === 'supply' ? t('market.addListing') : t('market.postRequest')}

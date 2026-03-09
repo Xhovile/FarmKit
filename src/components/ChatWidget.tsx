@@ -59,10 +59,9 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({
     <>
       <button 
         onClick={() => setIsChatOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-40 md:bottom-8"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-all z-40 md:bottom-8"
       >
         <MessageSquare className="w-6 h-6" />
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">1</span>
       </button>
 
       <AnimatePresence>

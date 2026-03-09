@@ -48,13 +48,13 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-2 flex gap-2 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setCommunityTab('experts')}
-          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'experts' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'experts' ? 'bg-primary text-white shadow-md shadow-primary/10' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <GraduationCap className="w-4 h-4" /> {t('common.experts')}
         </button>
         <button 
           onClick={() => setCommunityTab('stories')}
-          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'stories' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+          className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${communityTab === 'stories' ? 'bg-primary text-white shadow-md shadow-primary/10' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
         >
           <Award className="w-4 h-4" /> {t('common.stories')}
         </button>
@@ -62,20 +62,20 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
 
       {communityTab === 'experts' && (
         <div className="space-y-6">
-          <div className="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+          <div className="bg-emerald-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-lg">
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
             <div className="relative z-10">
               <h3 className="text-2xl font-bold mb-2">{t('experts.verifiedSupport')}</h3>
-              <p className="text-indigo-100 mb-6 max-w-md text-sm leading-relaxed">
+              <p className="text-emerald-100 mb-6 max-w-md text-sm leading-relaxed">
                 {t('experts.expertAdvice')}
               </p>
               <div className="flex flex-wrap gap-3">
-                <button className="px-6 py-3 bg-white text-indigo-600 font-bold rounded-xl shadow-lg hover:bg-indigo-50 transition-all flex items-center gap-2 text-sm">
+                <button className="px-6 py-3 bg-white text-emerald-600 font-bold rounded-xl shadow-md hover:bg-emerald-50 transition-all flex items-center gap-2 text-sm">
                   <MessageCircle className="w-5 h-5" /> {t('experts.connectNow')}
                 </button>
                 <button 
                   onClick={() => !isPremium && onUpgrade()}
-                  className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-400 transition-all flex items-center gap-2 text-sm border border-indigo-400 relative"
+                  className="px-6 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-md hover:bg-emerald-400 transition-all flex items-center gap-2 text-sm border border-emerald-400 relative"
                 >
                   <BookOpen className="w-5 h-5" /> 
                   {t('common.training')}
@@ -149,7 +149,7 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
                 >
                   <div className="h-48 relative">
                     <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                    <div className="absolute inset-0 bg-black/40 flex items-end p-6">
                       <h3 className="text-xl font-bold text-white leading-tight">
                         {lang === 'en' ? story.title : story.titleNy}
                       </h3>

@@ -73,7 +73,7 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative"
+        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl shadow-lg overflow-hidden relative"
       >
         <button 
           onClick={onClose}
@@ -128,7 +128,7 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-md shadow-primary/10 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />

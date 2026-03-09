@@ -10,7 +10,7 @@ interface BottomNavProps {
 const NavAction: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
   <button 
     onClick={onClick}
-    className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-2xl transition-all duration-300 ${active ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
+    className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-2xl transition-all duration-300 ${active ? 'bg-primary text-white shadow-md shadow-primary/10 scale-105' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
   >
     <div className={`${active ? 'animate-bounce-subtle' : ''}`}>
       {icon}
@@ -31,14 +31,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t
             label={t('common.home')} 
           />
           
-          {/* Market Tab with Bulge */}
-          <div className="relative -top-6 md:top-0">
+          {/* Market Tab */}
+          <div className="relative">
             <button 
               onClick={() => setActiveTab('market')}
-              className={`flex flex-col items-center justify-center w-20 h-20 md:w-auto md:h-auto md:flex-row md:gap-3 md:px-6 md:py-3 rounded-full md:rounded-2xl transition-all duration-300 shadow-2xl md:shadow-lg border-4 border-neutral-50 dark:border-dark-900 md:border-none ${activeTab === 'market' ? 'bg-primary text-white scale-110 md:scale-105' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
+              className={`flex flex-col items-center justify-center md:flex-row md:gap-3 px-4 py-2 md:px-6 md:py-3 rounded-2xl transition-all duration-300 ${activeTab === 'market' ? 'bg-primary text-white shadow-md shadow-primary/10 scale-105' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
             >
               <div className={`${activeTab === 'market' ? 'animate-bounce-subtle' : ''}`}>
-                <Store className="w-8 h-8 md:w-5 md:h-5" />
+                <Store className="w-5 h-5" />
               </div>
               <span className={`text-[10px] md:text-sm font-bold uppercase tracking-wider ${activeTab === 'market' ? 'opacity-100' : 'opacity-70'}`}>
                 {t('common.market')}

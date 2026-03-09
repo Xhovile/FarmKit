@@ -12,7 +12,7 @@ export const Footer: React.FC<FooterProps> = ({ t }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <h2 className="text-xl font-bold mb-4 font-serif">
-              <span className="text-green-500">Farm</span><span className="text-indigo-600 dark:text-indigo-400">Kit</span>
+              <span className="text-green-500">Farm</span><span className="text-emerald-600 dark:text-emerald-400">Kit</span>
             </h2>
             <p className="text-gray-400 mb-4">
               {t('Empowering farmers across Malawi with information and market access.', 'Kupatsapo mphamvu kwa alimi ku Malawi ndi chidziwitso ndi mwayi wofikira misika.')}

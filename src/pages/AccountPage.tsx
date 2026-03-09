@@ -58,7 +58,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         key="account-unauth"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-12 text-center"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-12 text-center"
       >
         <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
           <UserCircle className="w-10 h-10 text-primary" />
@@ -84,9 +84,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-6"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden">
         {/* Profile Header */}
-        <div className="h-32 bg-gradient-to-r from-primary to-emerald-600 relative">
+        <div className="h-32 bg-primary relative">
           <button 
             onClick={() => setIsEditingProfile(!isEditingProfile)}
             className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur-md transition-all"
@@ -98,7 +98,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         <div className="px-8 pb-8">
           <div className="relative -mt-16 mb-6 flex justify-between items-end">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-3xl border-4 border-white dark:border-gray-800 overflow-hidden shadow-xl bg-gray-100">
+              <div className="w-32 h-32 rounded-3xl border-4 border-white dark:border-gray-800 overflow-hidden shadow-lg bg-gray-100">
                 {user?.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
@@ -408,7 +408,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
       {/* Premium Upgrade CTA */}
       {!isEditingProfile && user?.tier === 'Free' && (
-        <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
+        <div className="bg-amber-600 p-8 rounded-[2.5rem] text-white shadow-lg relative overflow-hidden group">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-4">
