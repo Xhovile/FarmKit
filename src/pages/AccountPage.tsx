@@ -222,7 +222,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase">{t('common.listings')}</p>
-                    <p className="text-lg font-bold">12</p>
+                    <p className="text-lg font-bold">{marketplaceListings.length}</p>
                   </div>
                 </div>
                 <div className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-4">
@@ -231,7 +231,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase">{t('account.rating')}</p>
-                    <p className="text-lg font-bold">4.8/5</p>
+                    <p className="text-lg font-bold">0/5</p>
                   </div>
                 </div>
                 <div className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm flex items-center gap-4">
@@ -240,7 +240,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-bold uppercase">{t('account.followers')}</p>
-                    <p className="text-lg font-bold">156</p>
+                    <p className="text-lg font-bold">0</p>
                   </div>
                 </div>
               </div>
@@ -301,15 +301,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
                 <span className="text-sm font-bold text-gray-500">{t('account.totalViews')}</span>
-                <span className="text-lg font-black">1,240</span>
+                <span className="text-lg font-black">0</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
                 <span className="text-sm font-bold text-gray-500">{t('account.activeLeads')}</span>
-                <span className="text-lg font-black text-primary">42</span>
+                <span className="text-lg font-black text-primary">0</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl">
                 <span className="text-sm font-bold text-gray-500">{t('account.conversionRate')}</span>
-                <span className="text-lg font-black text-emerald-600">8.4%</span>
+                <span className="text-lg font-black text-emerald-600">0%</span>
               </div>
             </div>
           </div>
@@ -383,7 +383,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               {t('account.myRequests')}
             </h3>
             <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-              2 {t('common.active')}
+              {buyerRequests.length} {t('common.active')}
             </span>
           </div>
           <div className="space-y-3">
@@ -439,20 +439,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             </div>
             <button 
-              onClick={async () => {
+              onClick={() => {
                 if (user) {
-                  try {
-                    await setDoc(doc(db, 'users', user.uid), { tier: 'Premium' }, { merge: true });
-                    setUser({...user, tier: 'Premium'});
-                    toast.success(t('account.premiumSuccess'));
-                  } catch (error: any) {
-                    toast.error(error.message);
-                  }
+                  toast.success(t('account.applicationSubmitted', 'Application submitted. Our team will review it shortly.'));
                 }
               }}
               className="px-10 py-4 bg-white text-amber-600 font-black rounded-2xl shadow-xl hover:bg-amber-50 transition-all flex items-center gap-2 active:scale-95"
             >
-              {t('account.upgradeNow')} <ArrowRight className="w-5 h-5" />
+              {t('account.applyNow', 'Apply Now')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -486,20 +480,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             </div>
             <button 
-              onClick={async () => {
+              onClick={() => {
                 if (user) {
-                  try {
-                    await setDoc(doc(db, 'users', user.uid), { tier: 'Verified Seller' }, { merge: true });
-                    setUser({...user, tier: 'Verified Seller'});
-                    toast.success(t('account.verifiedSellerSuccess'));
-                  } catch (error: any) {
-                    toast.error(error.message);
-                  }
+                  toast.success(t('account.applicationSubmitted', 'Application submitted. Our team will review it shortly.'));
                 }
               }}
               className="px-10 py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center gap-2 active:scale-95"
             >
-              {t('account.applyForVerification')} <ArrowRight className="w-5 h-5" />
+              {t('account.applyForVerification', 'Apply for Verification')} <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>

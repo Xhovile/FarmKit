@@ -18,32 +18,28 @@ export const Footer: React.FC<FooterProps> = ({ t }) => {
               {t('Empowering farmers across Malawi with information and market access.', 'Kupatsapo mphamvu kwa alimi ku Malawi ndi chidziwitso ndi mwayi wofikira misika.')}
             </p>
             <div className="flex space-x-3">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Users className="w-5 h-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Share2 className="w-5 h-5" /></a>
+              <span className="text-gray-400 cursor-default"><Users className="w-5 h-5" /></span>
+              <span className="text-gray-400 cursor-default"><Share2 className="w-5 h-5" /></span>
             </div>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">{t('Quick Links', 'Maulalo Osavuta')}</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">{t('About Us', 'Za Ife')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('Contact Us', 'Tiyenimulumikize')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('FAQ', 'Mafunso')}</a></li>
+              <li><span className="cursor-default">{t('About Us', 'Za Ife')}</span></li>
+              <li><span className="cursor-default">{t('Contact Us', 'Tiyenimulumikize')}</span></li>
+              <li><span className="cursor-default">{t('FAQ', 'Mafunso')}</span></li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">{t('Contact Us', 'Tiyenimulumikize')}</h3>
             <ul className="space-y-2 text-gray-400">
-              <li className="flex items-start"><MapPin className="w-4 h-4 mt-1 mr-2 text-primary" /> 123 Farm Road, Lilongwe</li>
-              <li className="flex items-center"><Clock className="w-4 h-4 mr-2 text-primary" /> +265 1 234 5678</li>
+              <li className="flex items-start"><MapPin className="w-4 h-4 mt-1 mr-2 text-primary" /> Lilongwe, Malawi</li>
+              <li className="flex items-center"><Clock className="w-4 h-4 mr-2 text-primary" /> support@farmkit.mw</li>
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-bold mb-4">{t('Newsletter', 'Kalata ya Nkhani')}</h3>
-            <p className="text-sm text-gray-400 mb-4">{t('Get the latest farming tips and market alerts.', 'Landirani malangizo a ulimi ndi zidziwitso za msika.')}</p>
-            <div className="flex gap-2">
-              <input type="email" placeholder="Email" className="bg-gray-800 border-none rounded-lg px-4 py-2 text-sm focus:ring-1 focus:ring-primary outline-none flex-1" />
-              <button className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold">{t('Join', 'Lowani')}</button>
-            </div>
+            <h3 className="text-lg font-bold mb-4">{t('FarmKit Community', 'Gulu la FarmKit')}</h3>
+            <p className="text-sm text-gray-400 mb-4">{t('Join thousands of farmers across Malawi sharing knowledge and growing together.', 'Lowani nawo alimi masauzande ambiri ku Malawi omwe akugawana nzeru ndikukula limodzi.')}</p>
           </div>
         </div>
         <div className="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
