@@ -4,44 +4,100 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   deleteUser,
-  sendEmailVerification
+  sendEmailVerification,
+  updateProfile,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, User, LogOut, Trash2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, Mail, Lock, User, LogOut, Trash2, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getCleanErrorMessage } from '../lib/auth-errors';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   t: (key: string) => string;
+  lang?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [reauthPassword, setReauthPassword] = useState('');
+  const [showReauth, setShowReauth] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!isLogin) {
+      if (!name.trim()) {
+        toast.error(getCleanErrorMessage('name-required', lang));
+        return;
+      }
+      if (password.length < 6) {
+        toast.error(getCleanErrorMessage('password-too-short', lang));
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error(getCleanErrorMessage('passwords-dont-match', lang));
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
-        toast.success(t('auth.welcomeBack'));
+        toast.success(t('auth.welcomeBack') || 'Welcome back!');
         onClose();
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
-        toast.success(t('auth.accountCreated'));
+        const user = userCredential.user;
+
+        // Update profile with name
+        await updateProfile(user, { displayName: name });
+
+        // Create Firestore document
+        await setDoc(doc(db, 'users', user.uid), {
+          name,
+          email,
+          tier: 'Free',
+          location: '',
+          phone: '',
+          bio: '',
+          emailVerified: false,
+          createdAt: new Date().toISOString()
+        });
+
+        // Send verification email
+        await sendEmailVerification(user);
+        
+        toast.success(t('auth.accountCreated') || 'Account created! Please verify your email.');
         onClose();
       }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(getCleanErrorMessage(error.code, lang));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success(t('account.loggedOut') || 'Logged out successfully.');
+      onClose();
+    } catch (error: any) {
+      toast.error(getCleanErrorMessage(error.code, lang));
     }
   };
 
@@ -51,14 +107,26 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
 
     setLoading(true);
     try {
+      // If re-auth is needed, we'll try to re-auth first if showReauth is true
+      if (showReauth) {
+        const credential = EmailAuthProvider.credential(user.email!, reauthPassword);
+        await reauthenticateWithCredential(user, credential);
+      }
+
+      // 1. Delete Firestore document
+      await deleteDoc(doc(db, 'users', user.uid));
+
+      // 2. Delete Firebase Auth account
       await deleteUser(user);
-      toast.success(t('auth.accountDeleted'));
+      
+      toast.success(t('auth.accountDeleted') || 'Account deleted successfully.');
       onClose();
     } catch (error: any) {
       if (error.code === 'auth/requires-recent-login') {
-        toast.error(t('auth.reloginToDelete'));
+        setShowReauth(true);
+        toast.error(getCleanErrorMessage(error.code, lang));
       } else {
-        toast.error(error.message);
+        toast.error(getCleanErrorMessage(error.code, lang));
       }
     } finally {
       setLoading(false);
@@ -96,6 +164,22 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
+            {!isLogin && (
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('account.fullName')}</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <input 
+                    type="text" 
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="Isaac Mtsiriza"
+                  />
+                </div>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('auth.email')}</label>
               <div className="relative">
@@ -125,6 +209,23 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
               </div>
             </div>
 
+            {!isLogin && (
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{t('auth.confirmPassword') || 'Confirm Password'}</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <input 
+                    type="password" 
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            )}
+
             <button 
               type="submit"
               disabled={loading}
@@ -140,7 +241,11 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
 
           <div className="mt-6 text-center">
             <button 
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setPassword('');
+                setConfirmPassword('');
+              }}
               className="text-sm font-bold text-primary hover:underline"
             >
               {isLogin ? t("auth.noAccount") : t("auth.haveAccount")}
@@ -150,7 +255,7 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
           {auth.currentUser && (
             <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700 space-y-4">
               <button 
-                onClick={() => signOut(auth)}
+                onClick={handleLogout}
                 className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
               >
                 <LogOut className="w-5 h-5" /> {t('common.logout')}
@@ -162,20 +267,43 @@ export default function AuthModal({ isOpen, onClose, t }: AuthModalProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl space-y-3"
                 >
-                  <p className="text-xs text-rose-600 dark:text-rose-400 font-bold text-center">
-                    {t('auth.deleteConfirm')}
-                  </p>
+                  <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 mb-2">
+                    <ShieldAlert className="w-5 h-5" />
+                    <p className="text-xs font-bold">
+                      {t('auth.deleteConfirm')}
+                    </p>
+                  </div>
+
+                  {showReauth && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] text-rose-500 font-medium">
+                        {t('auth.reauthRequired') || 'Please enter your password to confirm deletion.'}
+                      </p>
+                      <input 
+                        type="password"
+                        value={reauthPassword}
+                        onChange={(e) => setReauthPassword(e.target.value)}
+                        placeholder="Confirm Password"
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-rose-200 dark:border-rose-900 rounded-lg text-sm outline-none focus:ring-1 focus:ring-rose-500"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => setShowDeleteConfirm(false)}
+                      onClick={() => {
+                        setShowDeleteConfirm(false);
+                        setShowReauth(false);
+                        setReauthPassword('');
+                      }}
                       className="flex-1 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-lg border border-gray-100 dark:border-gray-700"
                     >
                       {t('common.cancel')}
                     </button>
                     <button 
                       onClick={handleDeleteAccount}
-                      disabled={loading}
-                      className="flex-1 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg shadow-md"
+                      disabled={loading || (showReauth && !reauthPassword)}
+                      className="flex-1 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg shadow-md disabled:opacity-50"
                     >
                       {t('common.delete')}
                     </button>

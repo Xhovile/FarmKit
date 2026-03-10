@@ -145,6 +145,7 @@ export default function App() {
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
         t={t} 
+        lang={lang}
       />
 
       {/* Offline Indicator */}
