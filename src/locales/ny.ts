@@ -84,6 +84,8 @@ export const ny = {
     verificationSent: "Imelo yotsimikizira yatumizidwa!",
     forgotPassword: "Mwayiwala Chinsinsi?",
     resetEmailSent: "Imelo yokonzanso chinsinsi yatumizidwa!",
+    emailCooldown: "Chonde dikirani mphindi imodzi musanapemphe imelo ina.",
+    linkInvalidationNote: "Dziwani: Kupempha ulalo watsopano kudzapangitsa maulalo am'mbuyomo kukhala osagwira ntchito.",
   },
   tour: {
     step1Title: "Takulandirani ku FarmKit!",

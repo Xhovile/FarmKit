@@ -84,6 +84,8 @@ export const en = {
     verificationSent: "Verification email sent!",
     forgotPassword: "Forgot Password?",
     resetEmailSent: "Password reset email sent!",
+    emailCooldown: "Please wait a minute before requesting another email.",
+    linkInvalidationNote: "Note: Requesting a new link will invalidate any previous links sent.",
   },
   tour: {
     step1Title: "Welcome to FarmKit!",

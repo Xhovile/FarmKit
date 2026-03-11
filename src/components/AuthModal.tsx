@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -35,6 +35,22 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
   const [reauthPassword, setReauthPassword] = useState('');
   const [showReauth, setShowReauth] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<any>(null);
+  const [lastEmailSent, setLastEmailSent] = useState<number>(0);
+  const COOLDOWN_TIME = 60000; // 1 minute
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setName('');
+      setReauthPassword('');
+      setShowReauth(false);
+      setUnverifiedUser(null);
+      setIsLogin(true);
+    }
+  }, [isOpen]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,9 +125,17 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
 
   const handleResendVerification = async () => {
     if (!unverifiedUser) return;
+    
+    const now = Date.now();
+    if (now - lastEmailSent < COOLDOWN_TIME) {
+      toast.error(t('auth.emailCooldown'));
+      return;
+    }
+
     setLoading(true);
     try {
       await sendEmailVerification(unverifiedUser);
+      setLastEmailSent(now);
       toast.success(t('auth.verificationSent'));
     } catch (error: any) {
       toast.error(getCleanErrorMessage(error.code, lang));
@@ -125,10 +149,19 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
       toast.error(getCleanErrorMessage('auth/invalid-email', lang));
       return;
     }
+
+    const now = Date.now();
+    if (now - lastEmailSent < COOLDOWN_TIME) {
+      toast.error(t('auth.emailCooldown'));
+      return;
+    }
+
     setLoading(true);
     try {
       await sendPasswordResetEmail(auth, email);
+      setLastEmailSent(now);
       toast.success(t('auth.resetEmailSent'));
+      toast(t('auth.linkInvalidationNote'), { icon: 'ℹ️', duration: 6000 });
     } catch (error: any) {
       toast.error(getCleanErrorMessage(error.code, lang));
     } finally {
@@ -148,37 +181,43 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
 
   const handleDeleteAccount = async () => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user || !user.email) return;
 
     setLoading(true);
+
     try {
-      // 1. Re-authenticate FIRST to ensure we have a fresh token
-      // This minimizes the risk of deleteUser failing after Firestore cleanup
-      if (showReauth || !reauthPassword) {
-        const credential = EmailAuthProvider.credential(user.email!, reauthPassword);
-        await reauthenticateWithCredential(user, credential);
+      // Re-authenticate first
+      const credential = EmailAuthProvider.credential(user.email, reauthPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // Get fresh token
+      const idToken = await user.getIdToken(true);
+
+      // Ask server to delete everything
+      const response = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete account');
       }
 
-      const uid = user.uid;
+      // Local cleanup
+      await signOut(auth);
 
-      // 2. Delete Firestore document while still authenticated
-      // This is safer because we still have the token to pass security rules
-      await deleteDoc(doc(db, 'users', uid));
-
-      // 3. Delete Firebase Auth account LAST
-      // If this fails, we still have the user but their data is gone (privacy safe)
-      // But since we just re-authenticated, the chance of failure is extremely low.
-      await deleteUser(user);
-      
       toast.success(t('auth.accountDeleted') || 'Account deleted successfully.');
+      setShowDeleteConfirm(false);
+      setShowReauth(false);
+      setReauthPassword('');
       onClose();
     } catch (error: any) {
-      if (error.code === 'auth/requires-recent-login') {
-        setShowReauth(true);
-        toast.error(getCleanErrorMessage(error.code, lang));
-      } else {
-        toast.error(getCleanErrorMessage(error.code, lang));
-      }
+      toast.error(error.message || getCleanErrorMessage(error.code, lang));
     } finally {
       setLoading(false);
     }
@@ -381,7 +420,7 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
                     </button>
                     <button 
                       onClick={handleDeleteAccount}
-                      disabled={loading || (showReauth && !reauthPassword)}
+                      disabled={loading || !reauthPassword.trim()}
                       className="flex-1 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg shadow-md disabled:opacity-50"
                     >
                       {t('common.delete')}
