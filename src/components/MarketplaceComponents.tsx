@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MarketListing, BuyerRequest } from '../types';
+import { marketCategories } from '../data/constants';
 
 export interface Seller {
   id: string;
@@ -49,6 +50,16 @@ export const SellerBadge: React.FC<{ verified: boolean; t: any }> = ({ verified,
     )}
   </div>
 );
+
+const getCategoryLabel = (categoryId: string, t: any) => {
+  const category = marketCategories.find((cat) => cat.id === categoryId);
+
+  if (!category) {
+    return categoryId.replace(/_/g, ' ');
+  }
+
+  return t(category.name, category.nameNy);
+};
 
 export const ListingCard: React.FC<{ listing: MarketListing; t: any; onReport?: (listing: MarketListing) => void }> = ({ listing, t, onReport }) => {
   const defaultImage = "https://picsum.photos/seed/farm/800/600";
@@ -117,7 +128,7 @@ export const ListingCard: React.FC<{ listing: MarketListing; t: any; onReport?: 
 
           <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-[10px] font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1">
             <Tag className="w-3 h-3" />
-            {listing.category.replace(/_/g, ' ')}
+            {getCategoryLabel(listing.category, t)}
           </span>
 
           <span className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
