@@ -59,6 +59,7 @@ interface MarketPageProps {
   marketSearchQuery: string;
   setMarketSearchQuery: (query: string) => void;
   user: any;
+  marketListings: MarketListing[];
   setIsAddProductModalOpen: (open: boolean) => void;
   setFormStep: (step: number) => void;
   setActiveTab: (tab: any) => void;
@@ -69,7 +70,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   lang,
   marketSearchQuery, 
   setMarketSearchQuery, 
-  user, 
+  user,
+  marketListings,
   setIsAddProductModalOpen, 
   setFormStep,
   setActiveTab
@@ -78,40 +80,14 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   const [activeCategory, setActiveCategory] = useState('all');
   const [reportingItem, setReportingItem] = useState<any>(null);
   const [reportReason, setReportReason] = useState('');
-  const [listings, setListings] = useState<MarketListing[]>([]);
   const [requests, setRequests] = useState<BuyerRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const listingsQuery = query(
-      collection(db, 'market_listings'),
-      where('status', '==', 'active')
-    );
-
     const requestsQuery = query(
       collection(db, 'buyer_requests'),
       where('status', '==', 'active')
     );
-
-    const unsubscribeListings = onSnapshot(listingsQuery, (snapshot) => {
-      const newListings = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as MarketListing[];
-      
-      // Client-side sort to avoid composite index requirement
-      newListings.sort((a, b) => {
-        const dateA = a.createdAt?.seconds || 0;
-        const dateB = b.createdAt?.seconds || 0;
-        return dateB - dateA;
-      });
-      
-      setListings(newListings);
-      setLoading(false);
-    }, (error) => {
-      console.error("Listings snapshot error:", error);
-      setLoading(false);
-    });
 
     const unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
       const newRequests = snapshot.docs.map(doc => ({
@@ -127,12 +103,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       });
       
       setRequests(newRequests);
+      setLoading(false);
     }, (error) => {
       console.error("Requests snapshot error:", error);
+      setLoading(false);
     });
 
     return () => {
-      unsubscribeListings();
       unsubscribeRequests();
     };
   }, []);
@@ -150,17 +127,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     setReportReason('');
   };
 
-  const verifiedSellers = Array.from(new Set(listings.map(l => l.sellerId)))
-    .map(id => {
-      const listing = listings.find(l => l.sellerId === id);
-      return {
-        id: listing?.sellerId,
-        name: listing?.sellerName,
-        businessName: listing?.businessName,
-        verified: listing?.verified
-      };
-    })
-    .filter(s => s?.verified);
+  const verifiedSellers = Array.from(
+    new Set(marketListings.filter((l) => l.verified).map((l) => l.sellerId))
+  ).map((sellerId) => marketListings.find((l) => l.sellerId === sellerId))
+   .filter(Boolean);
 
   return (
     <motion.div 
@@ -359,12 +329,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 t={t} 
               />
               
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4">
-                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                  <p className="text-gray-500 font-medium">{t('common.loading')}</p>
-                </div>
-              ) : listings.length === 0 ? (
+              {marketListings.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-12 text-center border border-gray-100 dark:border-gray-700">
                   <Package className="w-16 h-16 text-gray-200 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-2">{t('market.noListings')}</h3>
@@ -385,17 +350,38 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {listings
-                    .filter(item => 
+                  {marketListings
+                    .filter((item) =>
                       (activeCategory === 'all' || item.category === activeCategory) &&
-                      (item.title.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
-                      item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
-                      item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()))
+                      (
+                        item.title.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                        item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                        item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                        item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
+                      ) &&
+                      item.status === 'active'
                     )
-                    .map(item => (
+                    .map((item) => (
                       <ListingCard key={item.id} listing={item} t={t} onReport={setReportingItem} />
                     ))
                   }
+                  {marketListings.filter((item) =>
+                    (activeCategory === 'all' || item.category === activeCategory) &&
+                    (
+                      item.title.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                      item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                      item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                      item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
+                    ) &&
+                    item.status === 'active'
+                  ).length === 0 && (
+                    <div className="col-span-full bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
+                      <h3 className="text-lg font-bold mb-2">{t('market.noListings') || 'No listings yet'}</h3>
+                      <p className="text-sm text-gray-500">
+                        {t('market.beFirstToList') || 'Be the first to add a product to the marketplace.'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

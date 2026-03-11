@@ -312,7 +312,8 @@ export default function App() {
               lang={lang}
               marketSearchQuery={marketSearchQuery} 
               setMarketSearchQuery={setMarketSearchQuery} 
-              user={user} 
+              user={user}
+              marketListings={marketListings}
               setIsAddProductModalOpen={setIsAddProductModalOpen} 
               setFormStep={setFormStep} 
               setActiveTab={setActiveTab}
