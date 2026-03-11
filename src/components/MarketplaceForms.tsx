@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   X, 
   ChevronRight, 
@@ -43,6 +43,24 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
   });
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoryOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,7 +111,7 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
             />
           </div>
 
-          <div className="relative">
+          <div className="relative" ref={categoryDropdownRef}>
             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
               {t('common.category')}
             </label>
