@@ -3,7 +3,7 @@ import {
   Wifi
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { auth, db } from './lib/firebase';
+import { auth, db, storage } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AuthModal from './components/AuthModal';
 import { Toaster } from 'react-hot-toast';
@@ -38,6 +38,7 @@ import { tourSteps } from './data/constants';
 // Real data states (placeholders for now)
 const experts: any[] = [];
 const successStories: any[] = [];
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useTranslation } from './hooks/useTranslation';
 
 type Tab = 'info' | 'market' | 'experts' | 'account';
@@ -52,6 +53,8 @@ type ListingFormData = {
   description: string;
   businessName: string;
   phone: string;
+  imageFile?: File | null;
+  imagePreview?: string;
 };
 
 export default function App() {
@@ -218,6 +221,16 @@ export default function App() {
     setLoading(true);
 
     try {
+      let imageUrl: string | null = null;
+
+      if (data.imageFile) {
+        const fileName = `${Date.now()}-${data.imageFile.name}`;
+        const storageRef = ref(storage, `market_listings/${user.uid}/${fileName}`);
+
+        await uploadBytes(storageRef, data.imageFile);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+
       await addDoc(collection(db, 'market_listings'), {
         title: cleanedTitle,
         category: cleanedCategory,
@@ -233,7 +246,7 @@ export default function App() {
         sellerName: user.name || 'Seller',
         sellerTier: user.tier || 'Free',
         verified: user.tier === 'Verified Seller',
-        imageUrl: null,
+        imageUrl,
         status: 'active',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
