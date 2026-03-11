@@ -20,6 +20,7 @@ import {
 import { motion } from 'motion/react';
 import { MarketListing, BuyerRequest } from '../types';
 import { marketCategories } from '../data/constants';
+import toast from 'react-hot-toast';
 
 export interface Seller {
   id: string;
@@ -88,19 +89,31 @@ export const ListingCard: React.FC<{
           title: listing.title,
           text: shareText,
         });
+        toast.success(t('common.shared') || 'Shared successfully!');
       } else {
         await navigator.clipboard.writeText(shareText);
+        toast.success(t('common.copied') || 'Link copied to clipboard!');
       }
-    } catch (error) {
-      console.error('Share failed:', error);
+    } catch (error: any) {
+      // Only log if it's not a user cancellation
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error);
+        // Fallback to clipboard
+        try {
+          await navigator.clipboard.writeText(shareText);
+          toast.success(t('common.copied') || 'Link copied to clipboard!');
+        } catch (clipError) {
+          toast.error(t('common.shareError') || 'Failed to share');
+        }
+      }
     } finally {
       setMenuOpen(false);
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-[28px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
-      <div className="relative h-52 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-[28px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-visible hover:shadow-xl transition-all duration-300 relative">
+      <div className="relative h-52 overflow-hidden rounded-t-[28px]">
         <img
           src={listing.imageUrl || defaultImage}
           alt={listing.title}
@@ -126,7 +139,7 @@ export const ListingCard: React.FC<{
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-20">
+              <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-[100] min-w-[176px]">
                 <button
                   type="button"
                   onClick={handleShare}

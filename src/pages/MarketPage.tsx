@@ -407,7 +407,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                         item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
                       ) &&
-                      item.status === 'active'
+                      item.status !== 'hidden'
                     )
                     .map((item) => (
                       <ListingCard
@@ -429,7 +429,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                       item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                       item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
                     ) &&
-                    item.status === 'active'
+                    item.status !== 'hidden'
                   ).length === 0 && (
                     <div className="col-span-full bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
                       <h3 className="text-lg font-bold mb-2">{t('market.noListings') || 'No listings yet'}</h3>
