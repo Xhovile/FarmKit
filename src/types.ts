@@ -16,7 +16,10 @@ export interface MarketListing {
   verified: boolean;
   imageUrl: string | null;
   status: 'active' | 'sold' | 'hidden';
-  createdAt: any; // Using any for serverTimestamp
+  createdAt: any;
+  viewsCount?: number;
+  sharesCount?: number;
+  savesCount?: number;
 }
 
 export interface BuyerRequest {

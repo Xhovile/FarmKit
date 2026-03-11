@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   MapPin, 
   MessageCircle, 
@@ -8,18 +8,14 @@ import {
   User, 
   Building2, 
   Tag, 
-  Info,
-  ChevronRight,
-  Plus,
-  Filter,
   ArrowRight,
   TrendingUp,
-  AlertCircle,
-  ShieldCheck,
   Flag,
   Phone,
-  ExternalLink,
-  Camera
+  Eye,
+  Bookmark,
+  MoreVertical,
+  Share2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MarketListing, BuyerRequest } from '../types';
@@ -61,97 +57,232 @@ const getCategoryLabel = (categoryId: string, t: any) => {
   return t(category.name, category.nameNy);
 };
 
-export const ListingCard: React.FC<{ listing: MarketListing; t: any; onReport?: (listing: MarketListing) => void }> = ({ listing, t, onReport }) => {
+export const ListingCard: React.FC<{
+  listing: MarketListing;
+  t: any;
+  onReport?: (listing: MarketListing) => void;
+  onMarkSold?: (listing: MarketListing) => void;
+  onHide?: (listing: MarketListing) => void;
+  onOpenDetails?: (listing: MarketListing) => void;
+}> = ({ listing, t, onReport, onMarkSold, onHide, onOpenDetails }) => {
   const defaultImage = "https://picsum.photos/seed/farm/800/600";
-  
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const viewsCount = listing.viewsCount ?? 0;
+  const sharesCount = listing.sharesCount ?? 0;
+  const savesCount = listing.savesCount ?? 0;
+
+  const shareText = `Check out this listing on FarmKit: ${listing.title} - MK ${listing.price.toLocaleString()} / ${listing.unit}`;
+
+  const statusLabel = useMemo(() => {
+    if (listing.status === 'sold') return 'Sold';
+    if (listing.status === 'hidden') return 'Hidden';
+    return t('common.inStock') || 'In Stock';
+  }, [listing.status, t]);
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: listing.title,
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+    } finally {
+      setMenuOpen(false);
+    }
+  };
+
   return (
-    <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden group hover:shadow-xl transition-all duration-300"
-    >
-      <div className="relative h-48 overflow-hidden">
-        <img 
-          src={listing.imageUrl || defaultImage} 
-          alt={listing.title} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-          referrerPolicy="no-referrer" 
+    <div className="bg-white dark:bg-gray-800 rounded-[28px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300">
+      <div className="relative h-52 overflow-hidden">
+        <img
+          src={listing.imageUrl || defaultImage}
+          alt={listing.title}
+          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+          referrerPolicy="no-referrer"
         />
-        <div className="absolute top-4 left-4">
-          <span className="px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full text-xs font-black text-primary shadow-lg">
+
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          <span className="px-3 py-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-full text-xs font-black text-primary shadow-lg">
             MK {listing.price.toLocaleString()} / {listing.unit}
           </span>
-        </div>
-        <div className="absolute top-4 right-4 flex gap-2">
-          {onReport && (
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                onReport(listing);
-              }}
-              className="p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full text-gray-400 hover:text-rose-500 transition-all shadow-lg"
-            >
-              <Flag className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <div className="absolute bottom-4 right-4">
           <SellerBadge verified={listing.verified} t={t} />
+        </div>
+
+        <div className="absolute top-4 right-4">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="p-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white shadow-lg"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-20">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {t('common.share') || 'Share'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onMarkSold?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onMarkSold}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onMarkSold ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Mark as sold
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onHide?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onHide}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onHide ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Hide listing
+                </button>
+
+                {onReport && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onReport(listing);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                  >
+                    Report listing
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="absolute bottom-4 left-4">
+          <span
+            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              listing.status === 'active'
+                ? 'bg-emerald-50 text-emerald-600'
+                : listing.status === 'sold'
+                ? 'bg-amber-50 text-amber-600'
+                : 'bg-gray-100 text-gray-500'
+            }`}
+          >
+            {statusLabel}
+          </span>
         </div>
       </div>
 
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700 overflow-hidden shrink-0 border border-gray-200 dark:border-gray-600 flex items-center justify-center">
-            <User className="w-5 h-5 text-gray-400" />
-          </div>
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
-            <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{listing.businessName}</h4>
-            <div className="flex items-center text-[10px] text-gray-500 uppercase tracking-widest">
-              <MapPin className="w-2.5 h-2.5 mr-1 text-primary" /> {listing.location}
-            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight truncate">
+              {listing.title}
+            </h3>
+            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 truncate">
+              {listing.businessName}
+            </p>
           </div>
-        </div>
 
-        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{listing.title}</h3>
-        
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-              listing.status === 'active'
-                ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-amber-50 text-amber-600'
+          <button
+            type="button"
+            onClick={() => setSaved((prev) => !prev)}
+            className={`shrink-0 p-2 rounded-full transition-all ${
+              saved
+                ? 'bg-primary/10 text-primary'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300'
             }`}
           >
-            <Package className="w-3 h-3" />
-            {listing.status === 'active' ? t('common.inStock') || 'In Stock' : listing.status} ({listing.quantity})
-          </span>
+            <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+          </button>
+        </div>
 
-          <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-[10px] font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1">
+        <div className="flex items-center gap-2 text-[11px] text-gray-500 uppercase tracking-wider mb-4">
+          <MapPin className="w-3.5 h-3.5 text-primary" />
+          <span>{listing.location}</span>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-[10px] font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1">
             <Tag className="w-3 h-3" />
             {getCategoryLabel(listing.category, t)}
           </span>
 
-          <span className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+          <span className="px-2.5 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
             <Truck className="w-3 h-3" />
             {listing.deliveryMethod.replace(/_/g, ' ')}
           </span>
+
+          <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+            <Package className="w-3 h-3" />
+            {listing.quantity} {listing.unit}
+          </span>
         </div>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-6 h-10 leading-relaxed">
+        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-h-[40px] mb-4 leading-relaxed">
           {listing.description}
         </p>
 
-        <a 
-          href={`https://wa.me/${listing.phone}?text=Hello ${listing.sellerName}, I am interested in your ${listing.title} on FarmKit.`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3.5 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-95"
-        >
-          <MessageCircle className="w-5 h-5" />
-          {t('common.orderNow')}
-        </a>
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t border-b border-gray-100 dark:border-gray-700 py-3 mb-4">
+          <div className="flex items-center gap-1.5">
+            <Eye className="w-4 h-4" />
+            <span>{viewsCount}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Share2 className="w-4 h-4" />
+            <span>{sharesCount}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Bookmark className="w-4 h-4" />
+            <span>{savesCount + (saved ? 1 : 0)}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => onOpenDetails?.(listing)}
+            className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+          >
+            View details
+          </button>
+
+          <a
+            href={`https://wa.me/${listing.phone}?text=Hello ${listing.sellerName}, I am interested in your ${listing.title} on FarmKit.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-3 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+          >
+            <MessageCircle className="w-4 h-4" />
+            {t('common.orderNow')}
+          </a>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
