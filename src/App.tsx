@@ -7,7 +7,9 @@ import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AuthModal from './components/AuthModal';
 import { Toaster } from 'react-hot-toast';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { MarketListing, BuyerRequest } from './types';
+import toast from 'react-hot-toast';
 
 // New Imports
 import { Header } from './components/Header';
@@ -40,6 +42,7 @@ export default function App() {
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [formStep, setFormStep] = useState(1);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<{ 
     uid: string;
     email: string;
@@ -275,10 +278,62 @@ export default function App() {
                   step={formStep} 
                   setStep={setFormStep} 
                   onClose={() => setIsAddProductModalOpen(false)} 
-                  onSubmit={(data) => {
-                    console.log('New Listing:', data);
-                    setIsAddProductModalOpen(false);
-                    // In a real app, we would save to Firestore here
+                  onSubmit={async (data) => {
+                    if (!user) {
+                      toast.error(t('account.signIn'));
+                      return;
+                    }
+                    
+                    setLoading(true);
+                    try {
+                      let imageUrl = null;
+                      
+                      // Handle Image Upload
+                      if (data.imageFile) {
+                        const formData = new FormData();
+                        formData.append('file', data.imageFile);
+                        formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+                        
+                        const response = await fetch(
+                          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                          { method: 'POST', body: formData }
+                        );
+                        
+                        if (response.ok) {
+                          const result = await response.json();
+                          imageUrl = result.secure_url;
+                        }
+                      }
+
+                      const listingData: Omit<MarketListing, 'id'> = {
+                        title: data.title,
+                        category: data.category,
+                        price: Number(data.price),
+                        unit: data.unit,
+                        quantity: Number(data.quantity),
+                        location: data.location,
+                        deliveryMethod: data.deliveryMethod,
+                        description: data.description,
+                        businessName: data.businessName || user.name,
+                        phone: data.phone || user.phone,
+                        sellerId: user.uid,
+                        sellerName: user.name,
+                        sellerTier: user.tier,
+                        verified: user.tier === 'Verified Seller',
+                        imageUrl: imageUrl,
+                        status: 'active',
+                        createdAt: serverTimestamp()
+                      };
+
+                      await addDoc(collection(db, 'market_listings'), listingData);
+                      toast.success(t('market.listingAdded') || 'Listing added successfully!');
+                      setIsAddProductModalOpen(false);
+                    } catch (error) {
+                      console.error('Error adding listing:', error);
+                      toast.error(t('common.error') || 'An error occurred');
+                    } finally {
+                      setLoading(false);
+                    }
                   }} 
                 />
               ) : (
@@ -288,10 +343,38 @@ export default function App() {
                   step={formStep} 
                   setStep={setFormStep} 
                   onClose={() => setIsAddProductModalOpen(false)} 
-                  onSubmit={(data) => {
-                    console.log('New Request:', data);
-                    setIsAddProductModalOpen(false);
-                    // In a real app, we would save to Firestore here
+                  onSubmit={async (data) => {
+                    if (!user) {
+                      toast.error(t('account.signIn'));
+                      return;
+                    }
+
+                    setLoading(true);
+                    try {
+                      const requestData: Omit<BuyerRequest, 'id'> = {
+                        commodity: data.commodity,
+                        category: data.category || 'other',
+                        quantity: Number(data.quantity),
+                        unit: data.unit,
+                        priceRange: data.priceRange,
+                        location: data.location,
+                        description: data.description || '',
+                        buyerId: user.uid,
+                        buyerName: user.name,
+                        phone: data.phone || user.phone,
+                        status: 'active',
+                        createdAt: serverTimestamp()
+                      };
+
+                      await addDoc(collection(db, 'buyer_requests'), requestData);
+                      toast.success(t('market.requestPosted') || 'Request posted successfully!');
+                      setIsAddProductModalOpen(false);
+                    } catch (error) {
+                      console.error('Error adding request:', error);
+                      toast.error(t('common.error') || 'An error occurred');
+                    } finally {
+                      setLoading(false);
+                    }
                   }} 
                 />
               )}

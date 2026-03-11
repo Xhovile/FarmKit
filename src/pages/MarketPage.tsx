@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   ChartLine, 
@@ -20,7 +20,8 @@ import {
   ShieldCheck,
   History,
   Flag,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -36,11 +37,12 @@ import {
   marketCategories,
   deliveryMethods
 } from '../data/constants';
+import { db } from '../lib/firebase';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { MarketListing, BuyerRequest } from '../types';
 // Real data states (placeholders for now)
 const marketPricesData: any[] = [];
 const priceTrendData: any[] = [];
-const marketplaceListings: any[] = [];
-const buyerRequests: any[] = [];
 import { 
   ListingCard, 
   BuyerRequestCard, 
@@ -72,10 +74,49 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   setFormStep,
   setActiveTab
 }) => {
-  const [marketTab, setMarketTab] = React.useState<'supply' | 'demand' | 'insights'>('supply');
-  const [activeCategory, setActiveCategory] = React.useState('all');
-  const [reportingItem, setReportingItem] = React.useState<any>(null);
-  const [reportReason, setReportReason] = React.useState('');
+  const [marketTab, setMarketTab] = useState<'supply' | 'demand' | 'insights'>('supply');
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [reportingItem, setReportingItem] = useState<any>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [listings, setListings] = useState<MarketListing[]>([]);
+  const [requests, setRequests] = useState<BuyerRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const listingsQuery = query(
+      collection(db, 'market_listings'),
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const requestsQuery = query(
+      collection(db, 'buyer_requests'),
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribeListings = onSnapshot(listingsQuery, (snapshot) => {
+      const newListings = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as MarketListing[];
+      setListings(newListings);
+      setLoading(false);
+    });
+
+    const unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
+      const newRequests = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BuyerRequest[];
+      setRequests(newRequests);
+    });
+
+    return () => {
+      unsubscribeListings();
+      unsubscribeRequests();
+    };
+  }, []);
 
   const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
   const onUpgrade = () => setActiveTab('account');
@@ -90,8 +131,16 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     setReportReason('');
   };
 
-  const verifiedSellers = Array.from(new Set(marketplaceListings.map(l => l.seller.id)))
-    .map(id => marketplaceListings.find(l => l.seller.id === id)?.seller)
+  const verifiedSellers = Array.from(new Set(listings.map(l => l.sellerId)))
+    .map(id => {
+      const listing = listings.find(l => l.sellerId === id);
+      return {
+        id: listing?.sellerId,
+        name: listing?.sellerName,
+        businessName: listing?.businessName,
+        verified: listing?.verified
+      };
+    })
     .filter(s => s?.verified);
 
   return (
@@ -291,19 +340,45 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 t={t} 
               />
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {marketplaceListings
-                  .filter(item => 
-                    (activeCategory === 'all' || item.category === activeCategory) &&
-                    (item.title.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
-                    item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
-                    item.seller.location.toLowerCase().includes(marketSearchQuery.toLowerCase()))
-                  )
-                  .map(item => (
-                    <ListingCard key={item.id} listing={item as any} t={t} onReport={setReportingItem} />
-                  ))
-                }
-              </div>
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                  <p className="text-gray-500 font-medium">{t('common.loading')}</p>
+                </div>
+              ) : listings.length === 0 ? (
+                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-12 text-center border border-gray-100 dark:border-gray-700">
+                  <Package className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold mb-2">{t('market.noListings')}</h3>
+                  <p className="text-gray-500 mb-8 max-w-xs mx-auto">{t('market.beFirstToSell')}</p>
+                  <button 
+                    onClick={() => {
+                      if (user) {
+                        setIsAddProductModalOpen(true);
+                        setFormStep(1);
+                      } else {
+                        toast.error(t('account.signIn'));
+                      }
+                    }}
+                    className="px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20"
+                  >
+                    {t('market.addListing')}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings
+                    .filter(item => 
+                      (activeCategory === 'all' || item.category === activeCategory) &&
+                      (item.title.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
+                      item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                      item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()))
+                    )
+                    .map(item => (
+                      <ListingCard key={item.id} listing={item} t={t} onReport={setReportingItem} />
+                    ))
+                  }
+                </div>
+              )}
 
               {user?.tier !== 'Verified Seller' && (
                 <div className="mt-12">
@@ -315,16 +390,36 @@ export const MarketPage: React.FC<MarketPageProps> = ({
 
           {marketTab === 'demand' && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {buyerRequests
-                .filter(req => 
-                  req.commodity.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
-                  req.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
-                  req.buyerName.toLowerCase().includes(marketSearchQuery.toLowerCase())
-                )
-                .map(req => (
-                  <BuyerRequestCard key={req.id} request={req as any} t={t} />
-                ))
-              }
+              {requests.length === 0 ? (
+                <div className="col-span-full bg-white dark:bg-gray-800 rounded-[2.5rem] p-12 text-center border border-gray-100 dark:border-gray-700">
+                  <ClipboardList className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold mb-2">{t('market.noRequests')}</h3>
+                  <p className="text-gray-500 mb-8 max-w-xs mx-auto">{t('market.beFirstToRequest')}</p>
+                  <button 
+                    onClick={() => {
+                      if (user) {
+                        setIsAddProductModalOpen(true);
+                        setFormStep(10);
+                      } else {
+                        toast.error(t('account.signIn'));
+                      }
+                    }}
+                    className="px-8 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20"
+                  >
+                    {t('market.postRequest')}
+                  </button>
+                </div>
+              ) : (
+                requests
+                  .filter(req => 
+                    req.commodity.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
+                    req.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+                    req.buyerName.toLowerCase().includes(marketSearchQuery.toLowerCase())
+                  )
+                  .map(req => (
+                    <BuyerRequestCard key={req.id} request={req} t={t} />
+                  ))
+              )}
             </div>
           )}
         </>

@@ -35,8 +35,21 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
     deliveryMethod: 'pickup',
     description: '',
     businessName: user?.businessName || user?.name || '',
-    phone: user?.phone || ''
+    phone: user?.phone || '',
+    imageFile: null as File | null,
+    imagePreview: ''
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        imageFile: file,
+        imagePreview: URL.createObjectURL(file)
+      });
+    }
+  };
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -177,9 +190,27 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
             />
           </div>
 
-          <div className="p-6 bg-gray-50 dark:bg-gray-700 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary transition-all cursor-pointer">
-            <Camera className="w-8 h-8" />
-            <span className="text-xs font-bold uppercase tracking-widest">{t('forms.uploadImage')}</span>
+          <div className="relative">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="hidden" 
+              id="listing-image"
+            />
+            <label 
+              htmlFor="listing-image"
+              className="p-6 bg-gray-50 dark:bg-gray-700 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary transition-all cursor-pointer overflow-hidden min-h-[120px]"
+            >
+              {formData.imagePreview ? (
+                <img src={formData.imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <>
+                  <Camera className="w-8 h-8" />
+                  <span className="text-xs font-bold uppercase tracking-widest">{t('forms.uploadImage')}</span>
+                </>
+              )}
+            </label>
           </div>
 
           <div className="flex gap-3 pt-4">

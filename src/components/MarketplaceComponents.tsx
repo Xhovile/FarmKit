@@ -18,11 +18,12 @@ import {
   ShieldCheck,
   Flag,
   Phone,
-  ExternalLink
+  ExternalLink,
+  Camera
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { MarketListing, BuyerRequest } from '../types';
 
-// --- Types ---
 export interface Seller {
   id: string;
   name: string;
@@ -32,34 +33,6 @@ export interface Seller {
   phone: string;
   type: string;
   verified: boolean;
-}
-
-export interface Listing {
-  id: number;
-  title: string;
-  category: string;
-  price: number;
-  unit: string;
-  stockStatus: string;
-  quantity: number;
-  image: string;
-  description: string;
-  deliveryMethod: string;
-  seller: Seller;
-}
-
-export interface BuyerRequest {
-  id: number;
-  buyerName: string;
-  commodity: string;
-  quantity: string;
-  unit: string;
-  location: string;
-  priceRange: string;
-  deliveryPreference: string;
-  contactMethod: string;
-  phone: string;
-  status: string;
 }
 
 // --- Components ---
@@ -77,7 +50,9 @@ export const SellerBadge: React.FC<{ verified: boolean; t: any }> = ({ verified,
   </div>
 );
 
-export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listing: Listing) => void }> = ({ listing, t, onReport }) => {
+export const ListingCard: React.FC<{ listing: MarketListing; t: any; onReport?: (listing: MarketListing) => void }> = ({ listing, t, onReport }) => {
+  const defaultImage = "https://picsum.photos/seed/farm/800/600";
+  
   return (
     <motion.div 
       whileHover={{ y: -5 }}
@@ -85,7 +60,7 @@ export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listi
     >
       <div className="relative h-48 overflow-hidden">
         <img 
-          src={listing.image} 
+          src={listing.imageUrl || defaultImage} 
           alt={listing.title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
           referrerPolicy="no-referrer" 
@@ -109,19 +84,19 @@ export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listi
           )}
         </div>
         <div className="absolute bottom-4 right-4">
-          <SellerBadge verified={listing.seller.verified} t={t} />
+          <SellerBadge verified={listing.verified} t={t} />
         </div>
       </div>
 
       <div className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700 overflow-hidden shrink-0 border border-gray-200 dark:border-gray-600">
-            <img src={listing.seller.avatar} alt={listing.seller.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-700 overflow-hidden shrink-0 border border-gray-200 dark:border-gray-600 flex items-center justify-center">
+            <User className="w-5 h-5 text-gray-400" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{listing.seller.businessName}</h4>
+            <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{listing.businessName}</h4>
             <div className="flex items-center text-[10px] text-gray-500 uppercase tracking-widest">
-              <MapPin className="w-2.5 h-2.5 mr-1 text-primary" /> {listing.seller.location}
+              <MapPin className="w-2.5 h-2.5 mr-1 text-primary" /> {listing.location}
             </div>
           </div>
         </div>
@@ -129,8 +104,8 @@ export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listi
         <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">{listing.title}</h3>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${listing.stockStatus === 'In Stock' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-            <Package className="w-3 h-3" /> {listing.stockStatus} ({listing.quantity})
+          <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${listing.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+            <Package className="w-3 h-3" /> {listing.status === 'active' ? t('common.inStock') || 'In Stock' : listing.status} ({listing.quantity})
           </span>
           <span className="px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
             <Truck className="w-3 h-3" /> {listing.deliveryMethod.replace('_', ' ')}
@@ -142,7 +117,7 @@ export const ListingCard: React.FC<{ listing: Listing; t: any; onReport?: (listi
         </p>
 
         <a 
-          href={`https://wa.me/${listing.seller.phone}?text=Hello ${listing.seller.name}, I am interested in your ${listing.title} on FarmKit.`}
+          href={`https://wa.me/${listing.phone}?text=Hello ${listing.sellerName}, I am interested in your ${listing.title} on FarmKit.`}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full py-3.5 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 active:scale-95"
@@ -199,14 +174,19 @@ export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any }> = ({ 
       <div className="flex items-center gap-2 mb-6 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
         <Truck className="w-4 h-4 text-gray-400" />
         <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-          {t('market.deliveryPreference')}: <span className="text-gray-900 dark:text-white font-bold">{request.deliveryPreference}</span>
+          {t('market.deliveryPreference') || t('market.deliveryMethod')}: <span className="text-gray-900 dark:text-white font-bold">{request.status}</span>
         </span>
       </div>
 
-      <button className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
+      <a 
+        href={`https://wa.me/${request.phone}?text=Hello ${request.buyerName}, I saw your request for ${request.commodity} on FarmKit.`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
+      >
         <ArrowRight className="w-5 h-5" />
         {t('market.fulfillRequest')}
-      </button>
+      </a>
     </motion.div>
   );
 };
