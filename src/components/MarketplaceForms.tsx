@@ -13,7 +13,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Plus,
-  Camera
+  Camera,
+  Check,
+  ChevronsUpDown
 } from 'lucide-react';
 import { marketCategories, deliveryMethods } from '../data/constants';
 
@@ -40,6 +42,8 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
     imagePreview: ''
   });
 
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -51,7 +55,10 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
     }
   };
 
-  const nextStep = () => setStep(step + 1);
+  const nextStep = () => {
+    setIsCategoryOpen(false);
+    setStep(step + 1);
+  };
   const prevStep = () => setStep(step - 1);
 
   return (
@@ -86,18 +93,55 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.category')}</label>
-            <select 
-              value={formData.category}
-              onChange={e => setFormData({...formData, category: e.target.value})}
-              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none appearance-none"
+          <div className="relative">
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+              {t('common.category')}
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsCategoryOpen((prev) => !prev)}
+              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none"
             >
-              <option value="">{t('forms.selectCategory')}</option>
-              {marketCategories.map(cat => (
-                <option key={cat.id} value={cat.id}>{t(cat.name, cat.nameNy)}</option>
-              ))}
-            </select>
+              <span className={formData.category ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                {formData.category
+                  ? t(
+                      marketCategories.find((cat) => cat.id === formData.category)?.name || formData.category,
+                      marketCategories.find((cat) => cat.id === formData.category)?.nameNy || formData.category
+                    )
+                  : t('forms.selectCategory')}
+              </span>
+              <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+            </button>
+
+            {isCategoryOpen && (
+              <div className="absolute z-30 mt-2 w-full max-h-72 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                <div className="p-2">
+                  {marketCategories.map((cat) => {
+                    const selected = formData.category === cat.id;
+
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, category: cat.id });
+                          setIsCategoryOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                          selected
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                        }`}
+                      >
+                        <span className="font-medium">{t(cat.name, cat.nameNy)}</span>
+                        {selected && <Check className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <button 
