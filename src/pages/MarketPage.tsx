@@ -414,9 +414,18 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         key={item.id}
                         listing={item}
                         t={t}
+                        currentUserId={user?.uid}
                         onReport={setReportingItem}
                         onMarkSold={handleMarkSold}
                         onHide={handleHideListing}
+                        onEdit={(listing) => {
+                          console.log('Edit listing:', listing);
+                          toast('Edit listing flow coming next.');
+                        }}
+                        onDelete={(listing) => {
+                          console.log('Delete listing:', listing);
+                          toast('Delete listing flow coming next.');
+                        }}
                         onOpenDetails={handleOpenListingDetails}
                       />
                     ))

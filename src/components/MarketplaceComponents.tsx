@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   MapPin, 
   MessageCircle, 
@@ -61,14 +61,46 @@ const getCategoryLabel = (categoryId: string, t: any) => {
 export const ListingCard: React.FC<{
   listing: MarketListing;
   t: any;
+  currentUserId?: string;
   onReport?: (listing: MarketListing) => void;
   onMarkSold?: (listing: MarketListing) => void;
   onHide?: (listing: MarketListing) => void;
+  onEdit?: (listing: MarketListing) => void;
+  onDelete?: (listing: MarketListing) => void;
   onOpenDetails?: (listing: MarketListing) => void;
-}> = ({ listing, t, onReport, onMarkSold, onHide, onOpenDetails }) => {
+}> = ({
+  listing,
+  t,
+  currentUserId,
+  onReport,
+  onMarkSold,
+  onHide,
+  onEdit,
+  onDelete,
+  onOpenDetails
+}) => {
   const defaultImage = "https://picsum.photos/seed/farm/800/600";
   const [menuOpen, setMenuOpen] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const isOwner = currentUserId === listing.sellerId;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
 
   const viewsCount = listing.viewsCount ?? 0;
   const sharesCount = listing.sharesCount ?? 0;
@@ -129,7 +161,7 @@ export const ListingCard: React.FC<{
         </div>
       </div>
 
-      <div className="absolute top-4 right-4 z-30">
+      <div className="absolute top-4 right-4 z-[120]" ref={menuRef}>
         <div className="relative">
           <button
             type="button"
@@ -140,44 +172,86 @@ export const ListingCard: React.FC<{
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-[100] min-w-[176px]">
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  {t('common.share') || 'Share'}
-                </button>
+            <div className="absolute right-0 mt-2 w-48 min-w-[192px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-[130]">
+              <button
+                type="button"
+                onClick={handleShare}
+                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                {t('common.share') || 'Share'}
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    onMarkSold?.(listing);
-                    setMenuOpen(false);
-                  }}
-                  disabled={!onMarkSold}
-                  className={`w-full px-4 py-3 text-left text-sm ${
-                    onMarkSold ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  Mark as sold
-                </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenDetails?.(listing);
+                }}
+                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                View details
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    onHide?.(listing);
-                    setMenuOpen(false);
-                  }}
-                  disabled={!onHide}
-                  className={`w-full px-4 py-3 text-left text-sm ${
-                    onHide ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  Hide listing
-                </button>
+              {isOwner ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onEdit?.(listing);
+                      setMenuOpen(false);
+                    }}
+                    disabled={!onEdit}
+                    className={`w-full px-4 py-3 text-left text-sm ${
+                      onEdit ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    Edit listing
+                  </button>
 
-                {onReport && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onMarkSold?.(listing);
+                      setMenuOpen(false);
+                    }}
+                    disabled={!onMarkSold}
+                    className={`w-full px-4 py-3 text-left text-sm ${
+                      onMarkSold ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    Mark as sold
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onHide?.(listing);
+                      setMenuOpen(false);
+                    }}
+                    disabled={!onHide}
+                    className={`w-full px-4 py-3 text-left text-sm ${
+                      onHide ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    Hide listing
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDelete?.(listing);
+                      setMenuOpen(false);
+                    }}
+                    disabled={!onDelete}
+                    className={`w-full px-4 py-3 text-left text-sm text-rose-600 ${
+                      onDelete ? 'hover:bg-rose-50 dark:hover:bg-rose-900/20' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    Delete listing
+                  </button>
+                </>
+              ) : (
+                onReport && (
                   <button
                     type="button"
                     onClick={() => {
@@ -188,11 +262,12 @@ export const ListingCard: React.FC<{
                   >
                     Report listing
                   </button>
-                )}
-              </div>
-            )}
-          </div>
+                )
+              )}
+            </div>
+          )}
         </div>
+      </div>
 
         <div className="absolute bottom-4 left-4">
           <span
@@ -278,7 +353,10 @@ export const ListingCard: React.FC<{
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => onOpenDetails?.(listing)}
+            onClick={() => {
+              setMenuOpen(false);
+              onOpenDetails?.(listing);
+            }}
             className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
           >
             View details
