@@ -38,7 +38,7 @@ import {
   deliveryMethods
 } from '../data/constants';
 import { db } from '../lib/firebase';
-import { collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { MarketListing, BuyerRequest } from '../types';
 // Real data states (placeholders for now)
 const marketPricesData: any[] = [];
@@ -164,7 +164,35 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     }
   };
 
+  const handleDeleteListing = async (listing: MarketListing) => {
+    if (!listing.id) return;
+
+    if (user?.uid !== listing.sellerId) {
+      toast.error('Only the owner can delete this listing.');
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete "${listing.title}" permanently?`);
+
+    if (!confirmed) return;
+
+    try {
+      await deleteDoc(doc(db, 'market_listings', listing.id));
+
+      if ((window as any).__farmkitSelectedListingId === listing.id) {
+        setSelectedItem(null);
+      }
+
+      toast.success('Listing deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast.error('Failed to delete listing.');
+    }
+  };
+
   const handleOpenListingDetails = (listing: MarketListing) => {
+    (window as any).__farmkitSelectedListingId = listing.id;
+
     setSelectedItem({
       ...listing,
       image: listing.imageUrl,
@@ -422,10 +450,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                           setFormStep(1);
                           setIsAddProductModalOpen(true);
                         }}
-                        onDelete={(listing) => {
-                          console.log('Delete listing:', listing);
-                          toast('Delete listing flow coming next.');
-                        }}
+                        onDelete={handleDeleteListing}
                         onOpenDetails={handleOpenListingDetails}
                       />
                     ))
