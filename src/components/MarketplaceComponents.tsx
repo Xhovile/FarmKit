@@ -82,9 +82,20 @@ export const ListingCard: React.FC<{
   const defaultImage = "https://picsum.photos/seed/farm/800/600";
   const [menuOpen, setMenuOpen] = useState(false);
   const [saved, setSaved] = useState(false);
-
   const menuRef = useRef<HTMLDivElement | null>(null);
+
   const isOwner = currentUserId === listing.sellerId;
+  const viewsCount = listing.viewsCount ?? 0;
+  const sharesCount = listing.sharesCount ?? 0;
+  const savesCount = listing.savesCount ?? 0;
+
+  const shareText = `Check out this listing on FarmKit: ${listing.title} - MK ${listing.price.toLocaleString()} / ${listing.unit}`;
+
+  const statusLabel = useMemo(() => {
+    if (listing.status === 'sold') return 'Sold';
+    if (listing.status === 'hidden') return 'Hidden';
+    return 'Available';
+  }, [listing.status]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -102,18 +113,6 @@ export const ListingCard: React.FC<{
     };
   }, [menuOpen]);
 
-  const viewsCount = listing.viewsCount ?? 0;
-  const sharesCount = listing.sharesCount ?? 0;
-  const savesCount = listing.savesCount ?? 0;
-
-  const shareText = `Check out this listing on FarmKit: ${listing.title} - MK ${listing.price.toLocaleString()} / ${listing.unit}`;
-
-  const statusLabel = useMemo(() => {
-    if (listing.status === 'sold') return 'Sold';
-    if (listing.status === 'hidden') return 'Hidden';
-    return t('common.inStock') || 'In Stock';
-  }, [listing.status, t]);
-
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -121,22 +120,13 @@ export const ListingCard: React.FC<{
           title: listing.title,
           text: shareText,
         });
-        toast.success(t('common.shared') || 'Shared successfully!');
       } else {
         await navigator.clipboard.writeText(shareText);
-        toast.success(t('common.copied') || 'Link copied to clipboard!');
+        toast.success('Copied to clipboard');
       }
     } catch (error: any) {
-      // Only log if it's not a user cancellation
-      if (error.name !== 'AbortError') {
+      if (error?.name !== 'AbortError') {
         console.error('Share failed:', error);
-        // Fallback to clipboard
-        try {
-          await navigator.clipboard.writeText(shareText);
-          toast.success(t('common.copied') || 'Link copied to clipboard!');
-        } catch (clipError) {
-          toast.error(t('common.shareError') || 'Failed to share');
-        }
       }
     } finally {
       setMenuOpen(false);
@@ -144,201 +134,212 @@ export const ListingCard: React.FC<{
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-[28px] shadow-sm border border-gray-100 dark:border-gray-700 overflow-visible hover:shadow-xl transition-all duration-300 relative">
-      <div className="relative h-52 overflow-hidden rounded-t-[28px]">
+    <div className="group bg-white dark:bg-gray-900 rounded-[30px] border border-gray-200/80 dark:border-gray-800 overflow-visible hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-300 relative">
+      <div className="relative h-64 overflow-hidden rounded-t-[30px] bg-gray-100 dark:bg-gray-800">
         <img
           src={listing.imageUrl || defaultImage}
           alt={listing.title}
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           referrerPolicy="no-referrer"
         />
 
-        <div className="absolute top-4 left-4">
-          <span className="px-3 py-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-full text-xs font-black text-primary shadow-lg">
-            MK {listing.price.toLocaleString()} / {listing.unit}
-          </span>
-        </div>
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
 
-      <div className="absolute top-4 right-4 z-[120]" ref={menuRef}>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-white shadow-lg"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
+        <div className="absolute top-4 right-4 z-[120]" ref={menuRef}>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="h-10 w-10 rounded-full bg-white/90 dark:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/10 flex items-center justify-center text-gray-700 dark:text-white shadow-lg"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
 
-          {menuOpen && (
-            <div className="absolute right-0 mt-2 w-48 min-w-[192px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-[130]">
-              <button
-                type="button"
-                onClick={handleShare}
-                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                {t('common.share') || 'Share'}
-              </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-48 min-w-[192px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-[130]">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  Share
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  onOpenDetails?.(listing);
-                }}
-                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                View details
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onOpenDetails?.(listing);
+                  }}
+                  className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  View details
+                </button>
 
-              {isOwner ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onEdit?.(listing);
-                      setMenuOpen(false);
-                    }}
-                    disabled={!onEdit}
-                    className={`w-full px-4 py-3 text-left text-sm ${
-                      onEdit ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    Edit listing
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onMarkSold?.(listing);
-                      setMenuOpen(false);
-                    }}
-                    disabled={!onMarkSold}
-                    className={`w-full px-4 py-3 text-left text-sm ${
-                      onMarkSold ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    Mark as sold
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onDelete?.(listing);
-                      setMenuOpen(false);
-                    }}
-                    disabled={!onDelete}
-                    className={`w-full px-4 py-3 text-left text-sm text-rose-600 ${
-                      onDelete ? 'hover:bg-rose-50 dark:hover:bg-rose-900/20' : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    Delete listing
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onHide?.(listing);
-                      setMenuOpen(false);
-                    }}
-                    disabled={!onHide}
-                    className={`w-full px-4 py-3 text-left text-sm ${
-                      onHide ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    Hide listing
-                  </button>
-
-                  {onReport && (
+                {isOwner ? (
+                  <>
                     <button
                       type="button"
                       onClick={() => {
-                        onReport(listing);
+                        onEdit?.(listing);
                         setMenuOpen(false);
                       }}
-                      className="w-full px-4 py-3 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                      disabled={!onEdit}
+                      className={`w-full px-4 py-3 text-left text-sm ${
+                        onEdit
+                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          : 'opacity-50 cursor-not-allowed'
+                      }`}
                     >
-                      Report listing
+                      Edit listing
                     </button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onMarkSold?.(listing);
+                        setMenuOpen(false);
+                      }}
+                      disabled={!onMarkSold}
+                      className={`w-full px-4 py-3 text-left text-sm ${
+                        onMarkSold
+                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          : 'opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      Mark as sold
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onDelete?.(listing);
+                        setMenuOpen(false);
+                      }}
+                      disabled={!onDelete}
+                      className={`w-full px-4 py-3 text-left text-sm ${
+                        onDelete
+                          ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20'
+                          : 'opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      Delete listing
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onHide?.(listing);
+                        setMenuOpen(false);
+                      }}
+                      disabled={!onHide}
+                      className={`w-full px-4 py-3 text-left text-sm ${
+                        onHide
+                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          : 'opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      Hide listing
+                    </button>
+
+                    {onReport && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onReport(listing);
+                          setMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      >
+                        Report listing
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="absolute left-5 bottom-5 flex items-end gap-3">
+          <div className="px-4 py-2.5 rounded-2xl bg-white/92 dark:bg-black/70 backdrop-blur-md shadow-xl border border-white/40 dark:border-white/10">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-gray-500 dark:text-gray-300 font-semibold">
+              Price
+            </p>
+            <p className="text-base font-black text-gray-950 dark:text-white">
+              MK {listing.price.toLocaleString()}
+              <span className="text-sm font-semibold text-gray-500 dark:text-gray-300"> / {listing.unit}</span>
+            </p>
+          </div>
+
+          <div className="px-3 py-1.5 rounded-full bg-black/55 text-white text-[11px] font-semibold backdrop-blur-sm">
+            {statusLabel}
+          </div>
         </div>
       </div>
 
-        <div className="absolute bottom-4 left-4">
-          <span
-            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              listing.status === 'active'
-                ? 'bg-emerald-50 text-emerald-600'
-                : listing.status === 'sold'
-                ? 'bg-amber-50 text-amber-600'
-                : 'bg-gray-100 text-gray-500'
-            }`}
-          >
-            {statusLabel}
-          </span>
-        </div>
-
-      <div className="p-5">
+      <div className="p-6">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight truncate">
+            <h3 className="text-[1.05rem] font-bold text-gray-950 dark:text-white leading-snug line-clamp-1">
               {listing.title}
             </h3>
 
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 truncate">
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <p className="text-sm text-gray-600 dark:text-gray-300 font-medium line-clamp-1">
                 {listing.businessName}
               </p>
-              <SellerBadge verified={listing.verified} t={t} />
+              {listing.verified && (
+                <div className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Verified
+                </div>
+              )}
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setSaved((prev) => !prev)}
-            className={`shrink-0 p-2 rounded-full transition-all ${
+            className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all ${
               saved
-                ? 'bg-primary/10 text-primary'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300'
+                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-black'
+                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
             }`}
           >
             <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-gray-500 uppercase tracking-wider mb-4">
-          <MapPin className="w-3.5 h-3.5 text-primary" />
-          <span>{listing.location}</span>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <MapPin className="w-4 h-4" />
+          <span className="line-clamp-1">{listing.location}</span>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-[10px] font-bold text-blue-600 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-200">
             <Tag className="w-3 h-3" />
             {getCategoryLabel(listing.category, t)}
           </span>
 
-          <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+          <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-200">
             <Package className="w-3 h-3" />
             {listing.quantity} {listing.unit}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-4">
-          <Truck className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <Truck className="w-4 h-4" />
           <span>{listing.deliveryMethod.replace(/_/g, ' ')}</span>
         </div>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 min-h-[40px] mb-3 leading-relaxed">
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2 min-h-[42px] mb-5">
           {listing.description}
         </p>
 
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t border-b border-gray-100 dark:border-gray-700 py-2.5 mb-4">
+        <div className="flex items-center justify-between border-t border-b border-gray-100 dark:border-gray-800 py-3 mb-5 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1.5">
             <Eye className="w-4 h-4" />
             <span>{viewsCount}</span>
@@ -362,7 +363,7 @@ export const ListingCard: React.FC<{
               setMenuOpen(false);
               onOpenDetails?.(listing);
             }}
-            className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+            className="h-12 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
           >
             View details
           </button>
@@ -371,10 +372,10 @@ export const ListingCard: React.FC<{
             href={`https://wa.me/${listing.phone}?text=Hello ${listing.sellerName}, I am interested in your ${listing.title} on FarmKit.`}
             target="_blank"
             rel="noopener noreferrer"
-            className="py-3 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+            className="h-12 rounded-2xl bg-black text-white dark:bg-white dark:text-black text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-all"
           >
             <MessageCircle className="w-4 h-4" />
-            {t('common.orderNow')}
+            Contact
           </a>
         </div>
       </div>
