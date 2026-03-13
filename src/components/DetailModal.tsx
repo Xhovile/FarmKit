@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -25,6 +25,19 @@ interface DetailModalProps {
 const formatCategoryLabel = (value?: string) => {
   if (!value) return 'Product';
   return value.replace(/_/g, ' ');
+};
+
+const formatDeliveryLabel = (value?: string) => {
+  if (!value) return 'Not specified';
+  return value.replace(/_/g, ' ');
+};
+
+const formatStatusLabel = (value?: string) => {
+  if (!value) return 'Active';
+  if (value === 'active') return 'Active';
+  if (value === 'sold') return 'Sold';
+  if (value === 'hidden') return 'Hidden';
+  return value;
 };
 
 const renderMarketSpecs = (item: any) => {
@@ -109,6 +122,41 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const isMarketListing = selectedItem.type === 'market_listing';
   const specs = isMarketListing ? renderMarketSpecs(selectedItem) : [];
 
+  const [saved, setSaved] = useState(false);
+
+  const shareText = isMarketListing
+    ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
+    : `${selectedItem.title || selectedItem.name}`;
+
+  const createdDateLabel = useMemo(() => {
+    if (!selectedItem?.createdAt) return 'Recently added';
+
+    try {
+      if (selectedItem.createdAt?.seconds) {
+        return new Date(selectedItem.createdAt.seconds * 1000).toLocaleDateString();
+      }
+
+      return 'Recently added';
+    } catch {
+      return 'Recently added';
+    }
+  }, [selectedItem]);
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: selectedItem.title || selectedItem.name,
+          text: shareText,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+      }
+    } catch (error) {
+      console.error('Share failed:', error);
+    }
+  };
+
   return (
     <AnimatePresence>
       {selectedItem && (
@@ -154,7 +202,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   <span className="px-3 py-1 bg-white/90 text-primary text-[10px] font-bold rounded-full uppercase tracking-wider">
                     {isMarketListing
                       ? formatCategoryLabel(selectedItem.category)
-                      : selectedItem.category || selectedItem.type}
+                      : selectedItem.category || selectedItem.type || 'Detail'}
                   </span>
 
                   {isMarketListing && selectedItem.verified && (
@@ -213,9 +261,23 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         Delivery
                       </div>
                       <p className="font-bold">
-                        {selectedItem.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'}
+                        {formatDeliveryLabel(selectedItem.deliveryMethod)}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 mb-8">
+                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Status: {formatStatusLabel(selectedItem.status)}
+                    </span>
+
+                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Added: {createdDateLabel}
+                    </span>
+
+                    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      Seller tier: {selectedItem.sellerTier || 'Standard'}
+                    </span>
                   </div>
 
                   <div className="mb-8">
@@ -244,18 +306,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
                     <div className="flex items-center gap-2">
                       <Eye className="w-4 h-4" />
                       {selectedItem.viewsCount ?? 0} views
                     </div>
+
                     <div className="flex items-center gap-2">
                       <Bookmark className="w-4 h-4" />
-                      {selectedItem.savesCount ?? 0} saves
+                      {(selectedItem.savesCount ?? 0) + (saved ? 1 : 0)} saves
                     </div>
+
                     <div className="flex items-center gap-2">
                       <CalendarDays className="w-4 h-4" />
-                      Listing active
+                      {createdDateLabel}
                     </div>
                   </div>
 
@@ -270,12 +334,24 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       Contact Seller
                     </a>
 
-                    <button className="px-5 py-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-700 dark:text-gray-200">
+                    <button
+                      type="button"
+                      onClick={handleShare}
+                      className="px-5 py-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+                    >
                       <Share2 className="w-5 h-5" />
                     </button>
 
-                    <button className="px-5 py-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-700 dark:text-gray-200">
-                      <Bookmark className="w-5 h-5" />
+                    <button
+                      type="button"
+                      onClick={() => setSaved((prev) => !prev)}
+                      className={`px-5 py-4 rounded-2xl transition-all ${
+                        saved
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
                     </button>
                   </div>
                 </>
