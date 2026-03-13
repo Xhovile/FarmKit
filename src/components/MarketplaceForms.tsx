@@ -26,6 +26,74 @@ interface FormProps {
   user: any;
 }
 
+type SpecField = {
+  key: string;
+  label: string;
+  placeholder: string;
+};
+
+const getSpecFieldsForCategory = (category: string): SpecField[] => {
+  const value = category.toLowerCase();
+
+  if (
+    value.includes('tractor') ||
+    value.includes('equipment') ||
+    value.includes('tools') ||
+    value.includes('machinery')
+  ) {
+    return [
+      { key: 'condition', label: 'Condition', placeholder: 'New / Used / Refurbished' },
+      { key: 'brand', label: 'Brand', placeholder: 'e.g. John Deere' },
+      { key: 'model', label: 'Model', placeholder: 'e.g. 5050D' },
+      { key: 'capacity', label: 'Power / Capacity', placeholder: 'e.g. 50HP / 120L' },
+      { key: 'fuelType', label: 'Fuel Type', placeholder: 'Diesel / Petrol / Manual' },
+    ];
+  }
+
+  if (value.includes('seed')) {
+    return [
+      { key: 'seedType', label: 'Seed Type', placeholder: 'Hybrid / OPV / Local' },
+      { key: 'variety', label: 'Variety', placeholder: 'e.g. SC 403' },
+      { key: 'packSize', label: 'Pack Size', placeholder: 'e.g. 2kg bag' },
+      { key: 'season', label: 'Season', placeholder: 'Rainy / Winter / Summer' },
+      { key: 'germinationRate', label: 'Germination Rate', placeholder: 'e.g. 95%' },
+    ];
+  }
+
+  if (
+    value.includes('livestock') ||
+    value.includes('animal') ||
+    value.includes('goat') ||
+    value.includes('cattle') ||
+    value.includes('chicken')
+  ) {
+    return [
+      { key: 'breed', label: 'Breed', placeholder: 'e.g. Boer / Broiler' },
+      { key: 'age', label: 'Age', placeholder: 'e.g. 8 months / 6 weeks' },
+      { key: 'sex', label: 'Sex', placeholder: 'Male / Female / Mixed' },
+      { key: 'healthStatus', label: 'Health Status', placeholder: 'Healthy / Under treatment' },
+      { key: 'vaccinationStatus', label: 'Vaccination', placeholder: 'Vaccinated / Not vaccinated' },
+    ];
+  }
+
+  if (
+    value.includes('fertilizer') ||
+    value.includes('pesticide') ||
+    value.includes('chemical') ||
+    value.includes('input')
+  ) {
+    return [
+      { key: 'brand', label: 'Brand', placeholder: 'e.g. Yara / Dudu' },
+      { key: 'inputType', label: 'Input Type', placeholder: 'Fertilizer / Herbicide / Insecticide' },
+      { key: 'packSize', label: 'Pack Size', placeholder: 'e.g. 50kg / 1L' },
+      { key: 'usage', label: 'Usage', placeholder: 'What is it used for?' },
+      { key: 'expiryDate', label: 'Expiry Date', placeholder: 'e.g. 2027-08-31' },
+    ];
+  }
+
+  return [];
+};
+
 export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: number) => void }> = ({ t, onClose, onSubmit, user, step, setStep }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -39,11 +107,35 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
     businessName: user?.businessName || user?.name || '',
     phone: user?.phone || '',
     imageFile: null as File | null,
-    imagePreview: ''
+    imagePreview: '',
+
+    condition: '',
+    brand: '',
+    model: '',
+    capacity: '',
+    fuelType: '',
+
+    seedType: '',
+    variety: '',
+    packSize: '',
+    season: '',
+    germinationRate: '',
+
+    breed: '',
+    age: '',
+    sex: '',
+    healthStatus: '',
+    vaccinationStatus: '',
+
+    inputType: '',
+    usage: '',
+    expiryDate: '',
   });
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const specFields = getSpecFieldsForCategory(formData.category);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -241,6 +333,41 @@ export const AddListingForm: React.FC<FormProps & { step: number; setStep: (s: n
 
       {step === 3 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+          {specFields.length > 0 && (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
+                <p className="text-xs text-blue-700 dark:text-blue-300 font-semibold">
+                  Category details
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  Add the key specifications that matter for this type of product.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {specFields.map((field) => (
+                  <div key={field.key}>
+                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                      {field.label}
+                    </label>
+                    <input
+                      type="text"
+                      value={(formData as any)[field.key]}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          [field.key]: e.target.value,
+                        })
+                      }
+                      placeholder={field.placeholder}
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.description')}</label>
             <textarea 

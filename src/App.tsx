@@ -54,6 +54,28 @@ type ListingFormData = {
   phone: string;
   imageFile?: File | null;
   imagePreview?: string;
+
+  condition?: string;
+  brand?: string;
+  model?: string;
+  capacity?: string;
+  fuelType?: string;
+
+  seedType?: string;
+  variety?: string;
+  packSize?: string;
+  season?: string;
+  germinationRate?: string;
+
+  breed?: string;
+  age?: string;
+  sex?: string;
+  healthStatus?: string;
+  vaccinationStatus?: string;
+
+  inputType?: string;
+  usage?: string;
+  expiryDate?: string;
 };
 
 export default function App() {
@@ -239,6 +261,30 @@ export default function App() {
     const cleanedBusinessName = data.businessName.trim();
     const cleanedPhone = data.phone.trim();
 
+    const cleanOptional = (value?: string) => value?.trim() || '';
+
+    const condition = cleanOptional(data.condition);
+    const brand = cleanOptional(data.brand);
+    const model = cleanOptional(data.model);
+    const capacity = cleanOptional(data.capacity);
+    const fuelType = cleanOptional(data.fuelType);
+
+    const seedType = cleanOptional(data.seedType);
+    const variety = cleanOptional(data.variety);
+    const packSize = cleanOptional(data.packSize);
+    const season = cleanOptional(data.season);
+    const germinationRate = cleanOptional(data.germinationRate);
+
+    const breed = cleanOptional(data.breed);
+    const age = cleanOptional(data.age);
+    const sex = cleanOptional(data.sex);
+    const healthStatus = cleanOptional(data.healthStatus);
+    const vaccinationStatus = cleanOptional(data.vaccinationStatus);
+
+    const inputType = cleanOptional(data.inputType);
+    const usage = cleanOptional(data.usage);
+    const expiryDate = cleanOptional(data.expiryDate);
+
     const price = Number(data.price);
     const quantity = Number(data.quantity);
 
@@ -275,6 +321,31 @@ export default function App() {
         sellerTier: user.tier || 'Free',
         verified: user.tier === 'Verified Seller',
         imageUrl,
+        condition,
+        brand,
+        model,
+        capacity,
+        fuelType,
+
+        seedType,
+        variety,
+        packSize,
+        season,
+        germinationRate,
+
+        breed,
+        age,
+        sex,
+        healthStatus,
+        vaccinationStatus,
+
+        inputType,
+        usage,
+        expiryDate,
+
+        viewsCount: 0,
+        sharesCount: 0,
+        savesCount: 0,
         status: 'active',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),

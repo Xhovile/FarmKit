@@ -17,9 +17,37 @@ export interface MarketListing {
   imageUrl: string | null;
   status: 'active' | 'sold' | 'hidden';
   createdAt: any;
+  updatedAt?: any;
+
   viewsCount?: number;
   sharesCount?: number;
   savesCount?: number;
+
+  // Machinery / tools
+  condition?: string;
+  brand?: string;
+  model?: string;
+  capacity?: string;
+  fuelType?: string;
+
+  // Seeds
+  seedType?: string;
+  variety?: string;
+  packSize?: string;
+  season?: string;
+  germinationRate?: string;
+
+  // Livestock
+  breed?: string;
+  age?: string;
+  sex?: string;
+  healthStatus?: string;
+  vaccinationStatus?: string;
+
+  // Agro-inputs
+  inputType?: string;
+  usage?: string;
+  expiryDate?: string;
 }
 
 export interface BuyerRequest {
