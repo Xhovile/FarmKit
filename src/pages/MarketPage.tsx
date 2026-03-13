@@ -468,6 +468,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   <button 
                     onClick={() => {
                       if (user) {
+                        setEditingListing(null);
                         setIsAddProductModalOpen(true);
                         setFormStep(10);
                       } else {

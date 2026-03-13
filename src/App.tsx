@@ -642,6 +642,7 @@ export default function App() {
             onClick={() => {
               setIsAddProductModalOpen(false);
               setFormStep(1);
+              setEditingListing(null);
             }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
