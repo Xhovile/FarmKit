@@ -173,10 +173,51 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             initial={{ scale: 0.96, y: 16 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.96, y: 16 }}
-            className="bg-white dark:bg-gray-800 w-full max-w-3xl rounded-[32px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 w-full max-w-5xl rounded-[32px] shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative h-72">
+            <div className="sticky top-0 z-30 flex items-center justify-between gap-4 px-5 sm:px-6 py-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400 font-semibold">
+                  Listing Details
+                </p>
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                  {selectedItem.title || selectedItem.name}
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="h-10 w-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSaved((prev) => !prev)}
+                  className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all ${
+                    saved
+                      ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-black'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem(null)}
+                  className="h-10 w-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="relative h-64 sm:h-72 shrink-0">
               <img
                 src={
                   selectedItem.image ||
@@ -189,15 +230,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-              <div className="absolute top-6 right-6 flex gap-2">
-                <button
-                  className="p-3 bg-black/25 hover:bg-black/40 text-white rounded-full backdrop-blur-md transition-all"
-                  onClick={() => setSelectedItem(null)}
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-8">
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -227,7 +259,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </div>
             </div>
 
-            <div className="p-8">
+            <div className="p-6 sm:p-8 overflow-y-auto">
               {isMarketListing ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
@@ -325,7 +357,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     <a
                       href={`https://wa.me/${selectedItem.phone}?text=Hello ${selectedItem.sellerName}, I am interested in your ${selectedItem.title} on FarmKit.`}
                       target="_blank"
@@ -335,26 +367,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       <MessageCircle className="w-5 h-5" />
                       Contact Seller
                     </a>
-
-                    <button
-                      type="button"
-                      onClick={handleShare}
-                      className="px-5 py-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
-                    >
-                      <Share2 className="w-5 h-5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSaved((prev) => !prev)}
-                      className={`px-5 py-4 rounded-2xl transition-all ${
-                        saved
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:hover:bg-gray-600'
-                      }`}
-                    >
-                      <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
-                    </button>
                   </div>
                 </>
               ) : (
