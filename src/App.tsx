@@ -219,11 +219,16 @@ export default function App() {
   const t_old = (en: string, ny: string) => lang === 'en' ? en : ny;
 
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME?.trim();
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET?.trim();
 
     if (!cloudName || !uploadPreset) {
-      throw new Error('Cloudinary environment variables are missing.');
+      throw new Error('Cloudinary configuration is missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your environment variables.');
+    }
+
+    // Optional: Check file size (e.g., 10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error('Image file is too large. Maximum size is 10MB.');
     }
 
     const formData = new FormData();
@@ -239,7 +244,18 @@ export default function App() {
     );
 
     if (!response.ok) {
-      throw new Error('Image upload to Cloudinary failed.');
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error?.message || 'Image upload to Cloudinary failed.';
+      
+      if (errorMessage.includes('Upload preset')) {
+        throw new Error(`Cloudinary Error: ${errorMessage}. Ensure your upload preset is "Unsigned" in Cloudinary settings.`);
+      }
+
+      if (errorMessage.includes('API key')) {
+        throw new Error(`Cloudinary Error: ${errorMessage}. This usually happens when your Upload Preset is set to "Signed". Please go to Cloudinary Settings > Upload > Upload presets and change your preset's Signing Mode to "Unsigned".`);
+      }
+      
+      throw new Error(`Cloudinary Error: ${errorMessage}`);
     }
 
     const result = await response.json();
@@ -336,7 +352,7 @@ export default function App() {
     if (!Number.isFinite(price) || price <= 0) throw new Error('Price must be greater than 0.');
     if (!Number.isFinite(quantity) || quantity <= 0) throw new Error('Quantity must be greater than 0.');
 
-    setLoading(true);
+    setIsSubmittingListing(true);
 
     try {
       let imageUrl: string | null = null;
@@ -393,7 +409,7 @@ export default function App() {
 
       toast.success('Listing created successfully!');
     } finally {
-      setLoading(false);
+      setIsSubmittingListing(false);
     }
   };
 
