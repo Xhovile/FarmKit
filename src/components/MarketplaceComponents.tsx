@@ -323,19 +323,9 @@ export const ListingCard: React.FC<{
             <Tag className="w-3 h-3" />
             {getCategoryLabel(listing.category, t)}
           </span>
-
-          <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1 text-[11px] font-medium text-gray-700 dark:text-gray-200">
-            <Package className="w-3 h-3" />
-            {listing.quantity} {listing.unit}
-          </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <Truck className="w-4 h-4" />
-          <span>{listing.deliveryMethod.replace(/_/g, ' ')}</span>
-        </div>
-
-        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2 min-h-[42px] mb-5">
+        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-1 min-h-[20px] mb-5">
           {listing.description}
         </p>
 
