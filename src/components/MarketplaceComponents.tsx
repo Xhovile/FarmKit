@@ -104,12 +104,22 @@ export const ListingCard: React.FC<{
       }
     };
 
+    const handleScrollOrResize = () => {
+      setMenuOpen(false);
+    };
+
     if (menuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+      window.addEventListener('resize', handleScrollOrResize);
+      window.addEventListener('touchmove', handleScrollOrResize, { passive: true });
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('touchmove', handleScrollOrResize);
     };
   }, [menuOpen]);
 
