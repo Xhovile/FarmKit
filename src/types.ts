@@ -5,6 +5,8 @@ export interface MarketListing {
   price: number;
   unit: string;
   quantity: number;
+  availableQuantity?: number;
+  soldQuantity?: number;
   location: string;
   deliveryMethod: string;
   description: string;

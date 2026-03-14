@@ -159,10 +159,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     }
 
     const nextStatus = listing.status === 'sold' ? 'active' : 'sold';
+    const totalQuantity = listing.quantity || 0;
 
     try {
       await updateDoc(doc(db, 'market_listings', listing.id), {
         status: nextStatus,
+        availableQuantity: nextStatus === 'sold' ? 0 : totalQuantity,
+        soldQuantity: nextStatus === 'sold' ? totalQuantity : 0,
       });
 
       toast.success(
@@ -468,7 +471,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                         item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
                       ) &&
-                      (item.status !== 'sold' || item.sellerId === user?.uid) &&
+                      ((item.availableQuantity ?? item.quantity ?? 0) > 0 || item.sellerId === user?.uid) &&
                       !hiddenListingIds.includes(item.id || '')
                     )
                     .map((item) => (
@@ -498,7 +501,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                       item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                       item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase())
                     ) &&
-                    (item.status !== 'sold' || item.sellerId === user?.uid) &&
+                    ((item.availableQuantity ?? item.quantity ?? 0) > 0 || item.sellerId === user?.uid) &&
                     !hiddenListingIds.includes(item.id || '')
                   ).length === 0 && (
                     <div className="col-span-full bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">

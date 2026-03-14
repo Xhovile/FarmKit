@@ -91,14 +91,16 @@ const renderMarketSpecs = (item: any) => {
         ['Variety / Grade', item.variety || 'Not specified'],
         ['Packaging', item.packSize || 'Not specified'],
         ['Season', item.season || 'Not specified'],
-        ['Available Amount', `${item.quantity || '-'}`],
+        ['Available Amount', `${item.availableQuantity ?? item.quantity ?? '-'}`],
+        ['Sold', `${item.soldQuantity ?? 0}`],
         ['Delivery', item.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'],
       ];
 
     default:
       return [
         ['Category', formatCategoryLabel(item.category)],
-        ['Available Amount', `${item.quantity || '-'}`],
+        ['Available Amount', `${item.availableQuantity ?? item.quantity ?? '-'}`],
+        ['Sold', `${item.soldQuantity ?? 0}`],
         ['Delivery', item.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'],
         ['Seller Type', item.sellerTier || 'Standard'],
         ['Status', item.status || 'active'],
@@ -285,17 +287,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                         Available amount
                       </div>
                       <p className="font-bold">
-                        {selectedItem.quantity}
+                        {selectedItem.availableQuantity ?? selectedItem.quantity ?? 0}
                       </p>
                     </div>
 
                     <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
-                        <Truck className="w-4 h-4" />
-                        Delivery
+                        <Package className="w-4 h-4" />
+                        Sold
                       </div>
                       <p className="font-bold">
-                        {formatDeliveryLabel(selectedItem.deliveryMethod)}
+                        {selectedItem.soldQuantity ?? 0}
                       </p>
                     </div>
                   </div>

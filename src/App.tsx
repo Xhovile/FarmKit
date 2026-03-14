@@ -216,6 +216,20 @@ export default function App() {
     return () => unsubscribeListings();
   }, []);
 
+  useEffect(() => {
+    if (selectedItem && selectedItem.id && selectedItem.type === 'market_listing') {
+      const updatedItem = marketListings.find(item => item.id === selectedItem.id);
+      if (updatedItem) {
+        // Sync the selected item with live data
+        setSelectedItem({
+          ...updatedItem,
+          image: updatedItem.imageUrl,
+          type: 'market_listing'
+        });
+      }
+    }
+  }, [marketListings]);
+
   const t_old = (en: string, ny: string) => lang === 'en' ? en : ny;
 
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
@@ -371,6 +385,8 @@ export default function App() {
         price,
         unit: cleanedUnit,
         quantity,
+        availableQuantity: quantity,
+        soldQuantity: 0,
         location: cleanedLocation,
         deliveryMethod: data.deliveryMethod,
         description: cleanedDescription,
@@ -457,6 +473,13 @@ export default function App() {
     const price = Number(data.price);
     const quantity = Number(data.quantity);
 
+    const previousQuantity = editingListing?.quantity ?? quantity;
+    const previousAvailableQuantity = editingListing?.availableQuantity ?? previousQuantity;
+    const previousSoldQuantity = editingListing?.soldQuantity ?? 0;
+
+    const quantityDelta = quantity - previousQuantity;
+    const nextAvailableQuantity = Math.max(0, previousAvailableQuantity + quantityDelta);
+
     if (!cleanedTitle) throw new Error('Product name is required.');
     if (!cleanedCategory) throw new Error('Category is required.');
     if (!cleanedUnit) throw new Error('Unit is required.');
@@ -480,6 +503,8 @@ export default function App() {
         price,
         unit: cleanedUnit,
         quantity,
+        availableQuantity: nextAvailableQuantity,
+        soldQuantity: previousSoldQuantity,
         location: cleanedLocation,
         deliveryMethod: data.deliveryMethod,
         description: cleanedDescription,
