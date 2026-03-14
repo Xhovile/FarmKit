@@ -306,17 +306,27 @@ export const ListingCard: React.FC<{
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onToggleSave?.(listing)}
-            className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${
-              saved
-                ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-black'
-                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
-            }`}
-          >
-            <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
-          </button>
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => onToggleSave?.(listing)}
+              className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${
+                saved
+                  ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+            >
+              <Bookmark className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="h-10 w-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400 mb-4">
