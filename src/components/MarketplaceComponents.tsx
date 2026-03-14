@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   MapPin, 
   MessageCircle, 
@@ -87,6 +88,8 @@ export const ListingCard: React.FC<{
   const [menuOpen, setMenuOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 224 });
 
   const isOwner = currentUserId === listing.sellerId;
   const viewsCount = listing.viewsCount ?? 0;
@@ -100,6 +103,44 @@ export const ListingCard: React.FC<{
     if (listing.status === 'hidden') return 'Hidden';
     return 'Available';
   }, [listing.status]);
+
+  const updateMenuPosition = () => {
+    if (!menuButtonRef.current) return;
+
+    const rect = menuButtonRef.current.getBoundingClientRect();
+    const menuWidth = 224;
+    const gap = 10;
+
+    let left = rect.right - menuWidth;
+    const top = rect.bottom + gap;
+
+    if (left < 12) left = 12;
+    if (left + menuWidth > window.innerWidth - 12) {
+      left = window.innerWidth - menuWidth - 12;
+    }
+
+    setMenuPosition({
+      top,
+      left,
+      width: menuWidth,
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!menuOpen) return;
+
+    updateMenuPosition();
+
+    const handleReposition = () => updateMenuPosition();
+
+    window.addEventListener('resize', handleReposition);
+    window.addEventListener('scroll', handleReposition, true);
+
+    return () => {
+      window.removeEventListener('resize', handleReposition);
+      window.removeEventListener('scroll', handleReposition, true);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -198,6 +239,7 @@ export const ListingCard: React.FC<{
         <div className="absolute top-4 right-4 z-20" ref={menuRef}>
           <div className="relative">
             <button
+              ref={menuButtonRef}
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -207,155 +249,6 @@ export const ListingCard: React.FC<{
             >
               <MoreVertical className="w-4 h-4" />
             </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 min-w-[192px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-30">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShare();
-                  }}
-                  className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  Share
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                    onOpenDetails?.(listing);
-                  }}
-                  className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  View details
-                </button>
-
-                {isOwner ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRecordSale?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onRecordSale}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onRecordSale
-                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      Record sale
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRestock?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onRestock}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onRestock
-                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      Restock
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onEdit}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onEdit
-                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      Edit listing
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMarkSold?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onMarkSold}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onMarkSold
-                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      {listing.status === 'sold' ? 'Mark as available' : 'Mark as sold'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onDelete}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onDelete
-                          ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      Delete listing
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onHide?.(listing);
-                        setMenuOpen(false);
-                      }}
-                      disabled={!onHide}
-                      className={`w-full px-4 py-3 text-left text-sm ${
-                        onHide
-                          ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
-                          : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      Hide listing
-                    </button>
-
-                    {onReport && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onReport(listing);
-                          setMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                      >
-                        Report listing
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
@@ -448,6 +341,170 @@ export const ListingCard: React.FC<{
           </a>
         </div>
       </div>
+
+      {menuOpen && createPortal(
+        <div
+          className="fixed inset-0 z-[140]"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            ref={menuRef}
+            className="absolute bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-[0_24px_70px_rgba(0,0,0,0.18)] overflow-y-auto max-h-[320px]"
+            style={{
+              top: menuPosition.top,
+              left: menuPosition.left,
+              width: menuPosition.width,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShare();
+              }}
+              className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              Share
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(false);
+                onOpenDetails?.(listing);
+              }}
+              className="w-full px-4 py-3 text-left text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              View details
+            </button>
+
+            {isOwner ? (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRecordSale?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onRecordSale}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onRecordSale
+                      ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Record sale
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRestock?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onRestock}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onRestock
+                      ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Restock
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onEdit}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onEdit
+                      ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Edit listing
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMarkSold?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onMarkSold}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onMarkSold
+                      ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  {listing.status === 'sold' ? 'Mark as available' : 'Mark as sold'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onDelete}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onDelete
+                      ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Delete listing
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onHide?.(listing);
+                    setMenuOpen(false);
+                  }}
+                  disabled={!onHide}
+                  className={`w-full px-4 py-3 text-left text-sm ${
+                    onHide
+                      ? 'text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  Hide listing
+                </button>
+
+                {onReport && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onReport(listing);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    Report listing
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
