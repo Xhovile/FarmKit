@@ -285,14 +285,14 @@ export const ListingCard: React.FC<{
         </div>
       </div>
 
-      <div className="p-6 sm:p-7 bg-white dark:bg-gray-900 rounded-b-[32px] border-t border-gray-100 dark:border-gray-800">
-        <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="p-5 sm:p-6 bg-white dark:bg-gray-900 rounded-b-[32px] border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="min-w-0">
             <h3 className="text-[1.06rem] sm:text-[1.08rem] font-semibold text-black dark:text-white leading-snug line-clamp-1">
               {listing.title}
             </h3>
 
-            <div className="mt-1 flex items-center gap-2 flex-wrap">
+            <div className="mt-0.5 flex items-center gap-2 flex-wrap">
               <p className="text-sm text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
                 {listing.businessName}
               </p>
@@ -328,12 +328,12 @@ export const ListingCard: React.FC<{
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400 mb-6">
+        <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400 mb-5">
           <MapPin className="w-4 h-4" />
           <span className="line-clamp-1">{listing.location}</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5">
           <button
             type="button"
             onClick={() => {

@@ -272,9 +272,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   )}
                 </div>
               </div>
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-black dark:text-white mb-3">Description</h4>
+                <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    {selectedItem.description || 'No description provided.'}
+                  </p>
+                </div>
+              </div>
               {isMarketListing ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
                     <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
                         <Building2 className="w-4 h-4" />
@@ -312,7 +320,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mb-8">
+                  <div className="flex flex-wrap gap-3 mb-7">
                     <span className="px-3 py-1.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm">
                       Status: {formatStatusLabel(selectedItem.status)}
                     </span>
@@ -324,13 +332,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     <span className="px-3 py-1.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm">
                       Seller tier: {selectedItem.sellerTier || 'Standard'}
                     </span>
-                  </div>
-
-                  <div className="mb-8">
-                    <h4 className="text-lg font-semibold text-black dark:text-white mb-3">Description</h4>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                      {selectedItem.description || 'No description provided.'}
-                    </p>
                   </div>
 
                   <div className="mb-8">
