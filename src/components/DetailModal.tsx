@@ -20,6 +20,9 @@ interface DetailModalProps {
   lang: string;
   selectedItem: any;
   setSelectedItem: (item: any) => void;
+  toggleSavedListing?: (listing: any) => void;
+  incrementListingShares?: (listingId?: string) => void;
+  savedListingIds?: string[];
 }
 
 const formatCategoryLabel = (value?: string) => {
@@ -112,14 +115,17 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   t,
   lang,
   selectedItem,
-  setSelectedItem
+  setSelectedItem,
+  toggleSavedListing,
+  incrementListingShares,
+  savedListingIds = []
 }) => {
   if (!selectedItem) return null;
 
   const isMarketListing = selectedItem.type === 'market_listing';
   const specs = isMarketListing ? renderMarketSpecs(selectedItem) : [];
 
-  const [saved, setSaved] = useState(false);
+  const saved = savedListingIds.includes(selectedItem.id);
 
   const shareText = isMarketListing
     ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
@@ -148,6 +154,10 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         });
       } else {
         await navigator.clipboard.writeText(shareText);
+      }
+
+      if (isMarketListing) {
+        incrementListingShares?.(selectedItem.id);
       }
     } catch (error: any) {
       const isCancel = 
@@ -200,7 +210,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setSaved((prev) => !prev)}
+                  onClick={() => toggleSavedListing?.(selectedItem)}
                   className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${
                     saved
                       ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
@@ -350,7 +360,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
                     <div className="flex items-center gap-2">
                       <Bookmark className="w-4 h-4" />
-                      {(selectedItem.savesCount ?? 0) + (saved ? 1 : 0)} saves
+                      {selectedItem.savesCount ?? 0} saves
                     </div>
 
                     <div className="flex items-center gap-2">

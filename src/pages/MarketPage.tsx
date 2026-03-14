@@ -65,6 +65,10 @@ interface MarketPageProps {
   setActiveTab: (tab: any) => void;
   setSelectedItem: (item: any) => void;
   setEditingListing: (listing: MarketListing | null) => void;
+  incrementListingViews: (listingId?: string) => Promise<void> | void;
+  toggleSavedListing: (listing: MarketListing) => Promise<void> | void;
+  incrementListingShares: (listingId?: string) => Promise<void> | void;
+  savedListingIds: string[];
 }
 
 export const MarketPage: React.FC<MarketPageProps> = ({ 
@@ -78,7 +82,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   setFormStep,
   setActiveTab,
   setSelectedItem,
-  setEditingListing
+  setEditingListing,
+  incrementListingViews,
+  toggleSavedListing,
+  incrementListingShares,
+  savedListingIds
 }) => {
   const [marketTab, setMarketTab] = useState<'supply' | 'demand' | 'insights'>('supply');
   const [activeCategory, setActiveCategory] = useState('all');
@@ -315,6 +323,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
 
   const handleOpenListingDetails = (listing: MarketListing) => {
     (window as any).__farmkitSelectedListingId = listing.id;
+
+    incrementListingViews(listing.id);
 
     setSelectedItem({
       ...listing,
@@ -584,6 +594,9 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                           setRestockListing(listing);
                           setRestockAmount('');
                         }}
+                        onToggleSave={toggleSavedListing}
+                        onShareListing={incrementListingShares}
+                        isSaved={savedListingIds.includes(item.id || '')}
                       />
                     ))
                   }

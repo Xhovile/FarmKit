@@ -71,6 +71,9 @@ export const ListingCard: React.FC<{
   onOpenDetails?: (listing: MarketListing) => void;
   onRecordSale?: (listing: MarketListing) => void;
   onRestock?: (listing: MarketListing) => void;
+  onToggleSave?: (listing: MarketListing) => void;
+  onShareListing?: (listingId?: string) => void;
+  isSaved?: boolean;
 }> = ({
   listing,
   t,
@@ -82,11 +85,14 @@ export const ListingCard: React.FC<{
   onDelete,
   onOpenDetails,
   onRecordSale,
-  onRestock
+  onRestock,
+  onToggleSave,
+  onShareListing,
+  isSaved
 }) => {
   const defaultImage = "https://picsum.photos/seed/farm/800/600";
   const [menuOpen, setMenuOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saved = !!isSaved;
   const menuRef = useRef<HTMLDivElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 224 });
@@ -195,6 +201,8 @@ export const ListingCard: React.FC<{
         await navigator.clipboard.writeText(shareText);
         toast.success('Copied to clipboard');
       }
+
+      onShareListing?.(listing.id);
     } catch (error: any) {
       const isCancel = 
         error?.name === 'AbortError' || 
@@ -300,7 +308,7 @@ export const ListingCard: React.FC<{
 
           <button
             type="button"
-            onClick={() => setSaved((prev) => !prev)}
+            onClick={() => onToggleSave?.(listing)}
             className={`h-10 w-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${
               saved
                 ? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-black'

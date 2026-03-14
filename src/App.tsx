@@ -10,8 +10,10 @@ import { Toaster } from 'react-hot-toast';
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  increment,
   onSnapshot,
   orderBy,
   query,
@@ -123,6 +125,7 @@ export default function App() {
   // Real data states (to replace mock data)
   const [realExperts, setRealExperts] = useState<any[]>([]);
   const [realSuccessStories, setRealSuccessStories] = useState<any[]>([]);
+  const [savedListingIds, setSavedListingIds] = useState<string[]>([]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -215,6 +218,28 @@ export default function App() {
 
     return () => unsubscribeListings();
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setSavedListingIds([]);
+      return;
+    }
+
+    const savedListingsRef = collection(db, 'users', user.uid, 'saved_listings');
+
+    const unsubscribeSaved = onSnapshot(
+      savedListingsRef,
+      (snapshot) => {
+        const ids = snapshot.docs.map((docSnap) => docSnap.id);
+        setSavedListingIds(ids);
+      },
+      (error) => {
+        console.error('Saved listings snapshot error:', error);
+      }
+    );
+
+    return () => unsubscribeSaved();
+  }, [user?.uid]);
 
   useEffect(() => {
     if (selectedItem && selectedItem.id && selectedItem.type === 'market_listing') {
@@ -543,6 +568,68 @@ export default function App() {
     }
   };
 
+  const incrementListingViews = async (listingId?: string) => {
+    if (!listingId) return;
+
+    try {
+      await updateDoc(doc(db, 'market_listings', listingId), {
+        viewsCount: increment(1),
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('Error incrementing views:', error);
+    }
+  };
+
+  const incrementListingShares = async (listingId?: string) => {
+    if (!listingId) return;
+
+    try {
+      await updateDoc(doc(db, 'market_listings', listingId), {
+        sharesCount: increment(1),
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('Error incrementing shares:', error);
+    }
+  };
+
+  const toggleSavedListing = async (listing: MarketListing) => {
+    if (!user?.uid) {
+      toast.error('Please sign in first.');
+      return;
+    }
+
+    if (!listing.id) return;
+
+    const saveRef = doc(db, 'users', user.uid, 'saved_listings', listing.id);
+    const isSaved = savedListingIds.includes(listing.id);
+
+    try {
+      if (isSaved) {
+        await deleteDoc(saveRef);
+        await updateDoc(doc(db, 'market_listings', listing.id), {
+          savesCount: increment(-1),
+          updatedAt: serverTimestamp(),
+        });
+        toast.success('Removed from saved.');
+      } else {
+        await setDoc(saveRef, {
+          listingId: listing.id,
+          savedAt: serverTimestamp(),
+        });
+        await updateDoc(doc(db, 'market_listings', listing.id), {
+          savesCount: increment(1),
+          updatedAt: serverTimestamp(),
+        });
+        toast.success('Saved listing.');
+      }
+    } catch (error) {
+      console.error('Error toggling saved listing:', error);
+      toast.error('Failed to update saved listing.');
+    }
+  };
+
   return (
     <div className="bg-neutral-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
       <Toaster position="top-center" />
@@ -574,6 +661,9 @@ export default function App() {
         lang={lang}
         selectedItem={selectedItem} 
         setSelectedItem={setSelectedItem} 
+        toggleSavedListing={toggleSavedListing}
+        incrementListingShares={incrementListingShares}
+        savedListingIds={savedListingIds}
       />
 
       <WelcomeTour 
@@ -617,6 +707,10 @@ export default function App() {
               setActiveTab={setActiveTab}
               setSelectedItem={setSelectedItem}
               setEditingListing={setEditingListing}
+              incrementListingViews={incrementListingViews}
+              incrementListingShares={incrementListingShares}
+              toggleSavedListing={toggleSavedListing}
+              savedListingIds={savedListingIds}
             />
           )}
 
