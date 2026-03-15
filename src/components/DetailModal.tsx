@@ -246,21 +246,6 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="px-3 py-1 bg-white/90 text-primary text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      {isMarketListing
-                        ? formatCategoryLabel(selectedItem.category)
-                        : selectedItem.category || selectedItem.type || 'Detail'}
-                    </span>
-
-                    {isMarketListing && selectedItem.verified && (
-                      <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Verified Seller
-                      </span>
-                    )}
-                  </div>
-
                   <h3 className="text-2xl sm:text-[2rem] font-semibold text-white leading-tight">
                     {selectedItem.title || selectedItem.name}
                   </h3>

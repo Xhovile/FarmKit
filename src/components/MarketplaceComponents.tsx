@@ -105,8 +105,7 @@ export const ListingCard: React.FC<{
 
   const statusLabel = useMemo(() => {
     if (listing.status === 'sold') return 'Sold';
-    if (listing.status === 'hidden') return 'Hidden';
-    return 'Available';
+    return '';
   }, [listing.status]);
 
   const updateMenuPosition = () => {
@@ -279,9 +278,11 @@ export const ListingCard: React.FC<{
             </p>
           </div>
 
-          <div className="px-3 py-1.5 rounded-full bg-black/55 text-white text-[11px] font-semibold backdrop-blur-sm">
-            {statusLabel}
-          </div>
+          {statusLabel ? (
+            <div className="px-3 py-1.5 rounded-full bg-black/55 text-white text-[11px] font-semibold backdrop-blur-sm">
+              {statusLabel}
+            </div>
+          ) : null}
         </div>
       </div>
 
