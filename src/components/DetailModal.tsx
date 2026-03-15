@@ -246,17 +246,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
               </div>
 
-              <div className="mb-6">
-                <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                  <h3 className="text-2xl sm:text-[2rem] font-semibold text-black dark:text-white leading-tight">
+              <div className="mb-5">
+                <div className="px-1">
+                  <p className="text-xl sm:text-2xl font-semibold text-black dark:text-white leading-tight">
                     {selectedItem.title || selectedItem.name}
-                  </h3>
-
-                  {isMarketListing && (
-                    <p className="text-gray-600 dark:text-gray-300 mt-2 text-base sm:text-lg font-medium">
-                      MK {selectedItem.price?.toLocaleString()} / {selectedItem.unit}
-                    </p>
-                  )}
+                    {isMarketListing && (
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">
+                        : MK {selectedItem.price?.toLocaleString()} / {selectedItem.unit}
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
               <div className="mb-6">
