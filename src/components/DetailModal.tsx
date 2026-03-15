@@ -144,11 +144,13 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     setActiveImage(0);
   }, [selectedItem?.id]);
 
-  if (!selectedItem) return null;
+  const shareText = useMemo(() => {
+    if (!selectedItem) return '';
 
-  const shareText = isMarketListing
-    ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
-    : `${selectedItem.title || selectedItem.name}`;
+    return isMarketListing
+      ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
+      : `${selectedItem.title || selectedItem.name}`;
+  }, [isMarketListing, selectedItem]);
 
   const createdDateLabel = useMemo(() => {
     if (!selectedItem?.createdAt) return 'Recently added';
@@ -163,6 +165,8 @@ export const DetailModal: React.FC<DetailModalProps> = ({
       return 'Recently added';
     }
   }, [selectedItem]);
+
+  if (!selectedItem) return null;
 
   const handleShare = async () => {
     try {
