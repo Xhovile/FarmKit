@@ -258,9 +258,9 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="mb-6">
+              <div className="mb-5">
                 <h4 className="text-lg font-semibold text-black dark:text-white mb-3">Description</h4>
-                <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                     {selectedItem.description || 'No description provided.'}
                   </p>
@@ -268,39 +268,39 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               </div>
               {isMarketListing ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-7">
-                    <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 mb-6">
+                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
                         <Building2 className="w-4 h-4" />
                         Seller
                       </div>
-                      <p className="font-bold">{selectedItem.businessName}</p>
+                      <p className="font-semibold leading-snug">{selectedItem.businessName}</p>
                     </div>
 
-                    <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
+                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
                         <MapPin className="w-4 h-4" />
                         Location
                       </div>
-                      <p className="font-bold">{selectedItem.location}</p>
+                      <p className="font-semibold leading-snug">{selectedItem.location}</p>
                     </div>
 
-                    <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
+                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
                         <Package className="w-4 h-4" />
                         Available amount
                       </div>
-                      <p className="font-bold">
+                      <p className="font-semibold leading-snug">
                         {selectedItem.availableQuantity ?? selectedItem.quantity ?? 0}
                       </p>
                     </div>
 
-                    <div className="rounded-[24px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 mb-2 font-semibold">
+                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
                         <Package className="w-4 h-4" />
                         Sold
                       </div>
-                      <p className="font-bold">
+                      <p className="font-semibold leading-snug">
                         {selectedItem.soldQuantity ?? 0}
                       </p>
                     </div>
@@ -322,16 +322,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
                   <div className="mb-8">
                     <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Specifications</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                       {specs.map(([label, value]) => (
                         <div
                           key={label}
-                          className="rounded-[24px] p-4 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+                          className="rounded-[22px] px-4 py-3.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
                         >
-                          <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.16em] mb-2">
+                          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-[0.14em] mb-1.5">
                             {label}
                           </p>
-                          <p className="font-medium text-black dark:text-white">
+                          <p className="font-medium text-black dark:text-white leading-snug">
                             {value}
                           </p>
                         </div>
