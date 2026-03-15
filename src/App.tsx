@@ -55,8 +55,8 @@ type ListingFormData = {
   description: string;
   businessName: string;
   phone: string;
-  imageFile?: File | null;
-  imagePreview?: string;
+  imageFiles?: File[];
+  imagePreviews?: string[];
 
   condition?: string;
   brand?: string;
@@ -261,8 +261,11 @@ export default function App() {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME?.trim();
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET?.trim();
 
-    if (!cloudName || !uploadPreset) {
-      throw new Error('Cloudinary configuration is missing. Please set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your environment variables.');
+    if (!cloudName) {
+      throw new Error('Cloudinary Cloud Name is missing. Please set VITE_CLOUDINARY_CLOUD_NAME in your environment variables.');
+    }
+    if (!uploadPreset) {
+      throw new Error('Cloudinary Upload Preset is missing. Please set VITE_CLOUDINARY_UPLOAD_PRESET in your environment variables.');
     }
 
     // Optional: Check file size (e.g., 10MB limit)
@@ -274,36 +277,41 @@ export default function App() {
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
 
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: 'POST',
-        body: formData,
-      }
-    );
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData.error?.message || 'Image upload to Cloudinary failed.';
-      
-      if (errorMessage.includes('Upload preset')) {
-        throw new Error(`Cloudinary Error: ${errorMessage}. Ensure your upload preset is "Unsigned" in Cloudinary settings.`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error?.message || 'Image upload to Cloudinary failed.';
+        
+        if (errorMessage.includes('Upload preset')) {
+          throw new Error(`Cloudinary Error: ${errorMessage}. Ensure your upload preset "${uploadPreset}" is created and set to "Unsigned" in Cloudinary settings.`);
+        }
+
+        if (errorMessage.includes('API key') || errorMessage.includes('Unknown API key')) {
+          throw new Error(`Cloudinary Error: ${errorMessage}. This usually happens when your Upload Preset is set to "Signed". Please go to Cloudinary Settings > Upload > Upload presets and change your preset's Signing Mode to "Unsigned".`);
+        }
+        
+        throw new Error(`Cloudinary Error: ${errorMessage}`);
       }
 
-      if (errorMessage.includes('API key')) {
-        throw new Error(`Cloudinary Error: ${errorMessage}. This usually happens when your Upload Preset is set to "Signed". Please go to Cloudinary Settings > Upload > Upload presets and change your preset's Signing Mode to "Unsigned".`);
+      const result = await response.json();
+
+      if (!result.secure_url) {
+        throw new Error('Cloudinary did not return an image URL.');
       }
-      
-      throw new Error(`Cloudinary Error: ${errorMessage}`);
+
+      return result.secure_url;
+    } catch (error: any) {
+      if (error.message.includes('Cloudinary Error')) throw error;
+      throw new Error(`Failed to connect to Cloudinary: ${error.message}`);
     }
-
-    const result = await response.json();
-
-    if (!result.secure_url) {
-      throw new Error('Cloudinary did not return an image URL.');
-    }
-
-    return result.secure_url;
   };
 
   const mapListingToFormData = (listing: MarketListing): ListingFormData => ({
@@ -317,8 +325,8 @@ export default function App() {
     description: listing.description || '',
     businessName: listing.businessName || '',
     phone: listing.phone || '',
-    imageFile: null,
-    imagePreview: listing.imageUrl || '',
+    imageFiles: [],
+    imagePreviews: listing.imageUrls?.length ? listing.imageUrls : (listing.imageUrl ? [listing.imageUrl] : []),
 
     condition: listing.condition || '',
     brand: listing.brand || '',
@@ -398,10 +406,12 @@ export default function App() {
     setIsSubmittingListing(true);
 
     try {
-      let imageUrl: string | null = null;
+      let imageUrls: string[] = [];
 
-      if (data.imageFile) {
-        imageUrl = await uploadImageToCloudinary(data.imageFile);
+      if (data.imageFiles?.length) {
+        imageUrls = await Promise.all(
+          data.imageFiles.slice(0, 4).map((file: File) => uploadImageToCloudinary(file))
+        );
       }
 
       await addDoc(collection(db, 'market_listings'), {
@@ -421,7 +431,8 @@ export default function App() {
         sellerName: user.name || 'Seller',
         sellerTier: user.tier || 'Free',
         verified: user.tier === 'Verified Seller',
-        imageUrl,
+        imageUrl: imageUrls[0] || null,
+        imageUrls,
         condition,
         brand,
         model,
@@ -516,10 +527,14 @@ export default function App() {
     setIsSubmittingListing(true);
 
     try {
-      let imageUrl = editingListing?.imageUrl || null;
+      let imageUrls = editingListing?.imageUrls?.length
+        ? editingListing.imageUrls
+        : (editingListing?.imageUrl ? [editingListing.imageUrl] : []);
 
-      if (data.imageFile) {
-        imageUrl = await uploadImageToCloudinary(data.imageFile);
+      if (data.imageFiles?.length) {
+        imageUrls = await Promise.all(
+          data.imageFiles.slice(0, 4).map((file: File) => uploadImageToCloudinary(file))
+        );
       }
 
       await updateDoc(doc(db, 'market_listings', listingId), {
@@ -535,7 +550,8 @@ export default function App() {
         description: cleanedDescription,
         businessName: cleanedBusinessName || user.name || 'Seller',
         phone: cleanedPhone,
-        imageUrl,
+        imageUrl: imageUrls[0] || null,
+        imageUrls,
 
         condition,
         brand,

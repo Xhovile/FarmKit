@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Sprout } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { generateAIResponse } from '../services/geminiService';

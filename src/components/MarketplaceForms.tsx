@@ -116,8 +116,8 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
     description: initialData?.description || '',
     businessName: initialData?.businessName || user?.businessName || user?.name || '',
     phone: initialData?.phone || user?.phone || '',
-    imageFile: null as File | null,
-    imagePreview: initialData?.imagePreview || '',
+    imageFiles: [] as File[],
+    imagePreviews: initialData?.imagePreviews || (initialData?.imagePreview ? [initialData.imagePreview] : []),
 
     condition: initialData?.condition || '',
     brand: initialData?.brand || '',
@@ -198,8 +198,8 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
       description: initialData.description || '',
       businessName: initialData.businessName || user?.businessName || user?.name || '',
       phone: initialData.phone || user?.phone || '',
-      imageFile: null,
-      imagePreview: initialData.imagePreview || '',
+      imageFiles: [],
+      imagePreviews: initialData.imagePreviews || (initialData.imagePreview ? [initialData.imagePreview] : []),
 
       condition: initialData.condition || '',
       brand: initialData.brand || '',
@@ -243,14 +243,17 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
   }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        imageFile: file,
-        imagePreview: URL.createObjectURL(file)
-      });
-    }
+    const files = Array.from(e.target.files || []).slice(0, 4);
+
+    if (!files.length) return;
+
+    const previews = files.map((file) => URL.createObjectURL(file));
+
+    setFormData({
+      ...formData,
+      imageFiles: files,
+      imagePreviews: previews,
+    });
   };
 
   const nextStep = () => {
@@ -479,23 +482,44 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
             <input 
               type="file" 
               accept="image/*" 
+              multiple
               onChange={handleImageChange}
               className="hidden" 
               id="listing-image"
             />
-            <label 
-              htmlFor="listing-image"
-              className="p-6 bg-gray-50 dark:bg-gray-700 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary transition-all cursor-pointer overflow-hidden min-h-[120px]"
-            >
-              {formData.imagePreview ? (
-                <img src={formData.imagePreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <>
-                  <Camera className="w-8 h-8" />
-                  <span className="text-xs font-bold uppercase tracking-widest">{t('forms.uploadImage')}</span>
-                </>
+            <div className="space-y-3">
+              <label 
+                htmlFor="listing-image"
+                className="p-6 bg-gray-50 dark:bg-gray-700 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary transition-all cursor-pointer overflow-hidden min-h-[120px]"
+              >
+                <Camera className="w-8 h-8" />
+                <span className="text-xs font-bold uppercase tracking-widest">
+                  Upload up to 4 images
+                </span>
+              </label>
+
+              {formData.imagePreviews.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {formData.imagePreviews.slice(0, 4).map((preview: string, index: number) => (
+                    <div
+                      key={`${preview}-${index}`}
+                      className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
+                    >
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {index === 0 && (
+                        <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-black/70 text-white text-[10px] font-semibold">
+                          Cover
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
-            </label>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">

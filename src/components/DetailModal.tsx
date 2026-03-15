@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
   MapPin,
@@ -127,6 +127,20 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
   const saved = savedListingIds.includes(selectedItem.id);
 
+  const [activeImage, setActiveImage] = useState(0);
+
+  const galleryImages = useMemo(() => {
+    if (selectedItem.imageUrls && selectedItem.imageUrls.length > 0) {
+      return selectedItem.imageUrls;
+    }
+    const single = selectedItem.image || selectedItem.imageUrl || selectedItem.icon;
+    return single ? [single] : ['https://picsum.photos/seed/farm/1200/800'];
+  }, [selectedItem]);
+
+  useEffect(() => {
+    setActiveImage(0);
+  }, [selectedItem]);
+
   const shareText = isMarketListing
     ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
     : `${selectedItem.title || selectedItem.name}`;
@@ -231,20 +245,33 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             </div>
 
             <div className="p-6 sm:p-8 overflow-y-auto bg-neutral-50/70 dark:bg-gray-950/40">
-              <div className="relative h-72 sm:h-80 rounded-[30px] overflow-hidden mb-8 border border-gray-200 dark:border-gray-800 shadow-[0_18px_45px_rgba(0,0,0,0.16)]">
+              <div className="relative h-72 sm:h-80 rounded-[30px] overflow-hidden mb-4 border border-gray-200 dark:border-gray-800 shadow-[0_18px_45px_rgba(0,0,0,0.16)]">
                 <img
-                  src={
-                    selectedItem.image ||
-                    selectedItem.imageUrl ||
-                    selectedItem.icon ||
-                    'https://picsum.photos/seed/farm/1200/800'
-                  }
+                  src={galleryImages[activeImage] || galleryImages[0]}
                   alt={selectedItem.title || selectedItem.name}
                   className="w-full h-full object-cover"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
               </div>
+
+              {galleryImages.length > 1 && (
+                <div className="flex gap-3 mb-8 px-1 overflow-x-auto pb-2 scrollbar-hide">
+                  {galleryImages.map((img: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(idx)}
+                      className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${
+                        activeImage === idx 
+                          ? 'border-black dark:border-white scale-105 shadow-md' 
+                          : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <div className="mb-5">
                 <div className="px-1">

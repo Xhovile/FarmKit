@@ -17,6 +17,7 @@ export interface MarketListing {
   sellerTier: string;
   verified: boolean;
   imageUrl: string | null;
+  imageUrls?: string[];
   status: 'active' | 'sold' | 'hidden';
   createdAt: any;
   updatedAt?: any;
