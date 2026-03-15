@@ -93,6 +93,7 @@ interface AddListingFormProps extends FormProps {
   setStep: (s: number) => void;
   initialData?: any;
   isEditMode?: boolean;
+  isSubmitting?: boolean;
 }
 
 export const AddListingForm: React.FC<AddListingFormProps> = ({
@@ -103,7 +104,8 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
   step,
   setStep,
   initialData,
-  isEditMode
+  isEditMode,
+  isSubmitting = false
 }) => {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
@@ -144,6 +146,7 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const specFields = getSpecFieldsForCategory(formData.category);
 
@@ -256,11 +259,31 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
     });
   };
 
+  const handleRemoveImage = (indexToRemove: number) => {
+    const nextFiles = formData.imageFiles.filter((_, index) => index !== indexToRemove);
+    const nextPreviews = formData.imagePreviews.filter((_, index) => index !== indexToRemove);
+
+    setFormData({
+      ...formData,
+      imageFiles: nextFiles,
+      imagePreviews: nextPreviews,
+    });
+
+    if (imageInputRef.current && nextFiles.length === 0) {
+      imageInputRef.current.value = '';
+    }
+  };
+
   const nextStep = () => {
     setIsCategoryOpen(false);
     setStep(step + 1);
   };
   const prevStep = () => setStep(step - 1);
+
+  const handleSubmitListing = async () => {
+    if (isSubmitting) return;
+    await onSubmit(formData);
+  };
 
   return (
     <div className="space-y-6">
@@ -480,6 +503,7 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
 
           <div className="relative">
             <input 
+              ref={imageInputRef}
               type="file" 
               accept="image/*" 
               multiple
@@ -515,6 +539,15 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
                           Cover
                         </div>
                       )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-black/85 transition-all"
+                        aria-label={`Remove image ${index + 1}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -527,11 +560,13 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
               {t('common.back')}
             </button>
             <button 
-              onClick={() => onSubmit(formData)}
-              className="flex-[2] py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+              type="button"
+              onClick={handleSubmitListing}
+              disabled={isSubmitting}
+              className="flex-[2] py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="w-5 h-5" />
-              {isEditMode ? 'Save Changes' : t('forms.publishListing')}
+              {isSubmitting ? 'Publishing...' : (isEditMode ? 'Save Changes' : t('forms.publishListing'))}
             </button>
           </div>
         </div>

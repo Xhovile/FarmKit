@@ -799,6 +799,7 @@ export default function App() {
                   setStep={setFormStep} 
                   initialData={editingFormData}
                   isEditMode={!!editingListing}
+                  isSubmitting={isSubmittingListing}
                   onClose={() => {
                     setIsAddProductModalOpen(false);
                     setFormStep(1);
