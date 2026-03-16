@@ -54,18 +54,30 @@ type ListingFormData = {
   title: string;
   category: string;
   price: string;
+
   unit: string;
+  customUnit?: string;
   quantity: string;
+
   availableQuantity?: number;
   soldQuantity?: number;
+
   location: string;
-  locationData?: any;
+  locationData?: {
+    region: string;
+    district: string;
+    area: string;
+    label: string;
+  };
+
   deliveryMethod: string;
   description: string;
   businessName: string;
   phone: string;
+
   sellerType?: string;
   stockStatus?: StockStatus;
+
   imageFiles?: File[];
   imagePreviews?: string[];
 
@@ -326,41 +338,60 @@ export default function App() {
   };
 
   const mapListingToFormData = (listing: MarketListing): ListingFormData => ({
-    title: listing.title || '',
-    category: listing.category || '',
-    price: String(listing.price ?? ''),
-    unit: listing.unit || '',
-    quantity: String(listing.quantity ?? ''),
-    location: listing.location || '',
-    deliveryMethod: listing.deliveryMethod || 'pickup',
-    description: listing.description || '',
-    businessName: listing.businessName || '',
-    phone: listing.phone || '',
-    imageFiles: [],
-    imagePreviews: listing.imageUrls?.length ? listing.imageUrls : (listing.imageUrl ? [listing.imageUrl] : []),
+  title: listing.title || '',
+  category: listing.category || '',
+  price: String(listing.price ?? ''),
 
-    condition: listing.condition || '',
-    brand: listing.brand || '',
-    model: listing.model || '',
-    capacity: listing.capacity || '',
-    fuelType: listing.fuelType || '',
+  unit: listing.unit || '',
+  customUnit: '',
+  quantity: String(listing.quantity ?? ''),
 
-    seedType: listing.seedType || '',
-    variety: listing.variety || '',
-    packSize: listing.packSize || '',
-    season: listing.season || '',
-    germinationRate: listing.germinationRate || '',
+  availableQuantity: listing.availableQuantity,
+  soldQuantity: listing.soldQuantity,
 
-    breed: listing.breed || '',
-    age: listing.age || '',
-    sex: listing.sex || '',
-    healthStatus: listing.healthStatus || '',
-    vaccinationStatus: listing.vaccinationStatus || '',
+  location: listing.location || '',
+  locationData: listing.locationData || {
+    region: '',
+    district: '',
+    area: '',
+    label: listing.location || '',
+  },
 
-    inputType: listing.inputType || '',
-    usage: listing.usage || '',
-    expiryDate: listing.expiryDate || '',
-  });
+  deliveryMethod: listing.deliveryMethod || 'pickup',
+  description: listing.description || '',
+  businessName: listing.businessName || '',
+  phone: listing.phone || '',
+
+  sellerType: listing.sellerType || 'farmer',
+  stockStatus: listing.stockStatus,
+
+  imageFiles: [],
+  imagePreviews: listing.imageUrls?.length
+    ? listing.imageUrls
+    : (listing.imageUrl ? [listing.imageUrl] : []),
+
+  condition: listing.condition || '',
+  brand: listing.brand || '',
+  model: listing.model || '',
+  capacity: listing.capacity || '',
+  fuelType: listing.fuelType || '',
+
+  seedType: listing.seedType || '',
+  variety: listing.variety || '',
+  packSize: listing.packSize || '',
+  season: listing.season || '',
+  germinationRate: listing.germinationRate || '',
+
+  breed: listing.breed || '',
+  age: listing.age || '',
+  sex: listing.sex || '',
+  healthStatus: listing.healthStatus || '',
+  vaccinationStatus: listing.vaccinationStatus || '',
+
+  inputType: listing.inputType || '',
+  usage: listing.usage || '',
+  expiryDate: listing.expiryDate || '',
+});
 
   const editingFormData = useMemo(() => {
     return editingListing ? mapListingToFormData(editingListing) : undefined;
