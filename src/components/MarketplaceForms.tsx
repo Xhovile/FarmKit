@@ -131,6 +131,7 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
     category: initialData?.category || '',
     price: initialData?.price || '',
     unit: initialData?.unit || '',
+    customUnit: '',
     quantity: initialData?.quantity || '',
     
     region: initialData?.locationData?.region || '',
@@ -223,6 +224,7 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
       category: initialData.category || '',
       price: initialData.price || '',
       unit: initialData.unit || '',
+      customUnit: '',
       quantity: initialData.quantity || '',
       
       region: initialData.locationData?.region || '',
@@ -323,19 +325,31 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
     }
 
     const qty = Number(formData.quantity);
+    const resolvedUnit =
+      formData.unit === 'custom'
+        ? ((formData as any).customUnit || '').trim()
+        : formData.unit;
+
+    const resolvedLocation = buildLocationLabel(
+      formData.area,
+      formData.district,
+      formData.region
+    );
+
     const normalizedData = {
       ...formData,
+      unit: resolvedUnit,
       quantity: qty,
       availableQuantity: qty,
       soldQuantity: 0,
       stockStatus: computeStockStatus(qty),
-      location: buildLocationLabel(formData.area, formData.district, formData.region),
+      location: resolvedLocation,
       locationData: {
         region: formData.region,
         district: formData.district,
         area: formData.area,
-        label: buildLocationLabel(formData.area, formData.district, formData.region)
-      }
+        label: resolvedLocation,
+      },
     };
 
     await onSubmit(normalizedData);
@@ -484,6 +498,21 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
             </div>
           </div>
 
+          {formData.unit === 'custom' && (
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                Custom unit
+              </label>
+              <input
+                type="text"
+                value={(formData as any).customUnit || ''}
+                onChange={e => setFormData({ ...formData, customUnit: e.target.value })}
+                placeholder="e.g. crate, bucket, drum"
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Available amount (number of units)</label>
             <input 
@@ -550,7 +579,13 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
             </button>
             <button 
               onClick={nextStep}
-              disabled={!formData.price || !formData.quantity || !formData.region || !formData.district}
+              disabled={
+                !formData.price ||
+                !formData.quantity ||
+                !formData.region ||
+                !formData.district ||
+                (formData.unit === 'custom' && !(formData as any).customUnit?.trim())
+              }
               className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {t('common.next')} <ChevronRight className="w-5 h-5" />
