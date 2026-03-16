@@ -741,10 +741,10 @@ export const MarketplaceFilters: React.FC<{
               onChange={(e) => setSelectedDeliveryMethod(e.target.value)}
               className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
             >
-              <option value="all">Any Method</option>
-              <option value="pickup">Pickup Only</option>
-              <option value="delivery">Delivery Available</option>
-              <option value="both">Both</option>
+              <option value="all">All delivery methods</option>
+              <option value="pickup">Self Pickup</option>
+              <option value="seller_delivery">Seller Delivery</option>
+              <option value="third_party">Third-party Transport</option>
             </select>
           </div>
 
