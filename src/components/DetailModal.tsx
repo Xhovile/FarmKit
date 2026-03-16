@@ -58,6 +58,8 @@ const renderMarketSpecs = (item: any) => {
         ['Model', item.model || 'Not specified'],
         ['Power / Capacity', item.capacity || 'Not specified'],
         ['Fuel Type', item.fuelType || 'Not specified'],
+        ['Unit', item.unit || 'Not specified'],
+        ['Delivery', item.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'],
       ];
 
     case 'seeds':
@@ -97,6 +99,7 @@ const renderMarketSpecs = (item: any) => {
         ['Variety / Grade', item.variety || 'Not specified'],
         ['Packaging', item.packSize || 'Not specified'],
         ['Season', item.season || 'Not specified'],
+        ['Unit', item.unit || 'Not specified'],
         ['Available Amount', `${item.availableQuantity ?? item.quantity ?? '-'}`],
         ['Sold', `${item.soldQuantity ?? 0}`],
         ['Delivery', item.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'],
@@ -105,10 +108,11 @@ const renderMarketSpecs = (item: any) => {
     default:
       return [
         ['Category', formatCategoryLabel(item.category)],
+        ['Unit', item.unit || 'Not specified'],
         ['Available Amount', `${item.availableQuantity ?? item.quantity ?? '-'}`],
         ['Sold', `${item.soldQuantity ?? 0}`],
         ['Delivery', item.deliveryMethod?.replace(/_/g, ' ') || 'Not specified'],
-        ['Seller Type', item.sellerType?.replace(/_/g, ' ') || item.sellerTier || 'Standard'],
+        ['Seller Type', item.sellerType?.replace(/_/g, ' ') || 'Not specified'],
         ['Stock Status', item.stockStatus?.replace(/_/g, ' ') || 'Active'],
       ];
   }
@@ -127,7 +131,24 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const isMarketListing = selectedItem?.type === 'market_listing';
-  const specs = isMarketListing && selectedItem ? renderMarketSpecs(selectedItem) : [];
+  const isBuyerRequest = selectedItem?.type === 'buyer_request';
+
+  const specs = useMemo(() => {
+    if (!selectedItem) return [];
+    if (isMarketListing) return renderMarketSpecs(selectedItem);
+    if (isBuyerRequest) {
+      return [
+        ['Buyer Type', selectedItem.buyerType?.replace(/_/g, ' ') || 'Individual'],
+        ['Urgency', selectedItem.urgency || 'Normal'],
+        ['Delivery Preference', selectedItem.deliveryPreference?.replace(/_/g, ' ') || 'Not specified'],
+        ['Contact Method', selectedItem.contactMethod || 'WhatsApp'],
+        ['Needed By', selectedItem.neededBy || 'Not specified'],
+        ['Quantity', `${selectedItem.quantity} ${selectedItem.unit}`],
+        ['Target Price', selectedItem.priceRange || 'Negotiable'],
+      ];
+    }
+    return [];
+  }, [selectedItem, isMarketListing, isBuyerRequest]);
 
   const saved = selectedItem?.id ? savedListingIds.includes(selectedItem.id) : false;
 
@@ -354,10 +375,15 @@ export const DetailModal: React.FC<DetailModalProps> = ({
               <div className="mb-5">
                 <div className="px-1">
                   <p className="text-xl sm:text-2xl font-semibold text-black dark:text-white leading-tight">
-                    {selectedItem.title || selectedItem.name}
+                    {selectedItem.title || selectedItem.name || selectedItem.commodity}
                     {isMarketListing && (
                       <span className="text-gray-600 dark:text-gray-300 font-medium">
                         : MK {selectedItem.price?.toLocaleString()} / {selectedItem.unit}
+                      </span>
+                    )}
+                    {isBuyerRequest && (
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">
+                        : {selectedItem.priceRange}
                       </span>
                     )}
                   </p>
@@ -371,18 +397,18 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </p>
                 </div>
               </div>
-              {isMarketListing ? (
+              {isMarketListing || isBuyerRequest ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 mb-6">
                     <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
                         <Building2 className="w-4 h-4" />
-                        Seller
+                        {isMarketListing ? 'Seller' : 'Buyer'}
                       </div>
-                      <p className="font-semibold leading-snug">{selectedItem.businessName}</p>
-                      {selectedItem.sellerType && (
+                      <p className="font-semibold leading-snug">{selectedItem.businessName || selectedItem.buyerName}</p>
+                      {(selectedItem.sellerType || selectedItem.buyerType) && (
                         <p className="text-[10px] text-gray-400 uppercase font-bold mt-1">
-                          {selectedItem.sellerType.replace('_', ' ')}
+                          {(selectedItem.sellerType || selectedItem.buyerType).replace('_', ' ')}
                         </p>
                       )}
                     </div>
@@ -402,35 +428,74 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       )}
                     </div>
 
-                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
-                        <Package className="w-4 h-4" />
-                        Available amount
-                      </div>
-                      <p className="font-semibold leading-snug">
-                        {selectedItem.availableQuantity ?? selectedItem.quantity ?? 0}
-                      </p>
-                    </div>
+                    {isMarketListing && (
+                      <>
+                        <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
+                            <Package className="w-4 h-4" />
+                            Available amount
+                          </div>
+                          <p className="font-semibold leading-snug">
+                            {selectedItem.availableQuantity ?? selectedItem.quantity ?? 0}
+                          </p>
+                        </div>
 
-                    <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
-                        <Package className="w-4 h-4" />
-                        Sold
-                      </div>
-                      <p className="font-semibold leading-snug">
-                        {selectedItem.soldQuantity ?? 0}
-                      </p>
-                    </div>
+                        <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
+                            <Package className="w-4 h-4" />
+                            Sold
+                          </div>
+                          <p className="font-semibold leading-snug">
+                            {selectedItem.soldQuantity ?? 0}
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {isBuyerRequest && (
+                      <>
+                        <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
+                            <Package className="w-4 h-4" />
+                            Quantity Needed
+                          </div>
+                          <p className="font-semibold leading-snug">
+                            {selectedItem.quantity} {selectedItem.unit}
+                          </p>
+                        </div>
+
+                        <div className="rounded-[22px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mb-1.5 font-semibold">
+                            <Tag className="w-4 h-4" />
+                            Urgency
+                          </div>
+                          <p className={`font-semibold leading-snug capitalize ${selectedItem.urgency === 'urgent' ? 'text-rose-600' : ''}`}>
+                            {selectedItem.urgency || 'Normal'}
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap gap-3 mb-7">
-                    <span className={`px-3 py-1.5 border border-gray-200 dark:border-gray-800 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${
-                      selectedItem.stockStatus === 'out_of_stock' ? 'bg-rose-500 text-white border-rose-600' :
-                      selectedItem.stockStatus === 'low_stock' ? 'bg-amber-500 text-white border-amber-600' :
-                      'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200'
-                    }`}>
-                      {selectedItem.stockStatus?.replace(/_/g, ' ') || 'Active'}
-                    </span>
+                    {isMarketListing && (
+                      <span className={`px-3 py-1.5 border border-gray-200 dark:border-gray-800 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${
+                        selectedItem.stockStatus === 'out_of_stock' ? 'bg-rose-500 text-white border-rose-600' :
+                        selectedItem.stockStatus === 'low_stock' ? 'bg-amber-500 text-white border-amber-600' :
+                        'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200'
+                      }`}>
+                        {selectedItem.stockStatus?.replace(/_/g, ' ') || 'Active'}
+                      </span>
+                    )}
+
+                    {isBuyerRequest && (
+                      <span className={`px-3 py-1.5 border border-gray-200 dark:border-gray-800 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${
+                        selectedItem.status === 'open' ? 'bg-emerald-500 text-white border-emerald-600' :
+                        'bg-gray-500 text-white border-gray-600'
+                      }`}>
+                        {selectedItem.status || 'Open'}
+                      </span>
+                    )}
 
                     <span className="px-3 py-1.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm">
                       Added: {createdDateLabel}
@@ -488,13 +553,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
 
                   <div className="grid grid-cols-1 gap-3">
                     <a
-                      href={`https://wa.me/${selectedItem.phone}?text=Hello ${selectedItem.sellerName}, I am interested in your ${selectedItem.title} on FarmKit.`}
+                      href={isMarketListing 
+                        ? `https://wa.me/${selectedItem.phone}?text=Hello ${selectedItem.sellerName}, I am interested in your ${selectedItem.title} on FarmKit.`
+                        : `https://wa.me/${selectedItem.phone}?text=Hello ${selectedItem.buyerName}, I saw your request for ${selectedItem.commodity} on FarmKit.`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="py-4 bg-black text-white dark:bg-white dark:text-black rounded-2xl font-medium transition-all flex items-center justify-center gap-2 shadow-sm hover:opacity-90"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      Contact Seller
+                      {isMarketListing ? 'Contact Seller' : 'Contact Buyer'}
                     </a>
                   </div>
                 </>

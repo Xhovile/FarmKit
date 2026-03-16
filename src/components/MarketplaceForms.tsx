@@ -25,7 +25,7 @@ import {
   malawiRegions, 
   malawiDistrictsByRegion 
 } from '../data/constants';
-import { StockStatus } from '../types';
+import { StockStatus, BuyerType, BuyerRequest } from '../types';
 
 const computeStockStatus = (
   availableQuantity: number,
@@ -175,7 +175,15 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
   });
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isUnitOpen, setIsUnitOpen] = useState(false);
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+
   const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
+  const unitDropdownRef = useRef<HTMLDivElement | null>(null);
+  const regionDropdownRef = useRef<HTMLDivElement | null>(null);
+  const districtDropdownRef = useRef<HTMLDivElement | null>(null);
+
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const specFields = getSpecFieldsForCategory(formData.category);
@@ -270,11 +278,22 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        categoryDropdownRef.current &&
-        !categoryDropdownRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(target)) {
         setIsCategoryOpen(false);
+      }
+
+      if (unitDropdownRef.current && !unitDropdownRef.current.contains(target)) {
+        setIsUnitOpen(false);
+      }
+
+      if (regionDropdownRef.current && !regionDropdownRef.current.contains(target)) {
+        setIsRegionOpen(false);
+      }
+
+      if (districtDropdownRef.current && !districtDropdownRef.current.contains(target)) {
+        setIsDistrictOpen(false);
       }
     };
 
@@ -486,18 +505,56 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
                 className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
               />
             </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Selling unit</label>
-              <select
-                value={formData.unit}
-                onChange={e => setFormData({...formData, unit: e.target.value})}
-                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none appearance-none font-medium"
+            <div className="relative" ref={unitDropdownRef}>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                Selling unit
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsUnitOpen((prev) => !prev)}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none"
               >
-                <option value="">Select unit</option>
-                {standardUnits.map(u => (
-                  <option key={u.id} value={u.id}>{u.label}</option>
-                ))}
-              </select>
+                <span className={formData.unit ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                  {formData.unit
+                    ? standardUnits.find((u) => u.id === formData.unit)?.label || formData.unit
+                    : 'Select unit'}
+                </span>
+                <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {isUnitOpen && (
+                <div className="absolute z-30 mt-2 w-full max-h-72 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {standardUnits.map((u) => {
+                      const selected = formData.unit === u.id;
+
+                      return (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              unit: u.id,
+                              customUnit: u.id === 'custom' ? formData.customUnit : '',
+                            });
+                            setIsUnitOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">{u.label}</span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -530,25 +587,101 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
           <div className="space-y-4 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-[24px] border border-gray-100 dark:border-gray-700">
             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Location Details</label>
             <div className="grid grid-cols-2 gap-3">
-              <select
-                value={formData.region}
-                onChange={e => setFormData({...formData, region: e.target.value, district: ''})}
-                className="px-4 py-3 bg-white dark:bg-gray-700 border-none rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-medium"
+            <div className="relative" ref={regionDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsRegionOpen((prev) => !prev)}
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 rounded-xl text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none text-sm font-medium"
               >
-                <option value="">Region</option>
-                {malawiRegions.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-              <select
-                value={formData.district}
-                onChange={e => setFormData({...formData, district: e.target.value})}
+                <span className={formData.region ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                  {formData.region || 'Region'}
+                </span>
+                <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {isRegionOpen && (
+                <div className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {malawiRegions.map((r) => {
+                      const selected = formData.region === r;
+
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              region: r,
+                              district: '',
+                            });
+                            setIsRegionOpen(false);
+                            setIsDistrictOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">{r}</span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="relative" ref={districtDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!formData.region) return;
+                  setIsDistrictOpen((prev) => !prev);
+                }}
                 disabled={!formData.region}
-                className="px-4 py-3 bg-white dark:bg-gray-700 border-none rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm font-medium disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 rounded-xl text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none text-sm font-medium disabled:opacity-50"
               >
-                <option value="">District</option>
-                {formData.region && malawiDistrictsByRegion[formData.region].map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
+                <span className={formData.district ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                  {formData.district || 'District'}
+                </span>
+                <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {isDistrictOpen && formData.region && (
+                <div className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {malawiDistrictsByRegion[formData.region].map((d) => {
+                      const selected = formData.district === d;
+
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              district: d,
+                            });
+                            setIsDistrictOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">{d}</span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
             </div>
             <input 
               type="text"
@@ -725,27 +858,122 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
   );
 };
 
-export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: number) => void }> = ({ t, onClose, onSubmit, user, step, setStep }) => {
+export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: number) => void }> = ({
+  t,
+  onClose,
+  onSubmit,
+  user,
+  step,
+  setStep
+}) => {
   const [formData, setFormData] = useState({
     commodity: '',
+    category: '',
     quantity: '',
     unit: '',
+
     priceRange: '',
+
+    region: '',
+    district: '',
+    area: '',
     location: user?.location || '',
-    deliveryPreference: 'pickup',
-    contactMethod: 'WhatsApp',
-    phone: user?.phone || ''
+
+    neededBy: '',
+    urgency: 'normal' as 'normal' | 'urgent',
+
+    buyerType: 'individual' as BuyerType,
+    deliveryPreference: 'pickup' as 'pickup' | 'seller_delivery' | 'third_party',
+    contactMethod: 'whatsapp' as 'whatsapp' | 'phone',
+    phone: user?.phone || '',
+
+    description: '',
+
+    imageFile: null as File | null,
+    imagePreview: '',
   });
 
-  const nextStep = () => setStep(step + 1);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isUnitOpen, setIsUnitOpen] = useState(false);
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+
+  const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
+  const unitDropdownRef = useRef<HTMLDivElement | null>(null);
+  const regionDropdownRef = useRef<HTMLDivElement | null>(null);
+  const districtDropdownRef = useRef<HTMLDivElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(target)) {
+        setIsCategoryOpen(false);
+      }
+
+      if (unitDropdownRef.current && !unitDropdownRef.current.contains(target)) {
+        setIsUnitOpen(false);
+      }
+
+      if (regionDropdownRef.current && !regionDropdownRef.current.contains(target)) {
+        setIsRegionOpen(false);
+      }
+
+      if (districtDropdownRef.current && !districtDropdownRef.current.contains(target)) {
+        setIsDistrictOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        imageFile: file,
+        imagePreview: URL.createObjectURL(file)
+      });
+    }
+  };
+
+  const nextStep = () => {
+    setIsCategoryOpen(false);
+    setIsUnitOpen(false);
+    setIsRegionOpen(false);
+    setIsDistrictOpen(false);
+    setStep(step + 1);
+  };
   const prevStep = () => setStep(step - 1);
+
+  const handleSubmit = () => {
+    const resolvedLocation = buildLocationLabel(formData.area, formData.district, formData.region);
+    onSubmit({
+      ...formData,
+      location: resolvedLocation,
+      locationData: {
+        region: formData.region,
+        district: formData.district,
+        area: formData.area,
+        label: resolvedLocation
+      }
+    });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white">{t('forms.postRequest')}</h2>
-          <p className="text-sm text-gray-500">{t('common.step')} {step - 9} {t('common.of')} 2</p>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+            {t('forms.postRequest')}
+          </h2>
+          <p className="text-sm text-gray-500">{t('common.step')} {step - 9} {t('common.of')} 3</p>
         </div>
         <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
           <X className="w-6 h-6" />
@@ -772,32 +1000,120 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
             />
           </div>
 
+          <div className="relative" ref={categoryDropdownRef}>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+              {t('common.category')}
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsCategoryOpen((prev) => !prev)}
+              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none"
+            >
+              <span className={formData.category ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                {formData.category
+                  ? t(
+                      marketCategories.find((cat) => cat.id === formData.category)?.name || formData.category,
+                      marketCategories.find((cat) => cat.id === formData.category)?.nameNy || formData.category
+                    )
+                  : t('forms.selectCategory')}
+              </span>
+              <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+            </button>
+
+            {isCategoryOpen && (
+              <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                <div className="p-2">
+                  {marketCategories.map((cat) => {
+                    const selected = formData.category === cat.id;
+
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, category: cat.id });
+                          setIsCategoryOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                          selected
+                            ? 'bg-indigo-50 text-indigo-600'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                        }`}
+                      >
+                        <span className="font-medium">{t(cat.name, cat.nameNy)}</span>
+                        {selected && <Check className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.quantity')}</label>
               <input 
-                type="text" 
+                type="number" 
                 value={formData.quantity}
                 onChange={e => setFormData({...formData, quantity: e.target.value})}
-                placeholder="500"
+                placeholder="e.g. 500"
                 className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
               />
             </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.unit')}</label>
-              <input 
-                type="text" 
-                value={formData.unit}
-                onChange={e => setFormData({...formData, unit: e.target.value})}
-                placeholder="Metric Tons"
-                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
-              />
+            <div className="relative" ref={unitDropdownRef}>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                {t('common.unit')}
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsUnitOpen((prev) => !prev)}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none"
+              >
+                <span className={formData.unit ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                  {formData.unit
+                    ? standardUnits.find((u) => u.id === formData.unit)?.label || formData.unit
+                    : 'Select unit'}
+                </span>
+                <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {isUnitOpen && (
+                <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {standardUnits.map((u) => {
+                      const selected = formData.unit === u.id;
+
+                      return (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, unit: u.id });
+                            setIsUnitOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-indigo-50 text-indigo-600'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">{u.label}</span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <button 
             onClick={nextStep}
-            disabled={!formData.commodity || !formData.quantity}
+            disabled={!formData.commodity || !formData.category || !formData.quantity || !formData.unit}
             className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {t('common.next')} <ChevronRight className="w-5 h-5" />
@@ -818,15 +1134,142 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">{t('common.location')}</label>
+          <div className="space-y-4 p-5 bg-gray-50 dark:bg-gray-800/50 rounded-[24px] border border-gray-100 dark:border-gray-700">
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Delivery Location</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative" ref={regionDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsRegionOpen((prev) => !prev)}
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 rounded-xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-medium"
+                >
+                  <span className={formData.region ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                    {formData.region || 'Region'}
+                  </span>
+                  <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {isRegionOpen && (
+                  <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                    <div className="p-2">
+                      {malawiRegions.map((r) => {
+                        const selected = formData.region === r;
+
+                        return (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => {
+                              setFormData({
+                                ...formData,
+                                region: r,
+                                district: '',
+                              });
+                              setIsRegionOpen(false);
+                            }}
+                            className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                              selected
+                                ? 'bg-indigo-50 text-indigo-600'
+                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                            }`}
+                          >
+                            <span className="font-medium">{r}</span>
+                            {selected && <Check className="w-4 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={districtDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!formData.region) return;
+                    setIsDistrictOpen((prev) => !prev);
+                  }}
+                  disabled={!formData.region}
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-700 rounded-xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-medium disabled:opacity-50"
+                >
+                  <span className={formData.district ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                    {formData.district || 'District'}
+                  </span>
+                  <ChevronsUpDown className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {isDistrictOpen && formData.region && (
+                  <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                    <div className="p-2">
+                      {malawiDistrictsByRegion[formData.region].map((d) => {
+                        const selected = formData.district === d;
+
+                        return (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => {
+                              setFormData({
+                                ...formData,
+                                district: d,
+                              });
+                              setIsDistrictOpen(false);
+                            }}
+                            className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                              selected
+                                ? 'bg-indigo-50 text-indigo-600'
+                                : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                            }`}
+                          >
+                            <span className="font-medium">{d}</span>
+                            {selected && <Check className="w-4 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <input 
-              type="text" 
-              value={formData.location}
-              onChange={e => setFormData({...formData, location: e.target.value})}
-              placeholder={t('forms.locationPlaceholder')}
-              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+              type="text"
+              value={formData.area}
+              onChange={e => setFormData({...formData, area: e.target.value})}
+              placeholder="Area / Village / Trading Center"
+              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border-none rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-medium"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Needed By</label>
+              <input 
+                type="date" 
+                value={formData.neededBy}
+                onChange={e => setFormData({...formData, neededBy: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Urgency</label>
+              <div className="flex gap-2">
+                {(['normal', 'urgent'] as const).map(u => (
+                  <button
+                    key={u}
+                    type="button"
+                    onClick={() => setFormData({...formData, urgency: u})}
+                    className={`flex-1 py-4 rounded-2xl border-2 font-bold text-sm transition-all ${
+                      formData.urgency === u 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-100 dark:border-gray-700 text-gray-500'
+                    }`}
+                  >
+                    {u.charAt(0).toUpperCase() + u.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -834,7 +1277,125 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
               {t('common.back')}
             </button>
             <button 
-              onClick={() => onSubmit(formData)}
+              onClick={nextStep}
+              disabled={!formData.region || !formData.district}
+              className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {t('common.next')} <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 12 && (
+        <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Buyer Type</label>
+              <select 
+                value={formData.buyerType}
+                onChange={e => setFormData({...formData, buyerType: e.target.value as BuyerType})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+              >
+                {['farmer', 'trader', 'processor', 'business', 'individual'].map(type => (
+                  <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Delivery</label>
+              <select 
+                value={formData.deliveryPreference}
+                onChange={e => setFormData({...formData, deliveryPreference: e.target.value as any})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+              >
+                <option value="pickup">I will pick up</option>
+                <option value="seller_delivery">Seller delivers</option>
+                <option value="third_party">Third party delivery</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Contact Via</label>
+              <div className="flex gap-2">
+                {(['whatsapp', 'phone'] as const).map(m => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setFormData({...formData, contactMethod: m})}
+                    className={`flex-1 py-4 rounded-2xl border-2 font-bold text-sm transition-all ${
+                      formData.contactMethod === m 
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
+                        : 'border-gray-100 dark:border-gray-700 text-gray-500'
+                    }`}
+                  >
+                    {m === 'whatsapp' ? 'WhatsApp' : 'Phone'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Phone Number</label>
+              <input 
+                type="tel" 
+                value={formData.phone}
+                onChange={e => setFormData({...formData, phone: e.target.value})}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Additional Details</label>
+            <textarea 
+              value={formData.description}
+              onChange={e => setFormData({...formData, description: e.target.value})}
+              rows={3}
+              placeholder="Any specific requirements, quality standards, etc."
+              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Reference Photo (Optional)</label>
+            <input 
+              ref={imageInputRef}
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="hidden" 
+              id="request-image"
+            />
+            <div className="flex items-center gap-4">
+              <label 
+                htmlFor="request-image"
+                className="flex-1 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex items-center justify-center gap-3 text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-all cursor-pointer"
+              >
+                <Camera className="w-6 h-6" />
+                <span className="text-xs font-bold uppercase tracking-widest">Upload Photo</span>
+              </label>
+              {formData.imagePreview && (
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <img src={formData.imagePreview} className="w-full h-full object-cover" />
+                  <button 
+                    onClick={() => setFormData({...formData, imageFile: null, imagePreview: ''})}
+                    className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button onClick={prevStep} className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-2xl hover:bg-gray-200 transition-all">
+              {t('common.back')}
+            </button>
+            <button 
+              onClick={handleSubmit}
               className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />

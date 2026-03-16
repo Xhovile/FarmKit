@@ -132,7 +132,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   useEffect(() => {
     const requestsQuery = query(
       collection(db, 'buyer_requests'),
-      where('status', '==', 'active')
+      where('status', '==', 'open')
     );
 
     const unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
@@ -371,6 +371,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       ...listing,
       image: listing.imageUrl,
       type: 'market_listing',
+    });
+  };
+
+  const handleOpenRequestDetails = (request: BuyerRequest) => {
+    setSelectedItem({
+      ...request,
+      type: 'buyer_request',
     });
   };
 
@@ -714,7 +721,12 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                     req.buyerName.toLowerCase().includes(marketSearchQuery.toLowerCase())
                   )
                   .map(req => (
-                    <BuyerRequestCard key={req.id} request={req} t={t} />
+                    <BuyerRequestCard 
+                      key={req.id} 
+                      request={req} 
+                      t={t} 
+                      onOpenDetails={handleOpenRequestDetails} 
+                    />
                   ))
               )}
             </div>

@@ -543,12 +543,19 @@ export const ListingCard: React.FC<{
   );
 };
 
-export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any }> = ({ request, t }) => {
+export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any; onOpenDetails?: (request: BuyerRequest) => void }> = ({ request, t, onOpenDetails }) => {
   return (
     <motion.div 
       whileHover={{ y: -5 }}
-      className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all"
+      onClick={() => onOpenDetails?.(request)}
+      className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all relative overflow-hidden cursor-pointer"
     >
+      {request.urgency === 'urgent' && (
+        <div className="absolute top-0 right-0 px-4 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-bl-xl">
+          Urgent
+        </div>
+      )}
+
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600">
@@ -561,12 +568,29 @@ export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any }> = ({ 
             </div>
           </div>
         </div>
-        <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-          {t('market.demandSignal')}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
+            {t('market.demandSignal')}
+          </span>
+          {request.buyerType && (
+            <span className="text-[9px] text-gray-400 uppercase font-bold tracking-tighter">
+              {request.buyerType}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4 mb-6">
+        {request.referenceImageUrl && (
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 aspect-video bg-gray-50 dark:bg-gray-900/50">
+            <img 
+              src={request.referenceImageUrl} 
+              alt={request.commodity} 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
         <div>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.commodityWanted')}</p>
           <p className="text-xl font-black text-gray-900 dark:text-white">{request.commodity}</p>
@@ -582,13 +606,28 @@ export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any }> = ({ 
             <p className="text-sm font-bold text-primary">{request.priceRange}</p>
           </div>
         </div>
+
+        {request.description && (
+          <p className="text-xs text-gray-500 line-clamp-2 italic">
+            "{request.description}"
+          </p>
+        )}
       </div>
 
-      <div className="flex items-center gap-2 mb-6 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-        <Truck className="w-4 h-4 text-gray-400" />
-        <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-          {t('market.deliveryPreference') || t('market.deliveryMethod')}: <span className="text-gray-900 dark:text-white font-bold">{request.status}</span>
-        </span>
+      <div className="space-y-2 mb-6">
+        <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+          <Truck className="w-4 h-4 text-gray-400" />
+          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+            {t('market.deliveryPreference') || 'Delivery'}: <span className="text-gray-900 dark:text-white font-bold capitalize">{request.deliveryPreference?.replace('_', ' ') || 'Not specified'}</span>
+          </span>
+        </div>
+
+        {request.neededBy && (
+          <div className="flex items-center gap-2 px-3 text-[11px] text-gray-500">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+            Needed by: <span className="font-bold text-gray-700 dark:text-gray-300">{request.neededBy}</span>
+          </div>
+        )}
       </div>
 
       <a 

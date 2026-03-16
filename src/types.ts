@@ -69,18 +69,42 @@ export interface MarketListing {
   expiryDate?: string;
 }
 
+export type BuyerRequestStatus = 'open' | 'matched' | 'closed';
+
+export type BuyerType = 'farmer' | 'trader' | 'processor' | 'business' | 'individual';
+
 export interface BuyerRequest {
   id?: string;
+
   commodity: string;
   category: string;
+
   quantity: number;
   unit: string;
+
   priceRange: string;
+
   location: string;
+  locationData?: StructuredLocation;
+
+  neededBy?: string;
+  urgency?: 'normal' | 'urgent';
+
+  buyerType?: BuyerType;
+
+  deliveryPreference?: 'pickup' | 'seller_delivery' | 'third_party';
+  contactMethod?: 'whatsapp' | 'phone';
+
   description: string;
+
+  referenceImageUrl?: string | null;
+
   buyerId: string;
   buyerName: string;
   phone: string;
-  status: 'active' | 'fulfilled' | 'closed';
+
+  status: BuyerRequestStatus;
+
   createdAt: any;
+  updatedAt?: any;
 }

@@ -928,6 +928,11 @@ export default function App() {
 
                     setLoading(true);
                     try {
+                      let referenceImageUrl = null;
+                      if (data.imageFile) {
+                        referenceImageUrl = await uploadImageToCloudinary(data.imageFile);
+                      }
+
                       const requestData: Omit<BuyerRequest, 'id'> = {
                         commodity: data.commodity,
                         category: data.category || 'other',
@@ -935,11 +940,18 @@ export default function App() {
                         unit: data.unit,
                         priceRange: data.priceRange,
                         location: data.location,
+                        locationData: data.locationData,
+                        neededBy: data.neededBy || '',
+                        urgency: data.urgency || 'normal',
+                        buyerType: data.buyerType || 'individual',
+                        deliveryPreference: data.deliveryPreference || 'pickup',
+                        contactMethod: data.contactMethod || 'whatsapp',
                         description: data.description || '',
+                        referenceImageUrl,
                         buyerId: user.uid,
                         buyerName: user.name,
                         phone: data.phone || user.phone,
-                        status: 'active',
+                        status: 'open',
                         createdAt: serverTimestamp()
                       };
 
@@ -947,9 +959,9 @@ export default function App() {
                       toast.success(t('market.requestPosted') || 'Request posted successfully!');
                       setIsAddProductModalOpen(false);
                       setFormStep(1);
-                    } catch (error) {
+                    } catch (error: any) {
                       console.error('Error adding request:', error);
-                      toast.error(t('common.error') || 'An error occurred');
+                      toast.error(error.message || t('common.error') || 'An error occurred');
                     } finally {
                       setLoading(false);
                     }
