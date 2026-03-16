@@ -417,12 +417,13 @@ export default function App() {
           .filter((result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled')
           .map((result) => result.value);
 
-        const failedUploads = uploadResults.filter((result) => result.status === 'rejected');
+        const failedUploads = uploadResults.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
 
         imageUrls = successfulUploads;
 
         if (failedUploads.length > 0) {
-          console.error('Some image uploads failed:', failedUploads);
+          const reasons = failedUploads.map(f => f.reason?.message || String(f.reason));
+          console.error('Some image uploads failed:', reasons);
           toast.error(`${failedUploads.length} image upload(s) failed. The rest were uploaded.`);
         }
       }
@@ -557,14 +558,15 @@ export default function App() {
           .filter((result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled')
           .map((result) => result.value);
 
-        const failedUploads = uploadResults.filter((result) => result.status === 'rejected');
+        const failedUploads = uploadResults.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
 
         if (successfulUploads.length > 0) {
           imageUrls = successfulUploads;
         }
 
         if (failedUploads.length > 0) {
-          console.error('Some image uploads failed during update:', failedUploads);
+          const reasons = failedUploads.map(f => f.reason?.message || String(f.reason));
+          console.error('Some image uploads failed during update:', reasons);
           toast.error(`${failedUploads.length} image upload(s) failed. The rest were uploaded.`);
         }
       }

@@ -13,6 +13,9 @@ import {
   Bookmark,
   CalendarDays,
   Building2,
+  Expand,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 interface DetailModalProps {
@@ -121,6 +124,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   savedListingIds = []
 }) => {
   const [activeImage, setActiveImage] = useState(0);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const isMarketListing = selectedItem?.type === 'market_listing';
   const specs = isMarketListing && selectedItem ? renderMarketSpecs(selectedItem) : [];
@@ -192,6 +196,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
         console.error('Share failed:', error);
       }
     }
+  };
+
+  const showPrevImage = () => {
+    if (galleryImages.length <= 1) return;
+    setActiveImage((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+  };
+
+  const showNextImage = () => {
+    if (galleryImages.length <= 1) return;
+    setActiveImage((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -267,19 +281,54 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                {galleryImages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setIsFullscreenOpen(true)}
+                    className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
+                    aria-label="Open fullscreen image"
+                  >
+                    <Expand className="w-5 h-5" />
+                  </button>
+                )}
+
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={showPrevImage}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={showNextImage}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+
+                    <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/65 text-white text-xs font-semibold">
+                      {activeImage + 1} / {galleryImages.length}
+                    </div>
+                  </>
+                )}
               </div>
 
               {galleryImages.length > 1 && (
-                <div className="flex gap-3 mb-8 px-1 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-3 mb-6 px-1 overflow-x-auto pb-2">
                   {galleryImages.map((img: string, idx: number) => (
                     <button
-                      key={idx}
+                      key={`${img}-${idx}`}
                       onClick={() => setActiveImage(idx)}
                       className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 ${
                         activeImage === idx 
-                          ? 'border-black dark:border-white scale-105 shadow-md' 
-                          : 'border-transparent opacity-60 hover:opacity-100'
+                          ? 'border-black dark:border-white scale-[1.03] shadow-md opacity-100 ring-2 ring-black/10 dark:ring-white/10' 
+                          : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={img} alt="" className="w-full h-full object-cover" />
@@ -425,6 +474,70 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                 </div>
               )}
             </div>
+
+            <AnimatePresence>
+              {isFullscreenOpen && galleryImages.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[180] bg-black/95 flex items-center justify-center p-4"
+                  onClick={() => setIsFullscreenOpen(false)}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setIsFullscreenOpen(false)}
+                    className="absolute top-5 right-5 h-11 w-11 rounded-full bg-white/10 text-white border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
+                    aria-label="Close fullscreen image"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          showPrevImage();
+                        }}
+                        className="absolute left-5 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 text-white border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          showNextImage();
+                        }}
+                        className="absolute right-5 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10 text-white border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+
+                      <div className="absolute bottom-6 right-6 px-3 py-1.5 rounded-full bg-white/10 text-white text-sm font-semibold border border-white/10">
+                        {activeImage + 1} / {galleryImages.length}
+                      </div>
+                    </>
+                  )}
+
+                  <div
+                    className="max-w-[95vw] max-h-[90vh] w-full h-full flex items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img
+                      src={galleryImages[activeImage] || galleryImages[0]}
+                      alt={selectedItem.title || selectedItem.name}
+                      className="max-w-full max-h-full object-contain rounded-2xl"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}
