@@ -936,23 +936,34 @@ export default function App() {
                       const requestData: Omit<BuyerRequest, 'id'> = {
                         commodity: data.commodity,
                         category: data.category || 'other',
+
                         quantity: Number(data.quantity),
                         unit: data.unit,
+
                         priceRange: data.priceRange,
+
                         location: data.location,
                         locationData: data.locationData,
+
                         neededBy: data.neededBy || '',
                         urgency: data.urgency || 'normal',
+
                         buyerType: data.buyerType || 'individual',
+
                         deliveryPreference: data.deliveryPreference || 'pickup',
                         contactMethod: data.contactMethod || 'whatsapp',
+
                         description: data.description || '',
-                        referenceImageUrl,
+
+                        referenceImageUrl: referenceImageUrl,
+
                         buyerId: user.uid,
                         buyerName: user.name,
                         phone: data.phone || user.phone,
+
                         status: 'open',
-                        createdAt: serverTimestamp()
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
                       };
 
                       await addDoc(collection(db, 'buyer_requests'), requestData);
