@@ -25,7 +25,7 @@ import {
   malawiRegions, 
   malawiDistrictsByRegion 
 } from '../data/constants';
-import { StockStatus, BuyerType, BuyerRequest } from '../types';
+import { StockStatus, BuyerType, User } from '../types';
 
 const computeStockStatus = (
   availableQuantity: number,
@@ -45,7 +45,7 @@ interface FormProps {
   t: any;
   onClose: () => void;
   onSubmit: (data: any) => void;
-  user: any;
+  user: User | null;
 }
 
 type SpecField = {

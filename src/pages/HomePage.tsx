@@ -37,6 +37,7 @@ import {
 } from 'recharts';
 import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 import { PesticideMarketMap } from '../components/PesticideMarketMap';
+import { User } from '../types';
 
 interface HomePageProps {
   t: (key: string) => string;
@@ -46,7 +47,7 @@ interface HomePageProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   setSelectedItem: (item: any) => void;
-  user: any;
+  user: User | null;
   setActiveTab: (tab: any) => void;
   setIsChatOpen: (val: boolean) => void;
 }
@@ -63,7 +64,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   setActiveTab,
   setIsChatOpen
 }) => {
-  const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
+  const isPremium = user?.status === 'premium' || user?.status === 'verified';
   const onUpgrade = () => setActiveTab('account');
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);

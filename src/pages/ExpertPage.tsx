@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { PremiumLock, PremiumBadge } from '../components/PremiumLock';
 import { PesticideMarketMap } from '../components/PesticideMarketMap';
+import { User } from '../types';
 
 interface ExpertPageProps {
   t: (key: string) => string;
@@ -28,7 +29,7 @@ interface ExpertPageProps {
   setCommunityTab: (tab: 'experts' | 'organizations' | 'support' | 'stories') => void;
   experts: any[];
   successStories: any[];
-  user: any;
+  user: User | null;
   setActiveTab: (tab: any) => void;
 }
 
@@ -122,7 +123,7 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
   user,
   setActiveTab
 }) => {
-  const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
+  const isPremium = user?.status === 'premium' || user?.status === 'verified';
   const onUpgrade = () => setActiveTab('account');
   return (
     <motion.div 

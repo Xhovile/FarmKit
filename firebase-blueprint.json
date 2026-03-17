@@ -56,12 +56,47 @@
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
+        "name": { "type": "string" },
         "email": { "type": "string", "format": "email" },
-        "displayName": { "type": "string" },
-        "tier": { "type": "string" },
-        "role": { "type": "string" }
+        "phone": { "type": "string" },
+        "location": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatar": { "type": "string" },
+        "primaryRole": { "type": "string", "enum": ["buyer", "seller", "organization"] },
+        "roles": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["basic", "verified", "premium"] },
+        "sellerProfile": { "$ref": "SellerProfile" },
+        "organizationProfile": { "$ref": "OrganizationProfile" },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["uid", "email"]
+      "required": ["uid", "email", "name", "primaryRole", "roles", "status", "createdAt"]
+    },
+    "SellerProfile": {
+      "title": "Seller Profile",
+      "description": "Profile details for individual sellers.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["individual_seller"] },
+        "businessName": { "type": "string" },
+        "category": { "type": "string" },
+        "district": { "type": "string" },
+        "deliveryMethod": { "type": "string" },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "OrganizationProfile": {
+      "title": "Organization Profile",
+      "description": "Profile details for businesses, cooperatives, or NGOs.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["business", "cooperative", "ngo"] },
+        "organizationName": { "type": "string" },
+        "contactPerson": { "type": "string" },
+        "district": { "type": "string" },
+        "description": { "type": "string" },
+        "verified": { "type": "boolean" }
+      }
     },
     "HiddenListing": {
       "title": "Hidden Listing",

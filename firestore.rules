@@ -30,8 +30,20 @@ service cloud.firestore {
     // Collection: users
     // Fields:
     //   - uid: string (required, immutable)
+    //   - name: string (required)
     //   - email: string (required, immutable)
-    //   - role: string (optional)
+    //   - phone: string (optional)
+    //   - location: string (optional)
+    //   - bio: string (optional)
+    //   - avatar: string (optional)
+    //   - primaryRole: string (required, enum: ['buyer', 'seller', 'organization'])
+    //   - roles: list (required)
+    //   - status: string (required, enum: ['basic', 'verified', 'premium'])
+    //   - sellerProfile: map (optional)
+    //   - organizationProfile: map (optional)
+    //   - createdAt: string (required)
+    //   - emailVerified: boolean (required)
+    //   - role: string (optional, admin only)
     //
     // ===============================================================
 
@@ -98,8 +110,11 @@ service cloud.firestore {
     }
 
     function isValidUser(data) {
-      return data.uid is string && data.uid == request.auth.uid &&
-             data.email is string && isValidEmail(data.email);
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.primaryRole in ['buyer', 'seller', 'organization'] &&
+             data.roles is list &&
+             data.status in ['basic', 'verified', 'premium'];
     }
 
     // ===============================================================
@@ -143,9 +158,13 @@ service cloud.firestore {
       allow list: if isAdmin();
       
       allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      request.resource.data.status == 'basic' &&
+                      request.resource.data.roles == ['buyer'] &&
                       (!('role' in request.resource.data) || isAdmin());
       allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
-                      (request.resource.data.role == resource.data.role || isAdmin());
+                      (request.resource.data.status == resource.data.status || isAdmin()) &&
+                      (request.resource.data.roles == resource.data.roles || isAdmin()) &&
+                      (!('role' in request.resource.data) || request.resource.data.role == resource.data.role || isAdmin());
       
       match /hidden_listings/{listingId} {
         allow read, write: if isOwner(userId);

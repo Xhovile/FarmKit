@@ -26,6 +26,8 @@ import {
 import { auth, db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { User as UserType } from '../types';
+
 // Real data states (placeholders for now)
 const marketplaceListings: any[] = [];
 const buyerRequests: any[] = [];
@@ -34,8 +36,8 @@ interface AccountPageProps {
   t: (key: string) => string;
   lang: 'en' | 'ny';
   setLang: (lang: 'en' | 'ny') => void;
-  user: any;
-  setUser: (user: any) => void;
+  user: UserType | null;
+  setUser: (user: UserType | null) => void;
   isEditingProfile: boolean;
   setIsEditingProfile: (val: boolean) => void;
   profileFormData: any;
@@ -121,8 +123,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             
             {!isEditingProfile && (
               <div className="flex gap-2 mb-2">
-                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${user?.tier === 'Verified Seller' ? 'bg-emerald-500 text-white' : user?.tier === 'Premium' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
-                  {user?.tier === 'Verified Seller' ? t('account.verifiedSeller') : user?.tier === 'Premium' ? t('account.premiumMember') : t('account.freeMember')}
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-sm ${user?.status === 'verified' ? 'bg-emerald-500 text-white' : user?.status === 'premium' ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
+                  {user?.status === 'verified' ? t('account.verifiedSeller') : user?.status === 'premium' ? t('account.premiumMember') : t('account.freeMember')}
                 </span>
               </div>
             )}
@@ -302,7 +304,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       </div>
 
       {/* Seller Dashboard (Only for Verified Sellers or Premium) */}
-      {(user?.tier === 'Verified Seller' || user?.tier === 'Premium') && (marketplaceListings.length > 0 || buyerRequests.length > 0) && (
+      {(user?.status === 'verified' || user?.status === 'premium') && (marketplaceListings.length > 0 || buyerRequests.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center gap-4 mb-6">
@@ -429,7 +431,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       )}
 
       {/* Premium Upgrade CTA */}
-      {!isEditingProfile && user?.tier === 'Free' && (
+      {!isEditingProfile && user?.status === 'basic' && (
         <div className="bg-amber-600 p-8 rounded-[2.5rem] text-white shadow-lg relative overflow-hidden group">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
           <div className="relative z-10">
@@ -475,7 +477,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       )}
 
       {/* Verified Seller CTA */}
-      {!isEditingProfile && user?.tier !== 'Verified Seller' && (
+      {!isEditingProfile && user?.status !== 'verified' && (
         <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-4">

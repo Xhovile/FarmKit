@@ -100,10 +100,15 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
         await setDoc(doc(db, 'users', user.uid), {
           name,
           email,
-          tier: 'Free',
-          location: '',
           phone: '',
+          location: '',
           bio: '',
+          avatar: '',
+          primaryRole: 'buyer',
+          roles: ['buyer'],
+          status: 'basic',
+          sellerProfile: null,
+          organizationProfile: null,
           emailVerified: false,
           createdAt: new Date().toISOString()
         });

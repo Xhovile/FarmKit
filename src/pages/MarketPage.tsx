@@ -40,7 +40,7 @@ import {
 import { db } from '../lib/firebase';
 import { collection, deleteDoc, doc, onSnapshot, query, setDoc, serverTimestamp, updateDoc, where } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
-import { MarketListing, BuyerRequest, StockStatus } from '../types';
+import { MarketListing, BuyerRequest, StockStatus, User } from '../types';
 
 const computeStockStatus = (
   availableQuantity: number,
@@ -83,7 +83,7 @@ interface MarketPageProps {
   lang: string;
   marketSearchQuery: string;
   setMarketSearchQuery: (query: string) => void;
-  user: any;
+  user: User | null;
   marketListings: MarketListing[];
   setIsAddProductModalOpen: (open: boolean) => void;
   setFormStep: (step: number) => void;
@@ -210,7 +210,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     });
   }, [requests, setSelectedItem]);
 
-  const isPremium = user?.tier === 'Premium' || user?.tier === 'Verified Seller';
+  const isPremium = user?.status === 'premium' || user?.status === 'verified';
   const onUpgrade = () => setActiveTab('account');
 
   const handleReport = () => {
@@ -818,7 +818,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                 </div>
               )}
 
-              {user?.tier !== 'Verified Seller' && (
+              {user?.status !== 'verified' && (
                 <div className="mt-12">
                   <SellerOnboardingCTA t={t} onUpgrade={onUpgrade} />
                 </div>

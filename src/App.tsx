@@ -22,7 +22,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
-import { BuyerRequest, MarketListing, StockStatus } from './types';
+import { BuyerRequest, MarketListing, StockStatus, User } from './types';
 import toast from 'react-hot-toast';
 
 const computeStockStatus = (
@@ -131,16 +131,7 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [loading, setLoading] = useState(false);
   const [marketListings, setMarketListings] = useState<MarketListing[]>([]);
-  const [user, setUser] = useState<{ 
-    uid: string;
-    email: string;
-    name: string; 
-    tier: string; 
-    location: string; 
-    phone: string; 
-    avatar?: string;
-    bio?: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileFormData, setProfileFormData] = useState({
@@ -180,12 +171,18 @@ export default function App() {
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
               name: data.name || firebaseUser.displayName || 'Farmer',
-              tier: data.tier || 'Free',
-              location: data.location || '',
               phone: data.phone || '',
+              location: data.location || '',
+              bio: data.bio || '',
               avatar: data.avatar || firebaseUser.photoURL || '',
-              bio: data.bio || ''
-            });
+              primaryRole: data.primaryRole || 'buyer',
+              roles: data.roles || ['buyer'],
+              status: data.status || (data.tier === 'Verified Seller' ? 'verified' : data.tier === 'Premium' ? 'premium' : 'basic'),
+              sellerProfile: data.sellerProfile || null,
+              organizationProfile: data.organizationProfile || null,
+              createdAt: data.createdAt || new Date().toISOString(),
+              emailVerified: firebaseUser.emailVerified
+            } as User);
             setProfileFormData({
               name: data.name || '',
               location: data.location || '',
@@ -194,21 +191,25 @@ export default function App() {
             });
           } else {
             const initialData = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
               name: firebaseUser.displayName || 'Farmer',
-              tier: 'Free',
-              location: '',
+              email: firebaseUser.email || '',
               phone: '',
+              location: '',
+              bio: '',
               avatar: firebaseUser.photoURL || '',
-              bio: ''
+              primaryRole: 'buyer',
+              roles: ['buyer'],
+              status: 'basic',
+              sellerProfile: null,
+              organizationProfile: null,
+              emailVerified: firebaseUser.emailVerified,
+              createdAt: new Date().toISOString()
             };
             await setDoc(doc(db, 'users', firebaseUser.uid), initialData);
             setUser({
               uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
               ...initialData
-            });
+            } as User);
             setProfileFormData({
               name: initialData.name,
               location: initialData.location,
@@ -503,9 +504,9 @@ export default function App() {
         phone: cleanedPhone,
         sellerId: user.uid,
         sellerName: user.name || 'Seller',
-        sellerTier: user.tier || 'Free',
+        sellerTier: user.status === 'verified' ? 'Verified Seller' : user.status === 'premium' ? 'Premium' : 'Free',
         sellerType: data.sellerType || 'farmer',
-        verified: user.tier === 'Verified Seller',
+        verified: user.status === 'verified',
         imageUrl: imageUrls[0] || null,
         imageUrls,
         stockStatus: data.stockStatus || computeStockStatus(

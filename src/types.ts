@@ -69,6 +69,41 @@ export interface MarketListing {
   expiryDate?: string;
 }
 
+export interface SellerProfile {
+  type: 'individual_seller';
+  businessName: string;
+  category: string;
+  district: string;
+  deliveryMethod: string;
+  verified: boolean;
+}
+
+export interface OrganizationProfile {
+  type: 'business' | 'cooperative' | 'ngo';
+  organizationName: string;
+  contactPerson: string;
+  district: string;
+  description: string;
+  verified: boolean;
+}
+
+export interface User {
+  uid: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  bio: string;
+  avatar: string;
+  primaryRole: 'buyer' | 'seller' | 'organization';
+  roles: string[];
+  status: 'basic' | 'verified' | 'premium';
+  sellerProfile: SellerProfile | null;
+  organizationProfile: OrganizationProfile | null;
+  createdAt: string;
+  emailVerified: boolean;
+}
+
 export type BuyerRequestStatus = 'open' | 'matched' | 'closed';
 
 export type BuyerType = 'farmer' | 'trader' | 'processor' | 'business' | 'individual';
