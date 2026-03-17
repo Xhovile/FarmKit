@@ -218,6 +218,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
     const listingsQuery = query(
       collection(db, 'market_listings'),
       orderBy('createdAt', 'desc')

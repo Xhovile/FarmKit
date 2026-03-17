@@ -7,48 +7,79 @@ interface BottomNavProps {
   t: (key: string) => string;
 }
 
-const NavAction: React.FC<{ active: boolean; onClick: () => void; icon: React.ReactNode; label: string }> = ({ active, onClick, icon, label }) => (
-  <button 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
+const NavAction: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}> = ({ active, onClick, icon, label }) => (
+  <button
     onClick={onClick}
-    className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-2xl transition-all duration-300 ${active ? 'bg-primary text-white shadow-md shadow-primary/10 scale-105' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
+    className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-4 md:px-6 py-2 md:py-3 rounded-2xl transition-all duration-300 ${
+      active
+        ? 'bg-primary text-white shadow-md shadow-primary/10 scale-105'
+        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+    }`}
   >
     <div className={`${active ? 'animate-bounce-subtle' : ''}`}>
       {icon}
     </div>
-    <span className={`text-[10px] md:text-sm font-bold uppercase tracking-wider ${active ? 'opacity-100' : 'opacity-70'}`}>{label}</span>
+    <span className={`text-[10px] md:text-sm font-bold uppercase tracking-wider ${active ? 'opacity-100' : 'opacity-70'}`}>
+      {label}
+    </span>
   </button>
 );
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t }) => {
+  const handleTabClick = (tab: string) => {
+    if (activeTab === tab) {
+      scrollToTop();
+      return;
+    }
+
+    setActiveTab(tab);
+    requestAnimationFrame(() => {
+      scrollToTop();
+    });
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-dark-800 border-t border-gray-200 dark:border-gray-700 z-50 md:relative md:bottom-auto md:bg-transparent md:border-none md:mt-6">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-around md:justify-center items-center gap-1 md:gap-4 py-2 md:py-0">
-          <NavAction 
-            active={activeTab === 'info'} 
-            onClick={() => setActiveTab('info')} 
-            icon={<Book className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('common.home')} 
-          />
-          
-          <NavAction 
-            active={activeTab === 'market'} 
-            onClick={() => setActiveTab('market')} 
-            icon={<Store className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('common.market')} 
+          <NavAction
+            active={activeTab === 'info'}
+            onClick={() => handleTabClick('info')}
+            icon={<Book className="w-5 h-5 md:w-4 md:h-4" />}
+            label={t('common.home')}
           />
 
-          <NavAction 
-            active={activeTab === 'experts'} 
-            onClick={() => setActiveTab('experts')} 
-            icon={<GraduationCap className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('common.experts')} 
+          <NavAction
+            active={activeTab === 'market'}
+            onClick={() => handleTabClick('market')}
+            icon={<Store className="w-5 h-5 md:w-4 md:h-4" />}
+            label={t('common.market')}
           />
-          <NavAction 
-            active={activeTab === 'account'} 
-            onClick={() => setActiveTab('account')} 
-            icon={<UserCircle className="w-5 h-5 md:w-4 md:h-4" />} 
-            label={t('common.account')} 
+
+          <NavAction
+            active={activeTab === 'experts'}
+            onClick={() => handleTabClick('experts')}
+            icon={<GraduationCap className="w-5 h-5 md:w-4 md:h-4" />}
+            label={t('common.experts')}
+          />
+
+          <NavAction
+            active={activeTab === 'account'}
+            onClick={() => handleTabClick('account')}
+            icon={<UserCircle className="w-5 h-5 md:w-4 md:h-4" />}
+            label={t('common.account')}
           />
         </div>
       </div>
