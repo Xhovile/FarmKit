@@ -543,102 +543,167 @@ export const ListingCard: React.FC<{
   );
 };
 
-export const BuyerRequestCard: React.FC<{ request: BuyerRequest; t: any; onOpenDetails?: (request: BuyerRequest) => void }> = ({ request, t, onOpenDetails }) => {
-  return (
-    <motion.div 
-      whileHover={{ y: -5 }}
-      onClick={() => onOpenDetails?.(request)}
-      className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all relative overflow-hidden cursor-pointer"
-    >
-      {request.urgency === 'urgent' && (
-        <div className="absolute top-0 right-0 px-4 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-bl-xl">
-          Urgent
-        </div>
-      )}
+export const BuyerRequestCard: React.FC<{
+  request: BuyerRequest;
+  t: any;
+  onOpenDetails?: (request: BuyerRequest) => void;
+}> = ({ request, t, onOpenDetails }) => {
+  const urgencyLabel =
+    request.urgency === 'urgent' ? 'Urgent' : 'Open request';
 
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center text-indigo-600">
-            <Building2 className="w-6 h-6" />
+  const deliveryLabel =
+    request.deliveryPreference?.replace(/_/g, ' ') || 'Not specified';
+
+  const buyerTypeLabel =
+    request.buyerType
+      ? request.buyerType.charAt(0).toUpperCase() + request.buyerType.slice(1)
+      : 'Buyer';
+
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      onClick={() => onOpenDetails?.(request)}
+      className="group bg-white dark:bg-gray-900 rounded-[32px] border border-gray-200 dark:border-gray-800 overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.10)] hover:shadow-[0_24px_70px_rgba(0,0,0,0.16)] transition-all duration-300 cursor-pointer ring-1 ring-black/[0.03] dark:ring-white/[0.04]"
+    >
+      {request.referenceImageUrl ? (
+        <div className="relative h-52 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+          <img
+            src={request.referenceImageUrl}
+            alt={request.commodity}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent" />
+          <div className="absolute top-4 right-4">
+            <span className={`px-3 py-1.5 rounded-full text-[11px] font-semibold ${
+              request.urgency === 'urgent'
+                ? 'bg-rose-500 text-white'
+                : 'bg-black/55 text-white'
+            }`}>
+              {urgencyLabel}
+            </span>
           </div>
-          <div>
-            <h4 className="font-bold text-gray-900 dark:text-white">{request.buyerName}</h4>
-            <div className="flex items-center text-xs text-gray-500">
-              <MapPin className="w-3 h-3 mr-1" /> {request.location}
+        </div>
+      ) : (
+        <div className="relative h-28 w-full bg-indigo-50 dark:bg-indigo-950/30 border-b border-gray-100 dark:border-gray-800">
+          <div className="absolute inset-0 flex items-center justify-between px-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-2xl flex items-center justify-center text-indigo-600">
+                <Package className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400 font-semibold">
+                  Demand
+                </p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {urgencyLabel}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest">
-            {t('market.demandSignal')}
-          </span>
-          {request.buyerType && (
-            <span className="text-[9px] text-gray-400 uppercase font-bold tracking-tighter">
-              {request.buyerType}
+      )}
+
+      <div className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <h3 className="text-[1.08rem] font-semibold text-black dark:text-white leading-snug line-clamp-2">
+              {request.commodity}
+            </h3>
+
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 rounded-full uppercase font-bold tracking-wider">
+                {buyerTypeLabel}
+              </span>
+
+              <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider ${
+                request.status === 'open'
+                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-300'
+                  : request.status === 'matched'
+                  ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-300'
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+              }`}>
+                {request.status}
+              </span>
+            </div>
+          </div>
+
+          {request.urgency === 'urgent' && !request.referenceImageUrl && (
+            <span className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-rose-500 text-white shrink-0">
+              Urgent
             </span>
           )}
         </div>
-      </div>
 
-      <div className="space-y-4 mb-6">
-        {request.referenceImageUrl && (
-          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 aspect-video bg-gray-50 dark:bg-gray-900/50">
-            <img 
-              src={request.referenceImageUrl} 
-              alt={request.commodity} 
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-900 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-gray-400 font-semibold mb-1">
+              Quantity
+            </p>
+            <p className="text-sm font-semibold text-black dark:text-white">
+              {request.quantity} {request.unit}
+            </p>
           </div>
-        )}
-        <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.commodityWanted')}</p>
-          <p className="text-xl font-black text-gray-900 dark:text-white">{request.commodity}</p>
+
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-900 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-gray-400 font-semibold mb-1">
+              Price range
+            </p>
+            <p className="text-sm font-semibold text-black dark:text-white">
+              {request.priceRange || 'Not specified'}
+            </p>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('common.quantity')}</p>
-            <p className="text-sm font-bold">{request.quantity} {request.unit}</p>
+
+        <div className="space-y-2.5 mb-5">
+          <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400">
+            <MapPin className="w-4 h-4" />
+            <span className="line-clamp-1">{request.location}</span>
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.targetPrice')}</p>
-            <p className="text-sm font-bold text-primary">{request.priceRange}</p>
+
+          <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400">
+            <Truck className="w-4 h-4" />
+            <span className="capitalize">{deliveryLabel}</span>
           </div>
+
+          {request.neededBy && (
+            <div className="flex items-center gap-2 text-[13px] text-gray-500 dark:text-gray-400">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Needed by: {request.neededBy}</span>
+            </div>
+          )}
         </div>
 
         {request.description && (
-          <p className="text-xs text-gray-500 line-clamp-2 italic">
-            "{request.description}"
+          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-5">
+            {request.description}
           </p>
         )}
-      </div>
 
-      <div className="space-y-2 mb-6">
-        <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-          <Truck className="w-4 h-4 text-gray-400" />
-          <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-            {t('market.deliveryPreference') || 'Delivery'}: <span className="text-gray-900 dark:text-white font-bold capitalize">{request.deliveryPreference?.replace('_', ' ') || 'Not specified'}</span>
-          </span>
+        <div className="grid grid-cols-2 gap-2.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDetails?.(request);
+            }}
+            className="h-12 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-black dark:text-white text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm"
+          >
+            View details
+          </button>
+
+          <a
+            href={`https://wa.me/${request.phone}?text=Hello ${request.buyerName}, I saw your request for ${request.commodity} on FarmKit.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="h-12 rounded-2xl bg-indigo-600 text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all shadow-sm"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Fulfill
+          </a>
         </div>
-
-        {request.neededBy && (
-          <div className="flex items-center gap-2 px-3 text-[11px] text-gray-500">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            Needed by: <span className="font-bold text-gray-700 dark:text-gray-300">{request.neededBy}</span>
-          </div>
-        )}
       </div>
-
-      <a 
-        href={`https://wa.me/${request.phone}?text=Hello ${request.buyerName}, I saw your request for ${request.commodity} on FarmKit.`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
-      >
-        <ArrowRight className="w-5 h-5" />
-        {t('market.fulfillRequest')}
-      </a>
     </motion.div>
   );
 };

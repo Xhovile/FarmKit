@@ -897,11 +897,15 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
   const [isUnitOpen, setIsUnitOpen] = useState(false);
   const [isRegionOpen, setIsRegionOpen] = useState(false);
   const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+  const [isBuyerTypeOpen, setIsBuyerTypeOpen] = useState(false);
+  const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
 
   const categoryDropdownRef = useRef<HTMLDivElement | null>(null);
   const unitDropdownRef = useRef<HTMLDivElement | null>(null);
   const regionDropdownRef = useRef<HTMLDivElement | null>(null);
   const districtDropdownRef = useRef<HTMLDivElement | null>(null);
+  const buyerTypeDropdownRef = useRef<HTMLDivElement | null>(null);
+  const deliveryDropdownRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -922,6 +926,14 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
 
       if (districtDropdownRef.current && !districtDropdownRef.current.contains(target)) {
         setIsDistrictOpen(false);
+      }
+
+      if (buyerTypeDropdownRef.current && !buyerTypeDropdownRef.current.contains(target)) {
+        setIsBuyerTypeOpen(false);
+      }
+
+      if (deliveryDropdownRef.current && !deliveryDropdownRef.current.contains(target)) {
+        setIsDeliveryOpen(false);
       }
     };
 
@@ -948,6 +960,8 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
     setIsUnitOpen(false);
     setIsRegionOpen(false);
     setIsDistrictOpen(false);
+    setIsBuyerTypeOpen(false);
+    setIsDeliveryOpen(false);
     setStep(step + 1);
   };
   const prevStep = () => setStep(step - 1);
@@ -1290,29 +1304,108 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
       {step === 12 && (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Buyer Type</label>
-              <select 
-                value={formData.buyerType}
-                onChange={e => setFormData({...formData, buyerType: e.target.value as BuyerType})}
-                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+            <div className="relative" ref={buyerTypeDropdownRef}>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                Buyer Type
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsBuyerTypeOpen((prev) => !prev)}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none"
               >
-                {['farmer', 'trader', 'processor', 'business', 'individual'].map(type => (
-                  <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
-                ))}
-              </select>
+                <span className="text-gray-900 dark:text-white">
+                  {formData.buyerType.charAt(0).toUpperCase() + formData.buyerType.slice(1)}
+                </span>
+                <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {isBuyerTypeOpen && (
+                <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {(['farmer', 'trader', 'processor', 'business', 'individual'] as BuyerType[]).map((type) => {
+                      const selected = formData.buyerType === type;
+
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, buyerType: type });
+                            setIsBuyerTypeOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-indigo-50 text-indigo-600'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-            <div>
-              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Delivery</label>
-              <select 
-                value={formData.deliveryPreference}
-                onChange={e => setFormData({...formData, deliveryPreference: e.target.value as any})}
-                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
+            <div className="relative" ref={deliveryDropdownRef}>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                Delivery
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsDeliveryOpen((prev) => !prev)}
+                className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 rounded-2xl text-left flex items-center justify-between focus:ring-2 focus:ring-indigo-600 outline-none"
               >
-                <option value="pickup">I will pick up</option>
-                <option value="seller_delivery">Seller delivers</option>
-                <option value="third_party">Third party delivery</option>
-              </select>
+                <span className="text-gray-900 dark:text-white">
+                  {formData.deliveryPreference === 'pickup'
+                    ? 'I will pick up'
+                    : formData.deliveryPreference === 'seller_delivery'
+                    ? 'Seller delivers'
+                    : 'Third party delivery'}
+                </span>
+                <ChevronsUpDown className="w-5 h-5 text-gray-400" />
+              </button>
+
+              {isDeliveryOpen && (
+                <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                  <div className="p-2">
+                    {[
+                      { id: 'pickup', label: 'I will pick up' },
+                      { id: 'seller_delivery', label: 'Seller delivers' },
+                      { id: 'third_party', label: 'Third party delivery' },
+                    ].map((option) => {
+                      const selected = formData.deliveryPreference === option.id;
+
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              deliveryPreference: option.id as 'pickup' | 'seller_delivery' | 'third_party',
+                            });
+                            setIsDeliveryOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            selected
+                              ? 'bg-indigo-50 text-indigo-600'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                          }`}
+                        >
+                          <span className="font-medium">{option.label}</span>
+                          {selected && <Check className="w-4 h-4" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
