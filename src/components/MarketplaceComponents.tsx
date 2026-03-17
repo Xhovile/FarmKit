@@ -789,6 +789,29 @@ export const MarketplaceFilters: React.FC<{
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
+
+  const regionRef = useRef<HTMLDivElement | null>(null);
+  const deliveryRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (regionRef.current && !regionRef.current.contains(target)) {
+        setIsRegionOpen(false);
+      }
+
+      if (deliveryRef.current && !deliveryRef.current.contains(target)) {
+        setIsDeliveryOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="space-y-4 mb-8">
       <div className="flex items-center gap-3">
@@ -824,32 +847,106 @@ export const MarketplaceFilters: React.FC<{
           animate={{ height: 'auto', opacity: 1 }}
           className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Region</label>
-            <select 
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+          <div className="relative" ref={regionRef}>
+            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+              Region
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsRegionOpen((prev) => !prev)}
+              className="w-full bg-white dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none"
             >
-              <option value="all">All Regions</option>
-              {malawiRegions.map(region => (
-                <option key={region} value={region}>{region}</option>
-              ))}
-            </select>
+              <span>{selectedRegion === 'all' ? 'All Regions' : selectedRegion}</span>
+              <span className="text-gray-400">⌄</span>
+            </button>
+
+            {isRegionOpen && (
+              <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                <div className="p-2">
+                  {['all', ...malawiRegions].map((region) => {
+                    const label = region === 'all' ? 'All Regions' : region;
+                    const selected = selectedRegion === region;
+
+                    return (
+                      <button
+                        key={region}
+                        type="button"
+                        onClick={() => {
+                          setSelectedRegion(region);
+                          setIsRegionOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                          selected
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                        }`}
+                      >
+                        <span className="font-medium">{label}</span>
+                        {selected && <CheckCircle2 className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Delivery</label>
-            <select 
-              value={selectedDeliveryMethod}
-              onChange={(e) => setSelectedDeliveryMethod(e.target.value)}
-              className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+          <div className="relative" ref={deliveryRef}>
+            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+              Delivery
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsDeliveryOpen((prev) => !prev)}
+              className="w-full bg-white dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-left flex items-center justify-between focus:ring-2 focus:ring-primary outline-none"
             >
-              <option value="all">All delivery methods</option>
-              <option value="pickup">Self Pickup</option>
-              <option value="seller_delivery">Seller Delivery</option>
-              <option value="third_party">Third-party Transport</option>
-            </select>
+              <span>
+                {selectedDeliveryMethod === 'all'
+                  ? 'All delivery methods'
+                  : selectedDeliveryMethod === 'pickup'
+                  ? 'Self Pickup'
+                  : selectedDeliveryMethod === 'seller_delivery'
+                  ? 'Seller Delivery'
+                  : 'Third-party Transport'}
+              </span>
+              <span className="text-gray-400">⌄</span>
+            </button>
+
+            {isDeliveryOpen && (
+              <div className="absolute z-30 mt-2 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl">
+                <div className="p-2">
+                  {[
+                    { id: 'all', label: 'All delivery methods' },
+                    { id: 'pickup', label: 'Self Pickup' },
+                    { id: 'seller_delivery', label: 'Seller Delivery' },
+                    { id: 'third_party', label: 'Third-party Transport' },
+                  ].map((option) => {
+                    const selected = selectedDeliveryMethod === option.id;
+
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDeliveryMethod(option.id);
+                          setIsDeliveryOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                          selected
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'
+                        }`}
+                      >
+                        <span className="font-medium">{option.label}</span>
+                        {selected && <CheckCircle2 className="w-4 h-4" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between md:justify-start md:gap-4">
