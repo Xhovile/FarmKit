@@ -122,6 +122,7 @@ export default function App() {
   const [marketSearchQuery, setMarketSearchQuery] = useState('');
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
   const [editingListing, setEditingListing] = useState<MarketListing | null>(null);
+  const [editingRequest, setEditingRequest] = useState<BuyerRequest | null>(null);
   const [isSubmittingListing, setIsSubmittingListing] = useState(false);
   const [formStep, setFormStep] = useState(1);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -847,6 +848,7 @@ export default function App() {
               setActiveTab={setActiveTab}
               setSelectedItem={setSelectedItem}
               setEditingListing={setEditingListing}
+              setEditingRequest={setEditingRequest}
               incrementListingViews={incrementListingViews}
               incrementListingShares={incrementListingShares}
               toggleSavedListing={toggleSavedListing}
@@ -908,6 +910,7 @@ export default function App() {
               setIsAddProductModalOpen(false);
               setFormStep(1);
               setEditingListing(null);
+              setEditingRequest(null);
             }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
@@ -930,6 +933,7 @@ export default function App() {
                     setIsAddProductModalOpen(false);
                     setFormStep(1);
                     setEditingListing(null);
+                    setEditingRequest(null);
                   }} 
                   onSubmit={async (data) => {
                     if (loading || isSubmittingListing) return;
@@ -942,6 +946,7 @@ export default function App() {
                       setIsAddProductModalOpen(false);
                       setFormStep(1);
                       setEditingListing(null);
+                      setEditingRequest(null);
                     } catch (error: any) {
                       console.error('Error saving listing:', error);
                       toast.error(error.message || 'Failed to save listing.');
@@ -954,9 +959,12 @@ export default function App() {
                   user={user} 
                   step={formStep} 
                   setStep={setFormStep} 
+                  initialData={editingRequest}
+                  isEditMode={!!editingRequest}
                   onClose={() => {
                     setIsAddProductModalOpen(false);
                     setFormStep(1);
+                    setEditingRequest(null);
                   }} 
                   onSubmit={async (data) => {
                     if (!user) {
@@ -966,18 +974,17 @@ export default function App() {
 
                     setLoading(true);
                     try {
-                      let referenceImageUrl = null;
+                      let referenceImageUrl = editingRequest?.referenceImageUrl || null;
                       if (data.imageFile) {
                         referenceImageUrl = await uploadImageToCloudinary(data.imageFile);
                       }
 
-                      const requestData: Omit<BuyerRequest, 'id'> = {
+                      const requestData: Partial<BuyerRequest> = {
                         commodity: data.commodity,
                         category: data.category || 'other',
 
                         quantity: Number(data.quantity),
                         unit: data.unit,
-                        quantityFound: 0,
 
                         priceRange: data.priceRange,
 
@@ -994,23 +1001,31 @@ export default function App() {
 
                         description: data.description || '',
 
-                        referenceImageUrl: null,
+                        referenceImageUrl: referenceImageUrl,
 
                         buyerId: user.uid,
                         buyerName: user.name,
                         phone: data.phone || user.phone,
 
-                        status: 'open',
-                        createdAt: serverTimestamp(),
                         updatedAt: serverTimestamp(),
                       };
 
-                      await addDoc(collection(db, 'buyer_requests'), requestData);
-                      toast.success(t('market.requestPosted') || 'Request posted successfully!');
+                      if (editingRequest?.id) {
+                        await updateDoc(doc(db, 'buyer_requests', editingRequest.id), requestData);
+                        toast.success('Request updated successfully!');
+                      } else {
+                        (requestData as any).quantityFound = 0;
+                        (requestData as any).status = 'open';
+                        (requestData as any).createdAt = serverTimestamp();
+                        await addDoc(collection(db, 'buyer_requests'), requestData as any);
+                        toast.success(t('market.requestPosted') || 'Request posted successfully!');
+                      }
+
                       setIsAddProductModalOpen(false);
                       setFormStep(1);
+                      setEditingRequest(null);
                     } catch (error: any) {
-                      console.error('Error adding request:', error);
+                      console.error('Error saving request:', error);
                       toast.error(error.message || t('common.error') || 'An error occurred');
                     } finally {
                       setLoading(false);

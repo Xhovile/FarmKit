@@ -858,40 +858,95 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
   );
 };
 
-export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: number) => void }> = ({
+export const AddRequestForm: React.FC<FormProps & { 
+  step: number; 
+  setStep: (s: number) => void;
+  initialData?: any;
+  isEditMode?: boolean;
+}> = ({
   t,
   onClose,
   onSubmit,
   user,
   step,
-  setStep
+  setStep,
+  initialData,
+  isEditMode
 }) => {
   const [formData, setFormData] = useState({
-    commodity: '',
-    category: '',
-    quantity: '',
-    unit: '',
+    commodity: initialData?.commodity || '',
+    category: initialData?.category || '',
+    quantity: initialData?.quantity || '',
+    unit: initialData?.unit || '',
 
-    priceRange: '',
+    priceRange: initialData?.priceRange || '',
 
-    region: '',
-    district: '',
-    area: '',
-    location: user?.location || '',
+    region: initialData?.locationData?.region || '',
+    district: initialData?.locationData?.district || '',
+    area: initialData?.locationData?.area || '',
+    location: initialData?.location || user?.location || '',
 
-    neededBy: '',
-    urgency: 'normal' as 'normal' | 'urgent',
+    neededBy: initialData?.neededBy || '',
+    urgency: initialData?.urgency || 'normal' as 'normal' | 'urgent',
 
-    buyerType: 'individual' as BuyerType,
-    deliveryPreference: 'pickup' as 'pickup' | 'seller_delivery' | 'third_party',
-    contactMethod: 'whatsapp' as 'whatsapp' | 'phone',
-    phone: user?.phone || '',
+    buyerType: initialData?.buyerType || 'individual' as BuyerType,
+    deliveryPreference: initialData?.deliveryPreference || 'pickup' as 'pickup' | 'seller_delivery' | 'third_party',
+    contactMethod: initialData?.contactMethod || 'whatsapp' as 'whatsapp' | 'phone',
+    phone: initialData?.phone || user?.phone || '',
 
-    description: '',
+    description: initialData?.description || '',
 
     imageFile: null as File | null,
-    imagePreview: '',
+    imagePreview: initialData?.referenceImageUrl || '',
   });
+
+  const lastLoadedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!initialData) return;
+
+    const currentKey = JSON.stringify({
+      commodity: initialData.commodity,
+      category: initialData.category,
+      quantity: initialData.quantity,
+      unit: initialData.unit,
+      priceRange: initialData.priceRange,
+      location: initialData.location,
+      locationData: initialData.locationData,
+      neededBy: initialData.neededBy,
+      urgency: initialData.urgency,
+      buyerType: initialData.buyerType,
+      deliveryPreference: initialData.deliveryPreference,
+      contactMethod: initialData.contactMethod,
+      phone: initialData.phone,
+      description: initialData.description,
+      referenceImageUrl: initialData.referenceImageUrl,
+    });
+
+    if (lastLoadedRef.current === currentKey) return;
+    lastLoadedRef.current = currentKey;
+
+    setFormData({
+      commodity: initialData.commodity || '',
+      category: initialData.category || '',
+      quantity: initialData.quantity || '',
+      unit: initialData.unit || '',
+      priceRange: initialData.priceRange || '',
+      region: initialData.locationData?.region || '',
+      district: initialData.locationData?.district || '',
+      area: initialData.locationData?.area || '',
+      location: initialData.location || user?.location || '',
+      neededBy: initialData.neededBy || '',
+      urgency: initialData.urgency || 'normal',
+      buyerType: initialData.buyerType || 'individual',
+      deliveryPreference: initialData.deliveryPreference || 'pickup',
+      contactMethod: initialData.contactMethod || 'whatsapp',
+      phone: initialData.phone || user?.phone || '',
+      description: initialData.description || '',
+      imageFile: null,
+      imagePreview: initialData.referenceImageUrl || '',
+    });
+  }, [initialData, user]);
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isUnitOpen, setIsUnitOpen] = useState(false);
@@ -985,7 +1040,7 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-            {t('forms.postRequest')}
+            {isEditMode ? 'Edit Request' : t('forms.postRequest')}
           </h2>
           <p className="text-sm text-gray-500">{t('common.step')} {step - 9} {t('common.of')} 3</p>
         </div>
@@ -1492,7 +1547,7 @@ export const AddRequestForm: React.FC<FormProps & { step: number; setStep: (s: n
               className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              {t('forms.postNow')}
+              {isEditMode ? 'Save Changes' : t('forms.postNow')}
             </button>
           </div>
         </div>

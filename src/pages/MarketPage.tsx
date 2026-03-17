@@ -89,6 +89,7 @@ interface MarketPageProps {
   setActiveTab: (tab: any) => void;
   setSelectedItem: (item: any) => void;
   setEditingListing: (listing: MarketListing | null) => void;
+  setEditingRequest: (request: BuyerRequest | null) => void;
   incrementListingViews: (listingId?: string) => Promise<void> | void;
   toggleSavedListing: (listing: MarketListing) => Promise<void> | void;
   incrementListingShares: (listingId?: string) => Promise<void> | void;
@@ -107,6 +108,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   setActiveTab,
   setSelectedItem,
   setEditingListing,
+  setEditingRequest,
   incrementListingViews,
   toggleSavedListing,
   incrementListingShares,
@@ -368,6 +370,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   const handleOpenEditRequest = (request: BuyerRequest) => {
     setSelectedItem(null);
     setEditingListing(null);
+    setEditingRequest(request);
     setIsAddProductModalOpen(true);
     setFormStep(10);
   };
