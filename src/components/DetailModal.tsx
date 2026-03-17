@@ -172,10 +172,16 @@ export const DetailModal: React.FC<DetailModalProps> = ({
   const shareText = useMemo(() => {
     if (!selectedItem) return '';
 
-    return isMarketListing
-      ? `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`
-      : `${selectedItem.title || selectedItem.name}`;
-  }, [isMarketListing, selectedItem]);
+    if (isMarketListing) {
+      return `Check out this listing on FarmKit: ${selectedItem.title} - MK ${selectedItem.price?.toLocaleString()} / ${selectedItem.unit}`;
+    }
+
+    if (isBuyerRequest) {
+      return `Buyer request on FarmKit: ${selectedItem.commodity} - ${selectedItem.quantity} ${selectedItem.unit} needed${selectedItem.priceRange ? ` (${selectedItem.priceRange})` : ''}`;
+    }
+
+    return `${selectedItem.title || selectedItem.name || selectedItem.commodity || 'FarmKit item'}`;
+  }, [isMarketListing, isBuyerRequest, selectedItem]);
 
   const createdDateLabel = useMemo(() => {
     if (!selectedItem?.createdAt) return 'Recently added';
@@ -217,7 +223,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     try {
       if (navigator.share) {
         await navigator.share({
-          title: selectedItem.title || selectedItem.name,
+          title: isMarketListing
+            ? selectedItem.title
+            : isBuyerRequest
+            ? selectedItem.commodity
+            : (selectedItem.title || selectedItem.name || 'FarmKit'),
           text: shareText,
         });
       } else {
@@ -273,7 +283,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                   Listing Details
                 </p>
                 <h3 className="text-sm sm:text-base font-semibold text-black dark:text-white truncate">
-                  {selectedItem.title || selectedItem.name}
+                  {selectedItem.title || selectedItem.name || selectedItem.commodity}
                 </h3>
               </div>
 
