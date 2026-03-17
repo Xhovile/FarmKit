@@ -40,14 +40,14 @@ const NavAction: React.FC<{
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t }) => {
   const handleTabClick = (tab: string) => {
     if (activeTab === tab) {
-      scrollToTop();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
       return;
     }
 
     setActiveTab(tab);
-    requestAnimationFrame(() => {
-      scrollToTop();
-    });
   };
 
   return (

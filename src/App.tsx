@@ -110,6 +110,12 @@ type ListingFormData = {
 export default function App() {
   const { t, lang, setLang } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('info');
+  const [tabScrollPositions, setTabScrollPositions] = useState<Record<string, number>>({
+    info: 0,
+    market: 0,
+    experts: 0,
+    account: 0,
+  });
   const [infoCategory, setInfoCategory] = useState<'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map'>('overview');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,11 +224,36 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    let timeoutId: number | undefined;
+
+    const handleScroll = () => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        setTabScrollPositions((prev) => ({
+          ...prev,
+          [activeTab]: window.scrollY,
+        }));
+      }, 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.clearTimeout(timeoutId);
+    };
   }, [activeTab]);
+
+  useEffect(() => {
+    const savedPosition = tabScrollPositions[activeTab] ?? 0;
+
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: savedPosition,
+        behavior: 'auto',
+      });
+    });
+  }, [activeTab, tabScrollPositions]);
 
   useEffect(() => {
     const listingsQuery = query(
