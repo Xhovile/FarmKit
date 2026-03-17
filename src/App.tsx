@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
   Wifi
 } from 'lucide-react';
@@ -110,12 +110,14 @@ type ListingFormData = {
 export default function App() {
   const { t, lang, setLang } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('info');
-  const [tabScrollPositions, setTabScrollPositions] = useState<Record<string, number>>({
+  const tabScrollPositionsRef = useRef<Record<string, number>>({
     info: 0,
     market: 0,
     experts: 0,
     account: 0,
   });
+
+  const previousActiveTabRef = useRef<Tab>('info');
   const [infoCategory, setInfoCategory] = useState<'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map'>('overview');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -225,36 +227,31 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    let timeoutId: number | undefined;
-
     const handleScroll = () => {
-      window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => {
-        setTabScrollPositions((prev) => ({
-          ...prev,
-          [activeTab]: window.scrollY,
-        }));
-      }, 50);
+      tabScrollPositionsRef.current[activeTab] = window.scrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.clearTimeout(timeoutId);
     };
   }, [activeTab]);
 
   useEffect(() => {
-    const savedPosition = tabScrollPositions[activeTab] ?? 0;
+    if (previousActiveTabRef.current !== activeTab) {
+      const savedPosition = tabScrollPositionsRef.current[activeTab] ?? 0;
 
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: savedPosition,
-        behavior: 'auto',
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: savedPosition,
+          behavior: 'auto',
+        });
       });
-    });
-  }, [activeTab, tabScrollPositions]);
+
+      previousActiveTabRef.current = activeTab;
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     const listingsQuery = query(

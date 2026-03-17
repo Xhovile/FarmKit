@@ -205,6 +205,12 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     }
   }, [selectedItem]);
 
+  const hasEngagementStats =
+    isMarketListing &&
+    ((selectedItem?.viewsCount ?? 0) > 0 ||
+      (selectedItem?.sharesCount ?? 0) > 0 ||
+      (selectedItem?.savesCount ?? 0) > 0);
+
   if (!selectedItem) return null;
 
   const handleShare = async () => {
@@ -505,9 +511,11 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                       Last updated: {updatedDateLabel}
                     </span>
 
-                    <span className="px-3 py-1.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm">
-                      Seller tier: {selectedItem.sellerTier || 'Standard'}
-                    </span>
+                    {isMarketListing && (
+                      <span className="px-3 py-1.5 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm">
+                        Seller tier: {selectedItem.sellerTier || 'Standard'}
+                      </span>
+                    )}
                   </div>
 
                   <div className="mb-8">
@@ -529,27 +537,35 @@ export const DetailModal: React.FC<DetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      {selectedItem.viewsCount ?? 0} views
-                    </div>
+                  {hasEngagementStats && (
+                    <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-6 mb-6">
+                      {(selectedItem.viewsCount ?? 0) > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4" />
+                          {selectedItem.viewsCount ?? 0} views
+                        </div>
+                      )}
 
-                    <div className="flex items-center gap-2">
-                      <Share2 className="w-4 h-4" />
-                      {selectedItem.sharesCount ?? 0} shares
-                    </div>
+                      {(selectedItem.sharesCount ?? 0) > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Share2 className="w-4 h-4" />
+                          {selectedItem.sharesCount ?? 0} shares
+                        </div>
+                      )}
 
-                    <div className="flex items-center gap-2">
-                      <Bookmark className="w-4 h-4" />
-                      {selectedItem.savesCount ?? 0} saves
-                    </div>
+                      {(selectedItem.savesCount ?? 0) > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Bookmark className="w-4 h-4" />
+                          {selectedItem.savesCount ?? 0} saves
+                        </div>
+                      )}
 
-                    <div className="flex items-center gap-2">
-                      <CalendarDays className="w-4 h-4" />
-                      Updated: {updatedDateLabel}
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4" />
+                        Updated: {updatedDateLabel}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="grid grid-cols-1 gap-3">
                     <a
