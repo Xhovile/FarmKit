@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "MarketListing": {
+      "title": "Market Listing",
+      "description": "A product listed for sale in the marketplace.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "unit": { "type": "string" },
+        "quantity": { "type": "number" },
+        "availableQuantity": { "type": "number" },
+        "soldQuantity": { "type": "number" },
+        "location": { "type": "string" },
+        "deliveryMethod": { "type": "string" },
+        "description": { "type": "string" },
+        "businessName": { "type": "string" },
+        "phone": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "sellerName": { "type": "string" },
+        "sellerTier": { "type": "string" },
+        "verified": { "type": "boolean" },
+        "imageUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "sold", "hidden"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "price", "unit", "quantity", "sellerId", "status", "createdAt"]
+    },
+    "BuyerRequest": {
+      "title": "Buyer Request",
+      "description": "A request from a buyer looking for a specific commodity.",
+      "type": "object",
+      "properties": {
+        "commodity": { "type": "string" },
+        "category": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "quantityFound": { "type": "number" },
+        "priceRange": { "type": "string" },
+        "location": { "type": "string" },
+        "urgency": { "type": "string", "enum": ["normal", "urgent"] },
+        "buyerId": { "type": "string" },
+        "buyerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "matched", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["commodity", "category", "quantity", "unit", "buyerId", "status", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile and settings.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "tier": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "HiddenListing": {
+      "title": "Hidden Listing",
+      "description": "A listing hidden by a user.",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "hiddenAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["listingId", "hiddenAt"]
+    },
+    "SavedListing": {
+      "title": "Saved Listing",
+      "description": "A listing saved by a user.",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string" },
+        "savedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["listingId", "savedAt"]
+    }
+  },
+  "firestore": {
+    "market_listings": {
+      "schema": "MarketListing",
+      "description": "Collection of products for sale."
+    },
+    "buyer_requests": {
+      "schema": "BuyerRequest",
+      "description": "Collection of buyer requests."
+    },
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profiles."
+    },
+    "users/{userId}/hidden_listings": {
+      "schema": "HiddenListing",
+      "description": "Subcollection of listings hidden by a specific user."
+    },
+    "users/{userId}/saved_listings": {
+      "schema": "SavedListing",
+      "description": "Subcollection of listings saved by a specific user."
+    }
+  }
+}

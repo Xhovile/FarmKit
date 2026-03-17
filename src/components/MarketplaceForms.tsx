@@ -898,6 +898,7 @@ export const AddRequestForm: React.FC<FormProps & {
 
     imageFile: null as File | null,
     imagePreview: initialData?.referenceImageUrl || '',
+    removeExistingImage: false,
   });
 
   const lastLoadedRef = useRef<string | null>(null);
@@ -945,6 +946,7 @@ export const AddRequestForm: React.FC<FormProps & {
       description: initialData.description || '',
       imageFile: null,
       imagePreview: initialData.referenceImageUrl || '',
+      removeExistingImage: false,
     });
   }, [initialData, user]);
 
@@ -1005,7 +1007,8 @@ export const AddRequestForm: React.FC<FormProps & {
       setFormData({
         ...formData,
         imageFile: file,
-        imagePreview: URL.createObjectURL(file)
+        imagePreview: URL.createObjectURL(file),
+        removeExistingImage: false,
       });
     }
   };
@@ -1023,8 +1026,10 @@ export const AddRequestForm: React.FC<FormProps & {
 
   const handleSubmit = () => {
     const resolvedLocation = buildLocationLabel(formData.area, formData.district, formData.region);
+
     onSubmit({
       ...formData,
+      quantity: Number(formData.quantity),
       location: resolvedLocation,
       locationData: {
         region: formData.region,
@@ -1528,7 +1533,18 @@ export const AddRequestForm: React.FC<FormProps & {
                 <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                   <img src={formData.imagePreview} className="w-full h-full object-cover" />
                   <button 
-                    onClick={() => setFormData({...formData, imageFile: null, imagePreview: ''})}
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        imageFile: null,
+                        imagePreview: '',
+                        removeExistingImage: true,
+                      });
+
+                      if (imageInputRef.current) {
+                        imageInputRef.current.value = '';
+                      }
+                    }}
                     className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all"
                   >
                     <X className="w-3 h-3" />

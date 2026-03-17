@@ -39,6 +39,7 @@ import {
 } from '../data/constants';
 import { db } from '../lib/firebase';
 import { collection, deleteDoc, doc, onSnapshot, query, setDoc, serverTimestamp, updateDoc, where } from 'firebase/firestore';
+import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { MarketListing, BuyerRequest, StockStatus } from '../types';
 
 const computeStockStatus = (
@@ -163,7 +164,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       setRequests(newRequests);
       setIsRequestsLoading(false);
     }, (error) => {
-      console.error("Requests snapshot error:", error);
+      handleFirestoreError(error, OperationType.LIST, 'buyer_requests');
       setIsRequestsLoading(false);
     });
 
@@ -184,7 +185,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       const ids = snapshot.docs.map((docSnap) => docSnap.id);
       setHiddenListingIds(ids);
     }, (error) => {
-      console.error('Hidden listings snapshot error:', error);
+      handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/hidden_listings`);
     });
 
     return () => unsubscribeHidden();

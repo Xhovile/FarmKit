@@ -21,6 +21,7 @@ import {
   setDoc,
   updateDoc,
 } from 'firebase/firestore';
+import { handleFirestoreError, OperationType } from './lib/firestore-errors';
 import { BuyerRequest, MarketListing, StockStatus } from './types';
 import toast from 'react-hot-toast';
 
@@ -171,49 +172,51 @@ export default function App() {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data() as any;
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            name: data.name || firebaseUser.displayName || 'Farmer',
-            tier: data.tier || 'Free',
-            location: data.location || '',
-            phone: data.phone || '',
-            avatar: data.avatar || firebaseUser.photoURL || '',
-            bio: data.bio || ''
-          });
-          setProfileFormData({
-            name: data.name || '',
-            location: data.location || '',
-            phone: data.phone || '',
-            bio: data.bio || ''
-          });
-        } else {
-          const initialData = {
-            name: firebaseUser.displayName || 'Farmer',
-            tier: 'Free',
-            location: '',
-            phone: '',
-            avatar: firebaseUser.photoURL || '',
-            bio: ''
-          };
-          await setDoc(doc(db, 'users', firebaseUser.uid), initialData);
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            ...initialData
-          });
-          setProfileFormData({
-            name: initialData.name,
-            location: initialData.location,
-            phone: initialData.phone,
-            bio: initialData.bio
-          });
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data() as any;
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: data.name || firebaseUser.displayName || 'Farmer',
+              tier: data.tier || 'Free',
+              location: data.location || '',
+              phone: data.phone || '',
+              avatar: data.avatar || firebaseUser.photoURL || '',
+              bio: data.bio || ''
+            });
+            setProfileFormData({
+              name: data.name || '',
+              location: data.location || '',
+              phone: data.phone || '',
+              bio: data.bio || ''
+            });
+          } else {
+            const initialData = {
+              name: firebaseUser.displayName || 'Farmer',
+              tier: 'Free',
+              location: '',
+              phone: '',
+              avatar: firebaseUser.photoURL || '',
+              bio: ''
+            };
+            await setDoc(doc(db, 'users', firebaseUser.uid), initialData);
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              ...initialData
+            });
+            setProfileFormData({
+              name: initialData.name,
+              location: initialData.location,
+              phone: initialData.phone,
+              bio: initialData.bio
+            });
+          }
+        } catch (error) {
+          handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
         }
-
-        // Removed auto-show tour logic as per screen map
       } else {
         setUser(null);
       }
@@ -273,8 +276,7 @@ export default function App() {
         setMarketListings(listings);
       },
       (error) => {
-        console.error('Error fetching market listings:', error);
-        toast.error('Failed to load market listings.');
+        handleFirestoreError(error, OperationType.LIST, 'market_listings');
       }
     );
 
@@ -296,7 +298,7 @@ export default function App() {
         setSavedListingIds(ids);
       },
       (error) => {
-        console.error('Saved listings snapshot error:', error);
+        handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/saved_listings`);
       }
     );
 
@@ -971,7 +973,9 @@ export default function App() {
 
                     setLoading(true);
                     try {
-                      let referenceImageUrl = editingRequest?.referenceImageUrl || null;
+                      let referenceImageUrl =
+                        data.removeExistingImage ? null : (editingRequest?.referenceImageUrl || null);
+
                       if (data.imageFile) {
                         referenceImageUrl = await uploadImageToCloudinary(data.imageFile);
                       }
