@@ -10,10 +10,14 @@ import {
   HelpCircle,
   MapPin,
   Save,
-  Languages
+  Languages,
+  Store,
+  Building2,
+  Users,
+  HandHelping
 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 import { User as UserType } from '../types';
 
@@ -94,6 +98,98 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     user.roles.includes('business') ||
     user.roles.includes('cooperative') ||
     user.roles.includes('ngo');
+
+  const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
+  const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
+  const [roleForm, setRoleForm] = React.useState({
+    businessName: '',
+    category: '',
+    district: '',
+    deliveryMethod: 'pickup',
+    organizationName: '',
+    contactPerson: '',
+    description: '',
+  });
+  const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
+
+  const handleRoleUpgrade = async () => {
+    if (!user || !selectedRole) return;
+
+    if (selectedRole === 'seller') {
+      if (!roleForm.businessName.trim() || !roleForm.category.trim() || !roleForm.district.trim()) {
+        toast.error('Please complete all seller details.');
+        return;
+      }
+    }
+
+    if (selectedRole === 'business' || selectedRole === 'cooperative' || selectedRole === 'ngo') {
+      if (!roleForm.organizationName.trim() || !roleForm.contactPerson.trim() || !roleForm.district.trim()) {
+        toast.error('Please complete all organisation details.');
+        return;
+      }
+    }
+
+    setIsSubmittingRole(true);
+
+    try {
+      const nextRoles = Array.from(new Set([...user.roles, selectedRole]));
+      const nextPrimaryRole = user.primaryRole === 'buyer' ? selectedRole : user.primaryRole;
+
+      const updatePayload: any = {
+        roles: nextRoles,
+        primaryRole: nextPrimaryRole,
+      };
+
+      if (selectedRole === 'seller') {
+        updatePayload.sellerProfile = {
+          type: 'individual_seller',
+          businessName: roleForm.businessName.trim(),
+          category: roleForm.category.trim(),
+          district: roleForm.district.trim(),
+          deliveryMethod: roleForm.deliveryMethod,
+          verified: false,
+        };
+      }
+
+      if (selectedRole === 'business' || selectedRole === 'cooperative' || selectedRole === 'ngo') {
+        updatePayload.organizationProfile = {
+          type: selectedRole,
+          organizationName: roleForm.organizationName.trim(),
+          contactPerson: roleForm.contactPerson.trim(),
+          district: roleForm.district.trim(),
+          description: roleForm.description.trim(),
+          verified: false,
+        };
+      }
+
+      await updateDoc(doc(db, 'users', user.uid), updatePayload);
+
+      setUser({
+        ...user,
+        roles: nextRoles,
+        primaryRole: nextPrimaryRole,
+        sellerProfile: updatePayload.sellerProfile ?? user.sellerProfile,
+        organizationProfile: updatePayload.organizationProfile ?? user.organizationProfile,
+      });
+
+      toast.success('Account upgraded successfully.');
+      setIsRoleModalOpen(false);
+      setSelectedRole(null);
+      setRoleForm({
+        businessName: '',
+        category: '',
+        district: '',
+        deliveryMethod: 'pickup',
+        organizationName: '',
+        contactPerson: '',
+        description: '',
+      });
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to upgrade account.');
+    } finally {
+      setIsSubmittingRole(false);
+    }
+  };
 
   return (
     <motion.div 
@@ -270,7 +366,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="pt-2">
                     <button
                       className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all"
-                      onClick={() => toast('Role upgrade flow comes next.')}
+                      onClick={() => setIsRoleModalOpen(true)}
                     >
                       Become a Seller or Organisation
                     </button>
@@ -317,6 +413,158 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       </div>
 
+      {isRoleModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => {
+              setIsRoleModalOpen(false);
+              setSelectedRole(null);
+            }}
+          />
+          <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold">Upgrade Account</h3>
+                <p className="text-sm text-gray-500">Choose how you want to use FarmKit.</p>
+              </div>
+              <button
+                onClick={() => {
+                  setIsRoleModalOpen(false);
+                  setSelectedRole(null);
+                }}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {!selectedRole ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  onClick={() => setSelectedRole('seller')}
+                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                >
+                  <Store className="w-7 h-7 mb-3 text-emerald-600" />
+                  <h4 className="font-bold">Individual Seller</h4>
+                  <p className="text-sm text-gray-500">Sell products as an individual farmer or trader.</p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedRole('business')}
+                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                >
+                  <Building2 className="w-7 h-7 mb-3 text-emerald-600" />
+                  <h4 className="font-bold">Business</h4>
+                  <p className="text-sm text-gray-500">Register a company or commercial entity.</p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedRole('cooperative')}
+                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                >
+                  <Users className="w-7 h-7 mb-3 text-emerald-600" />
+                  <h4 className="font-bold">Cooperative</h4>
+                  <p className="text-sm text-gray-500">Register a farmer group or cooperative.</p>
+                </button>
+
+                <button
+                  onClick={() => setSelectedRole('ngo')}
+                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                >
+                  <HandHelping className="w-7 h-7 mb-3 text-emerald-600" />
+                  <h4 className="font-bold">NGO</h4>
+                  <p className="text-sm text-gray-500">Register a development or support organisation.</p>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedRole === 'seller' ? (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Business name"
+                      value={roleForm.businessName}
+                      onChange={(e) => setRoleForm({ ...roleForm, businessName: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Category"
+                      value={roleForm.category}
+                      onChange={(e) => setRoleForm({ ...roleForm, category: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="District"
+                      value={roleForm.district}
+                      onChange={(e) => setRoleForm({ ...roleForm, district: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <select
+                      value={roleForm.deliveryMethod}
+                      onChange={(e) => setRoleForm({ ...roleForm, deliveryMethod: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    >
+                      <option value="pickup">Pickup</option>
+                      <option value="delivery">Delivery</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Organisation name"
+                      value={roleForm.organizationName}
+                      onChange={(e) => setRoleForm({ ...roleForm, organizationName: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Contact person"
+                      value={roleForm.contactPerson}
+                      onChange={(e) => setRoleForm({ ...roleForm, contactPerson: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="District"
+                      value={roleForm.district}
+                      onChange={(e) => setRoleForm({ ...roleForm, district: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      rows={3}
+                      value={roleForm.description}
+                      onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setSelectedRole(null)}
+                    className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleRoleUpgrade}
+                    disabled={isSubmittingRole}
+                    className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {isSubmittingRole ? 'Saving...' : 'Continue'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
