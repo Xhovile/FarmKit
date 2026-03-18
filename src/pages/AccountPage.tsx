@@ -107,15 +107,55 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
   const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
   const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
-  const [roleForm, setRoleForm] = React.useState({
+  
+  const [sellerUpgradeForm, setSellerUpgradeForm] = React.useState({
     businessName: '',
-    category: '',
+    fullName: user.name || '',
+    phone: user.phone || '',
     district: '',
+    area: '',
+    category: '',
     deliveryMethod: 'pickup',
-    organizationName: '',
-    contactPerson: '',
+    experienceYears: '',
     description: '',
   });
+
+  const [businessUpgradeForm, setBusinessUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user.name || '',
+    phone: user.phone || '',
+    district: '',
+    address: '',
+    businessType: '',
+    productsOrServices: '',
+    registrationNumber: '',
+    description: '',
+  });
+
+  const [cooperativeUpgradeForm, setCooperativeUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user.name || '',
+    phone: user.phone || '',
+    district: '',
+    area: '',
+    memberCount: '',
+    mainCommodities: '',
+    registrationNumber: '',
+    description: '',
+  });
+
+  const [ngoUpgradeForm, setNgoUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user.name || '',
+    phone: user.phone || '',
+    district: '',
+    focusArea: '',
+    servicesOffered: '',
+    registrationNumber: '',
+    websiteOrSocial: '',
+    description: '',
+  });
+
   const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
 
   const [isEditingSellerProfile, setIsEditingSellerProfile] = React.useState(false);
@@ -141,53 +181,136 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   const handleRoleUpgrade = async () => {
     if (!user || !selectedRole) return;
 
+    const nextRoles = Array.from(new Set([...user.roles, selectedRole]));
+    const nextPrimaryRole = user.primaryRole === 'buyer' ? selectedRole : user.primaryRole;
+
+    const updatePayload: any = {
+      roles: nextRoles,
+      primaryRole: nextPrimaryRole,
+    };
+
     if (selectedRole === 'seller') {
-      if (!roleForm.businessName.trim() || !roleForm.category.trim() || !roleForm.district.trim()) {
-        toast.error('Please complete all seller details.');
+      if (
+        !sellerUpgradeForm.businessName.trim() ||
+        !sellerUpgradeForm.fullName.trim() ||
+        !sellerUpgradeForm.phone.trim() ||
+        !sellerUpgradeForm.district.trim() ||
+        !sellerUpgradeForm.area.trim() ||
+        !sellerUpgradeForm.category.trim() ||
+        !sellerUpgradeForm.experienceYears.trim() ||
+        !sellerUpgradeForm.description.trim()
+      ) {
+        toast.error('Please complete all seller upgrade fields.');
         return;
       }
+
+      updatePayload.sellerProfile = {
+        type: 'individual_seller',
+        businessName: sellerUpgradeForm.businessName.trim(),
+        category: sellerUpgradeForm.category.trim(),
+        district: sellerUpgradeForm.district.trim(),
+        deliveryMethod: sellerUpgradeForm.deliveryMethod,
+        verified: false,
+        fullName: sellerUpgradeForm.fullName.trim(),
+        phone: sellerUpgradeForm.phone.trim(),
+        area: sellerUpgradeForm.area.trim(),
+        experienceYears: sellerUpgradeForm.experienceYears.trim(),
+        description: sellerUpgradeForm.description.trim(),
+      };
     }
 
-    if (selectedRole === 'business' || selectedRole === 'cooperative' || selectedRole === 'ngo') {
-      if (!roleForm.organizationName.trim() || !roleForm.contactPerson.trim() || !roleForm.district.trim()) {
-        toast.error('Please complete all organisation details.');
+    if (selectedRole === 'business') {
+      if (
+        !businessUpgradeForm.organizationName.trim() ||
+        !businessUpgradeForm.contactPerson.trim() ||
+        !businessUpgradeForm.phone.trim() ||
+        !businessUpgradeForm.district.trim() ||
+        !businessUpgradeForm.address.trim() ||
+        !businessUpgradeForm.businessType.trim() ||
+        !businessUpgradeForm.productsOrServices.trim() ||
+        !businessUpgradeForm.description.trim()
+      ) {
+        toast.error('Please complete all business upgrade fields.');
         return;
       }
+
+      updatePayload.organizationProfile = {
+        type: 'business',
+        organizationName: businessUpgradeForm.organizationName.trim(),
+        contactPerson: businessUpgradeForm.contactPerson.trim(),
+        district: businessUpgradeForm.district.trim(),
+        description: businessUpgradeForm.description.trim(),
+        verified: false,
+        phone: businessUpgradeForm.phone.trim(),
+        address: businessUpgradeForm.address.trim(),
+        businessType: businessUpgradeForm.businessType.trim(),
+        productsOrServices: businessUpgradeForm.productsOrServices.trim(),
+        registrationNumber: businessUpgradeForm.registrationNumber.trim(),
+      };
+    }
+
+    if (selectedRole === 'cooperative') {
+      if (
+        !cooperativeUpgradeForm.organizationName.trim() ||
+        !cooperativeUpgradeForm.contactPerson.trim() ||
+        !cooperativeUpgradeForm.phone.trim() ||
+        !cooperativeUpgradeForm.district.trim() ||
+        !cooperativeUpgradeForm.area.trim() ||
+        !cooperativeUpgradeForm.memberCount.trim() ||
+        !cooperativeUpgradeForm.mainCommodities.trim() ||
+        !cooperativeUpgradeForm.description.trim()
+      ) {
+        toast.error('Please complete all cooperative upgrade fields.');
+        return;
+      }
+
+      updatePayload.organizationProfile = {
+        type: 'cooperative',
+        organizationName: cooperativeUpgradeForm.organizationName.trim(),
+        contactPerson: cooperativeUpgradeForm.contactPerson.trim(),
+        district: cooperativeUpgradeForm.district.trim(),
+        description: cooperativeUpgradeForm.description.trim(),
+        verified: false,
+        phone: cooperativeUpgradeForm.phone.trim(),
+        area: cooperativeUpgradeForm.area.trim(),
+        memberCount: cooperativeUpgradeForm.memberCount.trim(),
+        mainCommodities: cooperativeUpgradeForm.mainCommodities.trim(),
+        registrationNumber: cooperativeUpgradeForm.registrationNumber.trim(),
+      };
+    }
+
+    if (selectedRole === 'ngo') {
+      if (
+        !ngoUpgradeForm.organizationName.trim() ||
+        !ngoUpgradeForm.contactPerson.trim() ||
+        !ngoUpgradeForm.phone.trim() ||
+        !ngoUpgradeForm.district.trim() ||
+        !ngoUpgradeForm.focusArea.trim() ||
+        !ngoUpgradeForm.servicesOffered.trim() ||
+        !ngoUpgradeForm.description.trim()
+      ) {
+        toast.error('Please complete all NGO upgrade fields.');
+        return;
+      }
+
+      updatePayload.organizationProfile = {
+        type: 'ngo',
+        organizationName: ngoUpgradeForm.organizationName.trim(),
+        contactPerson: ngoUpgradeForm.contactPerson.trim(),
+        district: ngoUpgradeForm.district.trim(),
+        description: ngoUpgradeForm.description.trim(),
+        verified: false,
+        phone: ngoUpgradeForm.phone.trim(),
+        focusArea: ngoUpgradeForm.focusArea.trim(),
+        servicesOffered: ngoUpgradeForm.servicesOffered.trim(),
+        registrationNumber: ngoUpgradeForm.registrationNumber.trim(),
+        websiteOrSocial: ngoUpgradeForm.websiteOrSocial.trim(),
+      };
     }
 
     setIsSubmittingRole(true);
 
     try {
-      const nextRoles = Array.from(new Set([...user.roles, selectedRole]));
-      const nextPrimaryRole = user.primaryRole === 'buyer' ? selectedRole : user.primaryRole;
-
-      const updatePayload: any = {
-        roles: nextRoles,
-        primaryRole: nextPrimaryRole,
-      };
-
-      if (selectedRole === 'seller') {
-        updatePayload.sellerProfile = {
-          type: 'individual_seller',
-          businessName: roleForm.businessName.trim(),
-          category: roleForm.category.trim(),
-          district: roleForm.district.trim(),
-          deliveryMethod: roleForm.deliveryMethod,
-          verified: false,
-        };
-      }
-
-      if (selectedRole === 'business' || selectedRole === 'cooperative' || selectedRole === 'ngo') {
-        updatePayload.organizationProfile = {
-          type: selectedRole,
-          organizationName: roleForm.organizationName.trim(),
-          contactPerson: roleForm.contactPerson.trim(),
-          district: roleForm.district.trim(),
-          description: roleForm.description.trim(),
-          verified: false,
-        };
-      }
-
       await updateDoc(doc(db, 'users', user.uid), updatePayload);
 
       setUser({
@@ -201,13 +324,52 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       toast.success('Account upgraded successfully.');
       setIsRoleModalOpen(false);
       setSelectedRole(null);
-      setRoleForm({
+
+      setSellerUpgradeForm({
         businessName: '',
-        category: '',
+        fullName: user.name || '',
+        phone: user.phone || '',
         district: '',
+        area: '',
+        category: '',
         deliveryMethod: 'pickup',
+        experienceYears: '',
+        description: '',
+      });
+
+      setBusinessUpgradeForm({
         organizationName: '',
-        contactPerson: '',
+        contactPerson: user.name || '',
+        phone: user.phone || '',
+        district: '',
+        address: '',
+        businessType: '',
+        productsOrServices: '',
+        registrationNumber: '',
+        description: '',
+      });
+
+      setCooperativeUpgradeForm({
+        organizationName: '',
+        contactPerson: user.name || '',
+        phone: user.phone || '',
+        district: '',
+        area: '',
+        memberCount: '',
+        mainCommodities: '',
+        registrationNumber: '',
+        description: '',
+      });
+
+      setNgoUpgradeForm({
+        organizationName: '',
+        contactPerson: user.name || '',
+        phone: user.phone || '',
+        district: '',
+        focusArea: '',
+        servicesOffered: '',
+        registrationNumber: '',
+        websiteOrSocial: '',
         description: '',
       });
     } catch (error: any) {
@@ -964,67 +1126,275 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {selectedRole === 'seller' ? (
+                  {selectedRole === 'seller' && (
                     <>
                       <input
                         type="text"
-                        placeholder="Business name"
-                        value={roleForm.businessName}
-                        onChange={(e) => setRoleForm({ ...roleForm, businessName: e.target.value })}
+                        placeholder="Business or stall name"
+                        value={sellerUpgradeForm.businessName}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, businessName: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <input
                         type="text"
-                        placeholder="Category"
-                        value={roleForm.category}
-                        onChange={(e) => setRoleForm({ ...roleForm, category: e.target.value })}
+                        placeholder="Seller full name"
+                        value={sellerUpgradeForm.fullName}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, fullName: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Phone number"
+                        value={sellerUpgradeForm.phone}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <input
                         type="text"
                         placeholder="District"
-                        value={roleForm.district}
-                        onChange={(e) => setRoleForm({ ...roleForm, district: e.target.value })}
+                        value={sellerUpgradeForm.district}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, district: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Area / market"
+                        value={sellerUpgradeForm.area}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, area: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Product category"
+                        value={sellerUpgradeForm.category}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, category: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <select
-                        value={roleForm.deliveryMethod}
-                        onChange={(e) => setRoleForm({ ...roleForm, deliveryMethod: e.target.value })}
+                        value={sellerUpgradeForm.deliveryMethod}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, deliveryMethod: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       >
                         <option value="pickup">Pickup</option>
                         <option value="delivery">Delivery</option>
                         <option value="both">Both</option>
                       </select>
+                      <input
+                        type="text"
+                        placeholder="Years of experience"
+                        value={sellerUpgradeForm.experienceYears}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, experienceYears: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <textarea
+                        placeholder="Short business description"
+                        rows={4}
+                        value={sellerUpgradeForm.description}
+                        onChange={(e) => setSellerUpgradeForm({ ...sellerUpgradeForm, description: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
                     </>
-                  ) : (
+                  )}
+
+                  {selectedRole === 'business' && (
                     <>
                       <input
                         type="text"
-                        placeholder="Organisation name"
-                        value={roleForm.organizationName}
-                        onChange={(e) => setRoleForm({ ...roleForm, organizationName: e.target.value })}
+                        placeholder="Registered business name"
+                        value={businessUpgradeForm.organizationName}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, organizationName: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <input
                         type="text"
                         placeholder="Contact person"
-                        value={roleForm.contactPerson}
-                        onChange={(e) => setRoleForm({ ...roleForm, contactPerson: e.target.value })}
+                        value={businessUpgradeForm.contactPerson}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, contactPerson: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Phone number"
+                        value={businessUpgradeForm.phone}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <input
                         type="text"
                         placeholder="District"
-                        value={roleForm.district}
-                        onChange={(e) => setRoleForm({ ...roleForm, district: e.target.value })}
+                        value={businessUpgradeForm.district}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, district: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Exact address"
+                        value={businessUpgradeForm.address}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, address: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Business type"
+                        value={businessUpgradeForm.businessType}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, businessType: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Products or services offered"
+                        value={businessUpgradeForm.productsOrServices}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, productsOrServices: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Registration number"
+                        value={businessUpgradeForm.registrationNumber}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, registrationNumber: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                       <textarea
-                        placeholder="Description"
-                        rows={3}
-                        value={roleForm.description}
-                        onChange={(e) => setRoleForm({ ...roleForm, description: e.target.value })}
+                        placeholder="Short business description"
+                        rows={4}
+                        value={businessUpgradeForm.description}
+                        onChange={(e) => setBusinessUpgradeForm({ ...businessUpgradeForm, description: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                    </>
+                  )}
+
+                  {selectedRole === 'cooperative' && (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Cooperative name"
+                        value={cooperativeUpgradeForm.organizationName}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, organizationName: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Contact person"
+                        value={cooperativeUpgradeForm.contactPerson}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, contactPerson: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Phone number"
+                        value={cooperativeUpgradeForm.phone}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="District"
+                        value={cooperativeUpgradeForm.district}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, district: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="EPA / area"
+                        value={cooperativeUpgradeForm.area}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, area: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Number of members"
+                        value={cooperativeUpgradeForm.memberCount}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, memberCount: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Main commodities handled"
+                        value={cooperativeUpgradeForm.mainCommodities}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, mainCommodities: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Registration number"
+                        value={cooperativeUpgradeForm.registrationNumber}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, registrationNumber: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <textarea
+                        placeholder="Short cooperative description"
+                        rows={4}
+                        value={cooperativeUpgradeForm.description}
+                        onChange={(e) => setCooperativeUpgradeForm({ ...cooperativeUpgradeForm, description: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                    </>
+                  )}
+
+                  {selectedRole === 'ngo' && (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Organisation name"
+                        value={ngoUpgradeForm.organizationName}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, organizationName: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Contact person"
+                        value={ngoUpgradeForm.contactPerson}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, contactPerson: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Phone number"
+                        value={ngoUpgradeForm.phone}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="District / region"
+                        value={ngoUpgradeForm.district}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, district: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Focus area"
+                        value={ngoUpgradeForm.focusArea}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, focusArea: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Services offered"
+                        value={ngoUpgradeForm.servicesOffered}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, servicesOffered: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Registration number"
+                        value={ngoUpgradeForm.registrationNumber}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, registrationNumber: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Website or social link"
+                        value={ngoUpgradeForm.websiteOrSocial}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, websiteOrSocial: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                      />
+                      <textarea
+                        placeholder="Short organisation description"
+                        rows={4}
+                        value={ngoUpgradeForm.description}
+                        onChange={(e) => setNgoUpgradeForm({ ...ngoUpgradeForm, description: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
                       />
                     </>

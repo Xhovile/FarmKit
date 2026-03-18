@@ -79,6 +79,11 @@ export interface SellerProfile {
   district: string;
   deliveryMethod: string;
   verified: boolean;
+  fullName?: string;
+  phone?: string;
+  area?: string;
+  experienceYears?: string;
+  description?: string;
 }
 
 export interface OrganizationProfile {
@@ -88,6 +93,17 @@ export interface OrganizationProfile {
   district: string;
   description: string;
   verified: boolean;
+  phone?: string;
+  address?: string;
+  businessType?: string;
+  productsOrServices?: string;
+  registrationNumber?: string;
+  area?: string;
+  memberCount?: string;
+  mainCommodities?: string;
+  focusArea?: string;
+  servicesOffered?: string;
+  websiteOrSocial?: string;
 }
 
 export interface User {
