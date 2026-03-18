@@ -99,6 +99,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     user.roles.includes('cooperative') ||
     user.roles.includes('ngo');
 
+  const organizationTypeLabelMap = {
+    business: 'Business',
+    cooperative: 'Cooperative',
+    ngo: 'NGO',
+  } as const;
+
   const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
   const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
   const [roleForm, setRoleForm] = React.useState({
@@ -361,17 +367,108 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     ))}
                   </div>
                 </div>
+              </div>
 
-                {!canSell && (
-                  <div className="pt-2">
-                    <button
-                      className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all"
-                      onClick={() => setIsRoleModalOpen(true)}
+              {user.sellerProfile && (
+                <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-lg font-bold">Seller Profile</h4>
+                      <p className="text-sm text-gray-500">Your seller account details.</p>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        user.sellerProfile.verified
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
                     >
-                      Become a Seller or Organisation
-                    </button>
+                      {user.sellerProfile.verified ? 'Verified' : 'Not Verified'}
+                    </span>
                   </div>
-                )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Name</p>
+                      <p className="font-semibold">{user.sellerProfile.businessName || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
+                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
+                      <p className="font-semibold">{user.sellerProfile.district || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Delivery Method</p>
+                      <p className="font-semibold capitalize">{user.sellerProfile.deliveryMethod || '—'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {user.organizationProfile && (
+                <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-lg font-bold">Organisation Profile</h4>
+                      <p className="text-sm text-gray-500">Your registered organisation details.</p>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        user.organizationProfile.verified
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {user.organizationProfile.verified ? 'Verified' : 'Not Verified'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Type</p>
+                      <p className="font-semibold">
+                        {organizationTypeLabelMap[user.organizationProfile.type as keyof typeof organizationTypeLabelMap]}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Organisation Name</p>
+                      <p className="font-semibold">{user.organizationProfile.organizationName || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Contact Person</p>
+                      <p className="font-semibold">{user.organizationProfile.contactPerson || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
+                      <p className="font-semibold">{user.organizationProfile.district || '—'}</p>
+                    </div>
+                  </div>
+
+                  {user.organizationProfile.description && (
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
+                      <p className="text-sm leading-relaxed">{user.organizationProfile.description}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all"
+                  onClick={() => setIsRoleModalOpen(true)}
+                >
+                  {canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}
+                </button>
               </div>
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-3 gap-4">
@@ -442,8 +539,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             {!selectedRole ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
-                  onClick={() => setSelectedRole('seller')}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                  onClick={() => !user.roles.includes('seller') && setSelectedRole('seller')}
+                  disabled={user.roles.includes('seller')}
+                  className={`p-5 rounded-2xl border text-left ${
+                    user.roles.includes('seller')
+                      ? 'border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500'
+                  }`}
                 >
                   <Store className="w-7 h-7 mb-3 text-emerald-600" />
                   <h4 className="font-bold">Individual Seller</h4>
@@ -451,8 +553,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setSelectedRole('business')}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                  onClick={() => !user.roles.includes('business') && setSelectedRole('business')}
+                  disabled={user.roles.includes('business')}
+                  className={`p-5 rounded-2xl border text-left ${
+                    user.roles.includes('business')
+                      ? 'border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500'
+                  }`}
                 >
                   <Building2 className="w-7 h-7 mb-3 text-emerald-600" />
                   <h4 className="font-bold">Business</h4>
@@ -460,8 +567,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setSelectedRole('cooperative')}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                  onClick={() => !user.roles.includes('cooperative') && setSelectedRole('cooperative')}
+                  disabled={user.roles.includes('cooperative')}
+                  className={`p-5 rounded-2xl border text-left ${
+                    user.roles.includes('cooperative')
+                      ? 'border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500'
+                  }`}
                 >
                   <Users className="w-7 h-7 mb-3 text-emerald-600" />
                   <h4 className="font-bold">Cooperative</h4>
@@ -469,8 +581,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setSelectedRole('ngo')}
-                  className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-emerald-500 text-left"
+                  onClick={() => !user.roles.includes('ngo') && setSelectedRole('ngo')}
+                  disabled={user.roles.includes('ngo')}
+                  className={`p-5 rounded-2xl border text-left ${
+                    user.roles.includes('ngo')
+                      ? 'border-gray-200 dark:border-gray-700 opacity-50 cursor-not-allowed'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-emerald-500'
+                  }`}
                 >
                   <HandHelping className="w-7 h-7 mb-3 text-emerald-600" />
                   <h4 className="font-bold">NGO</h4>
