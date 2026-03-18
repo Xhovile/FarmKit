@@ -118,6 +118,23 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   });
   const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
 
+  const [isEditingSellerProfile, setIsEditingSellerProfile] = React.useState(false);
+  const [isEditingOrganizationProfile, setIsEditingOrganizationProfile] = React.useState(false);
+
+  const [sellerEditForm, setSellerEditForm] = React.useState({
+    businessName: user.sellerProfile?.businessName || '',
+    category: user.sellerProfile?.category || '',
+    district: user.sellerProfile?.district || '',
+    deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
+  });
+
+  const [organizationEditForm, setOrganizationEditForm] = React.useState({
+    organizationName: user.organizationProfile?.organizationName || '',
+    contactPerson: user.organizationProfile?.contactPerson || '',
+    district: user.organizationProfile?.district || '',
+    description: user.organizationProfile?.description || '',
+  });
+
   const handleRoleUpgrade = async () => {
     if (!user || !selectedRole) return;
 
@@ -194,6 +211,80 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       toast.error(error.message || 'Failed to upgrade account.');
     } finally {
       setIsSubmittingRole(false);
+    }
+  };
+
+  const handleSellerProfileUpdate = async () => {
+    if (!user || !user.sellerProfile) return;
+
+    if (
+      !sellerEditForm.businessName.trim() ||
+      !sellerEditForm.category.trim() ||
+      !sellerEditForm.district.trim()
+    ) {
+      toast.error('Please complete all seller profile fields.');
+      return;
+    }
+
+    try {
+      const updatedSellerProfile = {
+        ...user.sellerProfile,
+        businessName: sellerEditForm.businessName.trim(),
+        category: sellerEditForm.category.trim(),
+        district: sellerEditForm.district.trim(),
+        deliveryMethod: sellerEditForm.deliveryMethod,
+      };
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        sellerProfile: updatedSellerProfile,
+      });
+
+      setUser({
+        ...user,
+        sellerProfile: updatedSellerProfile,
+      });
+
+      toast.success('Seller profile updated.');
+      setIsEditingSellerProfile(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update seller profile.');
+    }
+  };
+
+  const handleOrganizationProfileUpdate = async () => {
+    if (!user || !user.organizationProfile) return;
+
+    if (
+      !organizationEditForm.organizationName.trim() ||
+      !organizationEditForm.contactPerson.trim() ||
+      !organizationEditForm.district.trim()
+    ) {
+      toast.error('Please complete all organisation profile fields.');
+      return;
+    }
+
+    try {
+      const updatedOrganizationProfile = {
+        ...user.organizationProfile,
+        organizationName: organizationEditForm.organizationName.trim(),
+        contactPerson: organizationEditForm.contactPerson.trim(),
+        district: organizationEditForm.district.trim(),
+        description: organizationEditForm.description.trim(),
+      };
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        organizationProfile: updatedOrganizationProfile,
+      });
+
+      setUser({
+        ...user,
+        organizationProfile: updatedOrganizationProfile,
+      });
+
+      toast.success('Organisation profile updated.');
+      setIsEditingOrganizationProfile(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update organisation profile.');
     }
   };
 
@@ -371,20 +462,38 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
               {user.sellerProfile && (
                 <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
                       <h4 className="text-lg font-bold">Seller Profile</h4>
                       <p className="text-sm text-gray-500">Your seller account details.</p>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        user.sellerProfile.verified
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {user.sellerProfile.verified ? 'Verified' : 'Not Verified'}
-                    </span>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          user.sellerProfile.verified
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        {user.sellerProfile.verified ? 'Verified' : 'Not Verified'}
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          setSellerEditForm({
+                            businessName: user.sellerProfile?.businessName || '',
+                            category: user.sellerProfile?.category || '',
+                            district: user.sellerProfile?.district || '',
+                            deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
+                          });
+                          setIsEditingSellerProfile(true);
+                        }}
+                        className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -413,20 +522,38 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
               {user.organizationProfile && (
                 <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
                       <h4 className="text-lg font-bold">Organisation Profile</h4>
                       <p className="text-sm text-gray-500">Your registered organisation details.</p>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        user.organizationProfile.verified
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {user.organizationProfile.verified ? 'Verified' : 'Not Verified'}
-                    </span>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          user.organizationProfile.verified
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        {user.organizationProfile.verified ? 'Verified' : 'Not Verified'}
+                      </span>
+
+                      <button
+                        onClick={() => {
+                          setOrganizationEditForm({
+                            organizationName: user.organizationProfile?.organizationName || '',
+                            contactPerson: user.organizationProfile?.contactPerson || '',
+                            district: user.organizationProfile?.district || '',
+                            description: user.organizationProfile?.description || '',
+                          });
+                          setIsEditingOrganizationProfile(true);
+                        }}
+                        className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
+                      >
+                        Edit
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -510,6 +637,142 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       </div>
 
+      {isEditingSellerProfile && user.sellerProfile && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsEditingSellerProfile(false)}
+          />
+          <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold">Edit Seller Profile</h3>
+              <button
+                onClick={() => setIsEditingSellerProfile(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Business name"
+              value={sellerEditForm.businessName}
+              onChange={(e) => setSellerEditForm({ ...sellerEditForm, businessName: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <input
+              type="text"
+              placeholder="Category"
+              value={sellerEditForm.category}
+              onChange={(e) => setSellerEditForm({ ...sellerEditForm, category: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <input
+              type="text"
+              placeholder="District"
+              value={sellerEditForm.district}
+              onChange={(e) => setSellerEditForm({ ...sellerEditForm, district: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <select
+              value={sellerEditForm.deliveryMethod}
+              onChange={(e) => setSellerEditForm({ ...sellerEditForm, deliveryMethod: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            >
+              <option value="pickup">Pickup</option>
+              <option value="delivery">Delivery</option>
+              <option value="both">Both</option>
+            </select>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setIsEditingSellerProfile(false)}
+                className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSellerProfileUpdate}
+                className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditingOrganizationProfile && user.organizationProfile && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsEditingOrganizationProfile(false)}
+          />
+          <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold">Edit Organisation Profile</h3>
+              <button
+                onClick={() => setIsEditingOrganizationProfile(false)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Organisation name"
+              value={organizationEditForm.organizationName}
+              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, organizationName: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <input
+              type="text"
+              placeholder="Contact person"
+              value={organizationEditForm.contactPerson}
+              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, contactPerson: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <input
+              type="text"
+              placeholder="District"
+              value={organizationEditForm.district}
+              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, district: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <textarea
+              placeholder="Description"
+              rows={4}
+              value={organizationEditForm.description}
+              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, description: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+            />
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setIsEditingOrganizationProfile(false)}
+                className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleOrganizationProfileUpdate}
+                className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isRoleModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
@@ -520,7 +783,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             }}
           />
           <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-6 md:p-8 overflow-y-auto space-y-6">
+            <div className="p-6 md:p-8 overflow-y-auto overscroll-contain space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold">Upgrade Account</h3>
