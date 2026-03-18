@@ -35,19 +35,111 @@ interface AccountPageProps {
   setShowTour: (val: boolean) => void;
 }
 
-export const AccountPage: React.FC<AccountPageProps> = ({
-  t,
-  lang,
-  setLang,
-  user,
-  setUser,
-  isEditingProfile,
-  setIsEditingProfile,
-  profileFormData,
-  setProfileFormData,
-  setIsAuthModalOpen,
-  setShowTour
-}) => {
+export const AccountPage: React.FC<AccountPageProps> = (props) => {
+  const {
+    t,
+    lang,
+    setLang,
+    user,
+    setUser,
+    isEditingProfile,
+    setIsEditingProfile,
+    profileFormData,
+    setProfileFormData,
+    setIsAuthModalOpen,
+    setShowTour
+  } = props;
+
+  const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
+  const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
+
+  const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
+  const [isEditingSellerProfile, setIsEditingSellerProfile] = React.useState(false);
+  const [isEditingOrganizationProfile, setIsEditingOrganizationProfile] = React.useState(false);
+  const [isSwitchingPrimaryRole, setIsSwitchingPrimaryRole] = React.useState(false);
+
+  const [selectedPrimaryRole, setSelectedPrimaryRole] = React.useState<UserType['primaryRole']>(
+    user?.primaryRole || 'buyer'
+  );
+
+  const [sellerUpgradeForm, setSellerUpgradeForm] = React.useState({
+    businessName: '',
+    fullName: user?.name || '',
+    phone: user?.phone || '',
+    district: '',
+    area: '',
+    category: '',
+    deliveryMethod: 'pickup',
+    experienceYears: '',
+    description: '',
+  });
+
+  const [businessUpgradeForm, setBusinessUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user?.name || '',
+    phone: user?.phone || '',
+    district: '',
+    address: '',
+    businessType: '',
+    productsOrServices: '',
+    registrationNumber: '',
+    description: '',
+  });
+
+  const [cooperativeUpgradeForm, setCooperativeUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user?.name || '',
+    phone: user?.phone || '',
+    district: '',
+    area: '',
+    memberCount: '',
+    mainCommodities: '',
+    registrationNumber: '',
+    description: '',
+  });
+
+  const [ngoUpgradeForm, setNgoUpgradeForm] = React.useState({
+    organizationName: '',
+    contactPerson: user?.name || '',
+    phone: user?.phone || '',
+    district: '',
+    focusArea: '',
+    servicesOffered: '',
+    registrationNumber: '',
+    websiteOrSocial: '',
+    description: '',
+  });
+
+  const [sellerEditForm, setSellerEditForm] = React.useState({
+    businessName: user?.sellerProfile?.businessName || '',
+    fullName: user?.sellerProfile?.fullName || '',
+    phone: user?.sellerProfile?.phone || '',
+    district: user?.sellerProfile?.district || '',
+    area: user?.sellerProfile?.area || '',
+    category: user?.sellerProfile?.category || '',
+    deliveryMethod: user?.sellerProfile?.deliveryMethod || 'pickup',
+    experienceYears: user?.sellerProfile?.experienceYears || '',
+    description: user?.sellerProfile?.description || '',
+  });
+
+  const [organizationEditForm, setOrganizationEditForm] = React.useState({
+    organizationName: user?.organizationProfile?.organizationName || '',
+    contactPerson: user?.organizationProfile?.contactPerson || '',
+    phone: user?.organizationProfile?.phone || '',
+    district: user?.organizationProfile?.district || '',
+    address: user?.organizationProfile?.address || '',
+    businessType: user?.organizationProfile?.businessType || '',
+    productsOrServices: user?.organizationProfile?.productsOrServices || '',
+    registrationNumber: user?.organizationProfile?.registrationNumber || '',
+    area: user?.organizationProfile?.area || '',
+    memberCount: user?.organizationProfile?.memberCount || '',
+    mainCommodities: user?.organizationProfile?.mainCommodities || '',
+    focusArea: user?.organizationProfile?.focusArea || '',
+    servicesOffered: user?.organizationProfile?.servicesOffered || '',
+    websiteOrSocial: user?.organizationProfile?.websiteOrSocial || '',
+    description: user?.organizationProfile?.description || '',
+  });
+
   if (!user) {
     return (
       <motion.div 
@@ -69,10 +161,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         >
           {t('account.loginSignUp')}
         </button>
-      </div>
-    </motion.div>
-  );
-}
+      </motion.div>
+    );
+  }
 
   const roleLabelMap: Record<UserType['primaryRole'], string> = {
     buyer: 'Buyer',
@@ -106,94 +197,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     ngo: 'NGO',
   } as const;
 
-  const [isRoleModalOpen, setIsRoleModalOpen] = React.useState(false);
-  const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
-  
-  const [sellerUpgradeForm, setSellerUpgradeForm] = React.useState({
-    businessName: '',
-    fullName: user.name || '',
-    phone: user.phone || '',
-    district: '',
-    area: '',
-    category: '',
-    deliveryMethod: 'pickup',
-    experienceYears: '',
-    description: '',
-  });
-
-  const [businessUpgradeForm, setBusinessUpgradeForm] = React.useState({
-    organizationName: '',
-    contactPerson: user.name || '',
-    phone: user.phone || '',
-    district: '',
-    address: '',
-    businessType: '',
-    productsOrServices: '',
-    registrationNumber: '',
-    description: '',
-  });
-
-  const [cooperativeUpgradeForm, setCooperativeUpgradeForm] = React.useState({
-    organizationName: '',
-    contactPerson: user.name || '',
-    phone: user.phone || '',
-    district: '',
-    area: '',
-    memberCount: '',
-    mainCommodities: '',
-    registrationNumber: '',
-    description: '',
-  });
-
-  const [ngoUpgradeForm, setNgoUpgradeForm] = React.useState({
-    organizationName: '',
-    contactPerson: user.name || '',
-    phone: user.phone || '',
-    district: '',
-    focusArea: '',
-    servicesOffered: '',
-    registrationNumber: '',
-    websiteOrSocial: '',
-    description: '',
-  });
-
-  const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
-
-  const [isEditingSellerProfile, setIsEditingSellerProfile] = React.useState(false);
-  const [isEditingOrganizationProfile, setIsEditingOrganizationProfile] = React.useState(false);
-
-  const [isSwitchingPrimaryRole, setIsSwitchingPrimaryRole] = React.useState(false);
-  const [selectedPrimaryRole, setSelectedPrimaryRole] = React.useState<UserType['primaryRole']>(user.primaryRole);
-
-  const [sellerEditForm, setSellerEditForm] = React.useState({
-    businessName: user.sellerProfile?.businessName || '',
-    fullName: user.sellerProfile?.fullName || '',
-    phone: user.sellerProfile?.phone || '',
-    district: user.sellerProfile?.district || '',
-    area: user.sellerProfile?.area || '',
-    category: user.sellerProfile?.category || '',
-    deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
-    experienceYears: user.sellerProfile?.experienceYears || '',
-    description: user.sellerProfile?.description || '',
-  });
-
-  const [organizationEditForm, setOrganizationEditForm] = React.useState({
-    organizationName: user.organizationProfile?.organizationName || '',
-    contactPerson: user.organizationProfile?.contactPerson || '',
-    phone: user.organizationProfile?.phone || '',
-    district: user.organizationProfile?.district || '',
-    address: user.organizationProfile?.address || '',
-    businessType: user.organizationProfile?.businessType || '',
-    productsOrServices: user.organizationProfile?.productsOrServices || '',
-    registrationNumber: user.organizationProfile?.registrationNumber || '',
-    area: user.organizationProfile?.area || '',
-    memberCount: user.organizationProfile?.memberCount || '',
-    mainCommodities: user.organizationProfile?.mainCommodities || '',
-    focusArea: user.organizationProfile?.focusArea || '',
-    servicesOffered: user.organizationProfile?.servicesOffered || '',
-    websiteOrSocial: user.organizationProfile?.websiteOrSocial || '',
-    description: user.organizationProfile?.description || '',
-  });
 
   const handleRoleUpgrade = async () => {
     if (!user || !selectedRole) return;
@@ -640,326 +643,240 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             </div>
 
-              {/* Personal Account Summary Card */}
+            {/* Personal Account Summary Card */}
+            <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-lg font-bold">Personal Account</h4>
+                  <p className="text-sm text-gray-500">Your basic FarmKit account details.</p>
+                </div>
+
+                <button
+                  onClick={() => setIsEditingProfile(true)}
+                  className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
+                >
+                  Manage
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Full Name</p>
+                  <p className="font-semibold">{user.name || '—'}</p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
+                  <p className="font-semibold">{user.phone || '—'}</p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Location</p>
+                  <p className="font-semibold">{user.location || '—'}</p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Email</p>
+                  <p className="font-semibold break-all">{user.email || '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            {user.sellerProfile && (
               <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h4 className="text-lg font-bold">Personal Account</h4>
-                    <p className="text-sm text-gray-500">Your basic FarmKit account details.</p>
+                    <h4 className="text-lg font-bold">Seller Profile</h4>
+                    <p className="text-sm text-gray-500">Manage your seller identity and selling details.</p>
                   </div>
 
-                  <button
-                    onClick={() => setIsEditingProfile(true)}
-                    className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
-                  >
-                    Manage
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        user.sellerProfile.verified
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {user.sellerProfile.verified ? 'Verified' : 'Not Verified'}
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        setSellerEditForm({
+                          businessName: user.sellerProfile?.businessName || '',
+                          fullName: user.sellerProfile?.fullName || '',
+                          phone: user.sellerProfile?.phone || '',
+                          district: user.sellerProfile?.district || '',
+                          area: user.sellerProfile?.area || '',
+                          category: user.sellerProfile?.category || '',
+                          deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
+                          experienceYears: user.sellerProfile?.experienceYears || '',
+                          description: user.sellerProfile?.description || '',
+                        });
+                        setIsEditingSellerProfile(true);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
+                    >
+                      Manage
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Full Name</p>
-                    <p className="font-semibold">{user.name || '—'}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Name</p>
+                    <p className="font-semibold">{user.sellerProfile.businessName || '—'}</p>
                   </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
+                    <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
+                    <p className="font-semibold">{user.sellerProfile.district || '—'}</p>
+                  </div>
+
                   <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
-                    <p className="font-semibold">{user.phone || '—'}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Location</p>
-                    <p className="font-semibold">{user.location || '—'}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Email</p>
-                    <p className="font-semibold">{user.email || '—'}</p>
+                    <p className="font-semibold">{user.sellerProfile.phone || '—'}</p>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Account Actions Card */}
+            {user.organizationProfile && (
               <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
-                <div>
-                  <h4 className="text-lg font-bold">Account Actions</h4>
-                  <p className="text-sm text-gray-500">Manage your roles and account settings.</p>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-lg font-bold">Organisation Profile</h4>
+                    <p className="text-sm text-gray-500">Manage your organisation’s core details.</p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        user.organizationProfile.verified
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {user.organizationProfile.verified ? 'Verified' : 'Not Verified'}
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        setOrganizationEditForm({
+                          organizationName: user.organizationProfile?.organizationName || '',
+                          contactPerson: user.organizationProfile?.contactPerson || '',
+                          phone: user.organizationProfile?.phone || '',
+                          district: user.organizationProfile?.district || '',
+                          address: user.organizationProfile?.address || '',
+                          businessType: user.organizationProfile?.businessType || '',
+                          productsOrServices: user.organizationProfile?.productsOrServices || '',
+                          registrationNumber: user.organizationProfile?.registrationNumber || '',
+                          area: user.organizationProfile?.area || '',
+                          memberCount: user.organizationProfile?.memberCount || '',
+                          mainCommodities: user.organizationProfile?.mainCommodities || '',
+                          focusArea: user.organizationProfile?.focusArea || '',
+                          servicesOffered: user.organizationProfile?.servicesOffered || '',
+                          websiteOrSocial: user.organizationProfile?.websiteOrSocial || '',
+                          description: user.organizationProfile?.description || '',
+                        });
+                        setIsEditingOrganizationProfile(true);
+                      }}
+                      className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
+                    >
+                      Manage
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      setSelectedPrimaryRole(user.primaryRole);
-                      setIsSwitchingPrimaryRole(true);
-                    }}
-                    className="w-full py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-sm font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Users className="w-4 h-4" /> Switch Primary Role
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Type</p>
+                    <p className="font-semibold">
+                      {organizationTypeLabelMap[user.organizationProfile.type as keyof typeof organizationTypeLabelMap]}
+                    </p>
+                  </div>
 
-                  <button
-                    className="w-full py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
-                    onClick={() => setIsRoleModalOpen(true)}
-                  >
-                    <Store className="w-4 h-4" /> {canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}
-                  </button>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Organisation Name</p>
+                    <p className="font-semibold">{user.organizationProfile.organizationName || '—'}</p>
+                  </div>
 
-                  <button 
-                    onClick={() => setShowTour(true)}
-                    className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <HelpCircle className="w-4 h-4" /> {t('account.helpTour')}
-                  </button>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Contact Person</p>
+                    <p className="font-semibold">{user.organizationProfile.contactPerson || '—'}</p>
+                  </div>
 
-                  <button
-                    onClick={() => setLang(lang === 'en' ? 'ny' : 'en')}
-                    className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Languages className="w-4 h-4" /> {lang === 'en' ? 'Chichewa' : 'English'}
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      auth.signOut();
-                      toast.success(t('account.loggedOut'));
-                    }}
-                    className="w-full py-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all flex items-center justify-center gap-2 sm:col-span-2"
-                  >
-                    <LogOut className="w-4 h-4" /> {t('common.logout')}
-                  </button>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
+                    <p className="font-semibold">{user.organizationProfile.district || '—'}</p>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {user.sellerProfile && (
-                <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-lg font-bold">Seller Profile</h4>
-                      <p className="text-sm text-gray-500">Your seller account details.</p>
-                    </div>
+            {/* Account Actions Card */}
+            <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+              <div>
+                <h4 className="text-lg font-bold">Account Actions</h4>
+                <p className="text-sm text-gray-500">Manage roles and account controls.</p>
+              </div>
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          user.sellerProfile.verified
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {user.sellerProfile.verified ? 'Verified' : 'Not Verified'}
-                      </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedPrimaryRole(user.primaryRole);
+                    setIsSwitchingPrimaryRole(true);
+                  }}
+                  className="w-full py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-sm font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                >
+                  Switch Primary Role
+                </button>
 
-                      <button
-                        onClick={() => {
-                          setSellerEditForm({
-                            businessName: user.sellerProfile?.businessName || '',
-                            fullName: user.sellerProfile?.fullName || '',
-                            phone: user.sellerProfile?.phone || '',
-                            district: user.sellerProfile?.district || '',
-                            area: user.sellerProfile?.area || '',
-                            category: user.sellerProfile?.category || '',
-                            deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
-                            experienceYears: user.sellerProfile?.experienceYears || '',
-                            description: user.sellerProfile?.description || '',
-                          });
-                          setIsEditingSellerProfile(true);
-                        }}
-                        className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  </div>
+                <button
+                  onClick={() => setIsRoleModalOpen(true)}
+                  className="w-full py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all"
+                >
+                  {canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}
+                </button>
+              </div>
+            </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Name</p>
-                      <p className="font-semibold">{user.sellerProfile.businessName || '—'}</p>
-                    </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button 
+                onClick={() => setShowTour(true)}
+                className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
+              >
+                <HelpCircle className="w-4 h-4" /> {t('account.helpTour')}
+              </button>
 
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Seller Name</p>
-                      <p className="font-semibold">{user.sellerProfile.fullName || '—'}</p>
-                    </div>
+              <button
+                onClick={() => setLang(lang === 'en' ? 'ny' : 'en')}
+                className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
+              >
+                <Languages className="w-4 h-4" /> {lang === 'en' ? 'Chichewa' : 'English'}
+              </button>
 
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
-                      <p className="font-semibold">{user.sellerProfile.phone || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
-                      <p className="font-semibold">{user.sellerProfile.district || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area / Market</p>
-                      <p className="font-semibold">{user.sellerProfile.area || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
-                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Delivery Method</p>
-                      <p className="font-semibold capitalize">{user.sellerProfile.deliveryMethod || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Experience</p>
-                      <p className="font-semibold">{user.sellerProfile.experienceYears || '0'} Years</p>
-                    </div>
-
-                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{user.sellerProfile.description || 'No description provided.'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {user.organizationProfile && (
-                <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h4 className="text-lg font-bold">Organisation Profile</h4>
-                      <p className="text-sm text-gray-500">Your registered organisation details.</p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          user.organizationProfile.verified
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {user.organizationProfile.verified ? 'Verified' : 'Not Verified'}
-                      </span>
-
-                      <button
-                        onClick={() => {
-                          setOrganizationEditForm({
-                            organizationName: user.organizationProfile?.organizationName || '',
-                            contactPerson: user.organizationProfile?.contactPerson || '',
-                            phone: user.organizationProfile?.phone || '',
-                            district: user.organizationProfile?.district || '',
-                            address: user.organizationProfile?.address || '',
-                            businessType: user.organizationProfile?.businessType || '',
-                            productsOrServices: user.organizationProfile?.productsOrServices || '',
-                            registrationNumber: user.organizationProfile?.registrationNumber || '',
-                            area: user.organizationProfile?.area || '',
-                            memberCount: user.organizationProfile?.memberCount || '',
-                            mainCommodities: user.organizationProfile?.mainCommodities || '',
-                            focusArea: user.organizationProfile?.focusArea || '',
-                            servicesOffered: user.organizationProfile?.servicesOffered || '',
-                            websiteOrSocial: user.organizationProfile?.websiteOrSocial || '',
-                            description: user.organizationProfile?.description || '',
-                          });
-                          setIsEditingOrganizationProfile(true);
-                        }}
-                        className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Type</p>
-                      <p className="font-semibold">
-                        {organizationTypeLabelMap[user.organizationProfile.type as keyof typeof organizationTypeLabelMap]}
-                      </p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Organisation Name</p>
-                      <p className="font-semibold">{user.organizationProfile.organizationName || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Contact Person</p>
-                      <p className="font-semibold">{user.organizationProfile.contactPerson || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
-                      <p className="font-semibold">{user.organizationProfile.phone || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
-                      <p className="font-semibold">{user.organizationProfile.district || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Reg Number</p>
-                      <p className="font-semibold">{user.organizationProfile.registrationNumber || '—'}</p>
-                    </div>
-
-                    {user.organizationProfile.type === 'business' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Address</p>
-                          <p className="font-semibold">{user.organizationProfile.address || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Type</p>
-                          <p className="font-semibold">{user.organizationProfile.businessType || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Products/Services</p>
-                          <p className="font-semibold">{user.organizationProfile.productsOrServices || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    {user.organizationProfile.type === 'cooperative' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area</p>
-                          <p className="font-semibold">{user.organizationProfile.area || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Members</p>
-                          <p className="font-semibold">{user.organizationProfile.memberCount || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Main Commodities</p>
-                          <p className="font-semibold">{user.organizationProfile.mainCommodities || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    {user.organizationProfile.type === 'ngo' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Focus Area</p>
-                          <p className="font-semibold">{user.organizationProfile.focusArea || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Website/Social</p>
-                          <p className="font-semibold">{user.organizationProfile.websiteOrSocial || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Services Offered</p>
-                          <p className="font-semibold">{user.organizationProfile.servicesOffered || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">"{user.organizationProfile.description || 'No description provided.'}"</p>
-                    </div>
-                  </div>
-
-                </div>
-              )}
+              <button 
+                onClick={() => {
+                  auth.signOut();
+                  toast.success(t('account.loggedOut'));
+                }}
+                className="w-full py-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all flex items-center justify-center gap-2 sm:col-span-2"
+              >
+                <LogOut className="w-4 h-4" /> {t('common.logout')}
+              </button>
+            </div>
 
 
               </div>
             </div>
+          </div>
 
           {isEditingProfile && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -1125,7 +1042,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             onClick={() => setIsEditingSellerProfile(false)}
           />
           <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-6 md:p-8 overflow-y-auto overscroll-contain space-y-6">
+            <div className="p-6 md:p-8 overflow-y-auto overscroll-contain space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold">Edit Seller Profile</h3>
@@ -1270,7 +1187,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             onClick={() => setIsEditingOrganizationProfile(false)}
           />
           <div className="relative w-full max-w-lg max-h-[90vh] bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-6 md:p-8 overflow-y-auto overscroll-contain space-y-6">
+            <div className="p-6 md:p-8 overflow-y-auto overscroll-contain space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold">Edit Organisation Profile</h3>
@@ -1859,6 +1776,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       )}
     </motion.div>
-  );
-};
+    );
+  };
 
