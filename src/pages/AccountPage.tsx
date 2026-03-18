@@ -166,15 +166,31 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
   const [sellerEditForm, setSellerEditForm] = React.useState({
     businessName: user.sellerProfile?.businessName || '',
-    category: user.sellerProfile?.category || '',
+    fullName: user.sellerProfile?.fullName || '',
+    phone: user.sellerProfile?.phone || '',
     district: user.sellerProfile?.district || '',
+    area: user.sellerProfile?.area || '',
+    category: user.sellerProfile?.category || '',
     deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
+    experienceYears: user.sellerProfile?.experienceYears || '',
+    description: user.sellerProfile?.description || '',
   });
 
   const [organizationEditForm, setOrganizationEditForm] = React.useState({
     organizationName: user.organizationProfile?.organizationName || '',
     contactPerson: user.organizationProfile?.contactPerson || '',
+    phone: user.organizationProfile?.phone || '',
     district: user.organizationProfile?.district || '',
+    address: user.organizationProfile?.address || '',
+    businessType: user.organizationProfile?.businessType || '',
+    productsOrServices: user.organizationProfile?.productsOrServices || '',
+    registrationNumber: user.organizationProfile?.registrationNumber || '',
+    area: user.organizationProfile?.area || '',
+    memberCount: user.organizationProfile?.memberCount || '',
+    mainCommodities: user.organizationProfile?.mainCommodities || '',
+    focusArea: user.organizationProfile?.focusArea || '',
+    servicesOffered: user.organizationProfile?.servicesOffered || '',
+    websiteOrSocial: user.organizationProfile?.websiteOrSocial || '',
     description: user.organizationProfile?.description || '',
   });
 
@@ -384,8 +400,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
     if (
       !sellerEditForm.businessName.trim() ||
+      !sellerEditForm.fullName.trim() ||
+      !sellerEditForm.phone.trim() ||
+      !sellerEditForm.district.trim() ||
+      !sellerEditForm.area.trim() ||
       !sellerEditForm.category.trim() ||
-      !sellerEditForm.district.trim()
+      !sellerEditForm.experienceYears.trim() ||
+      !sellerEditForm.description.trim()
     ) {
       toast.error('Please complete all seller profile fields.');
       return;
@@ -395,9 +416,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       const updatedSellerProfile = {
         ...user.sellerProfile,
         businessName: sellerEditForm.businessName.trim(),
-        category: sellerEditForm.category.trim(),
+        fullName: sellerEditForm.fullName.trim(),
+        phone: sellerEditForm.phone.trim(),
         district: sellerEditForm.district.trim(),
+        area: sellerEditForm.area.trim(),
+        category: sellerEditForm.category.trim(),
         deliveryMethod: sellerEditForm.deliveryMethod,
+        experienceYears: sellerEditForm.experienceYears.trim(),
+        description: sellerEditForm.description.trim(),
       };
 
       await updateDoc(doc(db, 'users', user.uid), {
@@ -419,13 +445,36 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   const handleOrganizationProfileUpdate = async () => {
     if (!user || !user.organizationProfile) return;
 
+    const { type } = user.organizationProfile;
+
+    // Core validation
     if (
       !organizationEditForm.organizationName.trim() ||
       !organizationEditForm.contactPerson.trim() ||
-      !organizationEditForm.district.trim()
+      !organizationEditForm.phone.trim() ||
+      !organizationEditForm.district.trim() ||
+      !organizationEditForm.description.trim()
     ) {
-      toast.error('Please complete all organisation profile fields.');
+      toast.error('Please complete all core profile fields.');
       return;
+    }
+
+    // Type-specific validation
+    if (type === 'business') {
+      if (!organizationEditForm.address.trim() || !organizationEditForm.businessType.trim() || !organizationEditForm.productsOrServices.trim() || !organizationEditForm.registrationNumber.trim()) {
+        toast.error('Please complete all business fields.');
+        return;
+      }
+    } else if (type === 'cooperative') {
+      if (!organizationEditForm.area.trim() || !organizationEditForm.memberCount.trim() || !organizationEditForm.mainCommodities.trim() || !organizationEditForm.registrationNumber.trim()) {
+        toast.error('Please complete all cooperative fields.');
+        return;
+      }
+    } else if (type === 'ngo') {
+      if (!organizationEditForm.focusArea.trim() || !organizationEditForm.servicesOffered.trim() || !organizationEditForm.registrationNumber.trim()) {
+        toast.error('Please complete all NGO fields.');
+        return;
+      }
     }
 
     try {
@@ -433,7 +482,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         ...user.organizationProfile,
         organizationName: organizationEditForm.organizationName.trim(),
         contactPerson: organizationEditForm.contactPerson.trim(),
+        phone: organizationEditForm.phone.trim(),
         district: organizationEditForm.district.trim(),
+        address: organizationEditForm.address.trim(),
+        businessType: organizationEditForm.businessType.trim(),
+        productsOrServices: organizationEditForm.productsOrServices.trim(),
+        registrationNumber: organizationEditForm.registrationNumber.trim(),
+        area: organizationEditForm.area.trim(),
+        memberCount: organizationEditForm.memberCount.trim(),
+        mainCommodities: organizationEditForm.mainCommodities.trim(),
+        focusArea: organizationEditForm.focusArea.trim(),
+        servicesOffered: organizationEditForm.servicesOffered.trim(),
+        websiteOrSocial: organizationEditForm.websiteOrSocial.trim(),
         description: organizationEditForm.description.trim(),
       };
 
@@ -690,9 +750,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         onClick={() => {
                           setSellerEditForm({
                             businessName: user.sellerProfile?.businessName || '',
-                            category: user.sellerProfile?.category || '',
+                            fullName: user.sellerProfile?.fullName || '',
+                            phone: user.sellerProfile?.phone || '',
                             district: user.sellerProfile?.district || '',
+                            area: user.sellerProfile?.area || '',
+                            category: user.sellerProfile?.category || '',
                             deliveryMethod: user.sellerProfile?.deliveryMethod || 'pickup',
+                            experienceYears: user.sellerProfile?.experienceYears || '',
+                            description: user.sellerProfile?.description || '',
                           });
                           setIsEditingSellerProfile(true);
                         }}
@@ -703,15 +768,20 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Name</p>
                       <p className="font-semibold">{user.sellerProfile.businessName || '—'}</p>
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
-                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Seller Name</p>
+                      <p className="font-semibold">{user.sellerProfile.fullName || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
+                      <p className="font-semibold">{user.sellerProfile.phone || '—'}</p>
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
@@ -720,8 +790,28 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area / Market</p>
+                      <p className="font-semibold">{user.sellerProfile.area || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
+                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Delivery Method</p>
                       <p className="font-semibold capitalize">{user.sellerProfile.deliveryMethod || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Experience</p>
+                      <p className="font-semibold">{user.sellerProfile.experienceYears || '0'} Years</p>
+                    </div>
+
+                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{user.sellerProfile.description || 'No description provided.'}</p>
                     </div>
                   </div>
                 </div>
@@ -751,7 +841,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                           setOrganizationEditForm({
                             organizationName: user.organizationProfile?.organizationName || '',
                             contactPerson: user.organizationProfile?.contactPerson || '',
+                            phone: user.organizationProfile?.phone || '',
                             district: user.organizationProfile?.district || '',
+                            address: user.organizationProfile?.address || '',
+                            businessType: user.organizationProfile?.businessType || '',
+                            productsOrServices: user.organizationProfile?.productsOrServices || '',
+                            registrationNumber: user.organizationProfile?.registrationNumber || '',
+                            area: user.organizationProfile?.area || '',
+                            memberCount: user.organizationProfile?.memberCount || '',
+                            mainCommodities: user.organizationProfile?.mainCommodities || '',
+                            focusArea: user.organizationProfile?.focusArea || '',
+                            servicesOffered: user.organizationProfile?.servicesOffered || '',
+                            websiteOrSocial: user.organizationProfile?.websiteOrSocial || '',
                             description: user.organizationProfile?.description || '',
                           });
                           setIsEditingOrganizationProfile(true);
@@ -763,7 +864,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Type</p>
                       <p className="font-semibold">
@@ -782,17 +883,77 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
+                      <p className="font-semibold">{user.organizationProfile.phone || '—'}</p>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
                       <p className="font-semibold">{user.organizationProfile.district || '—'}</p>
                     </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Reg Number</p>
+                      <p className="font-semibold">{user.organizationProfile.registrationNumber || '—'}</p>
+                    </div>
+
+                    {user.organizationProfile.type === 'business' && (
+                      <>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Address</p>
+                          <p className="font-semibold">{user.organizationProfile.address || '—'}</p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Type</p>
+                          <p className="font-semibold">{user.organizationProfile.businessType || '—'}</p>
+                        </div>
+                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Products/Services</p>
+                          <p className="font-semibold">{user.organizationProfile.productsOrServices || '—'}</p>
+                        </div>
+                      </>
+                    )}
+
+                    {user.organizationProfile.type === 'cooperative' && (
+                      <>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area</p>
+                          <p className="font-semibold">{user.organizationProfile.area || '—'}</p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Members</p>
+                          <p className="font-semibold">{user.organizationProfile.memberCount || '—'}</p>
+                        </div>
+                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Main Commodities</p>
+                          <p className="font-semibold">{user.organizationProfile.mainCommodities || '—'}</p>
+                        </div>
+                      </>
+                    )}
+
+                    {user.organizationProfile.type === 'ngo' && (
+                      <>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Focus Area</p>
+                          <p className="font-semibold">{user.organizationProfile.focusArea || '—'}</p>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Website/Social</p>
+                          <p className="font-semibold">{user.organizationProfile.websiteOrSocial || '—'}</p>
+                        </div>
+                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Services Offered</p>
+                          <p className="font-semibold">{user.organizationProfile.servicesOffered || '—'}</p>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
+                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">"{user.organizationProfile.description || 'No description provided.'}"</p>
+                    </div>
                   </div>
 
-                  {user.organizationProfile.description && (
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
-                      <p className="text-sm leading-relaxed">{user.organizationProfile.description}</p>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -920,39 +1081,110 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </button>
             </div>
 
-            <input
-              type="text"
-              placeholder="Business name"
-              value={sellerEditForm.businessName}
-              onChange={(e) => setSellerEditForm({ ...sellerEditForm, businessName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+            <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Business Name</label>
+                <input
+                  type="text"
+                  placeholder="Business name"
+                  value={sellerEditForm.businessName}
+                  onChange={(e) => setSellerEditForm({ ...sellerEditForm, businessName: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <input
-              type="text"
-              placeholder="Category"
-              value={sellerEditForm.category}
-              onChange={(e) => setSellerEditForm({ ...sellerEditForm, category: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Seller Full Name</label>
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={sellerEditForm.fullName}
+                  onChange={(e) => setSellerEditForm({ ...sellerEditForm, fullName: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <input
-              type="text"
-              placeholder="District"
-              value={sellerEditForm.district}
-              onChange={(e) => setSellerEditForm({ ...sellerEditForm, district: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="Phone number"
+                  value={sellerEditForm.phone}
+                  onChange={(e) => setSellerEditForm({ ...sellerEditForm, phone: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <select
-              value={sellerEditForm.deliveryMethod}
-              onChange={(e) => setSellerEditForm({ ...sellerEditForm, deliveryMethod: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            >
-              <option value="pickup">Pickup</option>
-              <option value="delivery">Delivery</option>
-              <option value="both">Both</option>
-            </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase ml-1">District</label>
+                  <input
+                    type="text"
+                    placeholder="District"
+                    value={sellerEditForm.district}
+                    onChange={(e) => setSellerEditForm({ ...sellerEditForm, district: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase ml-1">Area</label>
+                  <input
+                    type="text"
+                    placeholder="Area"
+                    value={sellerEditForm.area}
+                    onChange={(e) => setSellerEditForm({ ...sellerEditForm, area: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Category</label>
+                <input
+                  type="text"
+                  placeholder="Category"
+                  value={sellerEditForm.category}
+                  onChange={(e) => setSellerEditForm({ ...sellerEditForm, category: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase ml-1">Delivery</label>
+                  <select
+                    value={sellerEditForm.deliveryMethod}
+                    onChange={(e) => setSellerEditForm({ ...sellerEditForm, deliveryMethod: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                  >
+                    <option value="pickup">Pickup</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase ml-1">Experience (Yrs)</label>
+                  <input
+                    type="text"
+                    placeholder="Years"
+                    value={sellerEditForm.experienceYears}
+                    onChange={(e) => setSellerEditForm({ ...sellerEditForm, experienceYears: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Description</label>
+                <textarea
+                  placeholder="Short business description"
+                  rows={3}
+                  value={sellerEditForm.description}
+                  onChange={(e) => setSellerEditForm({ ...sellerEditForm, description: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button
@@ -989,37 +1221,178 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </button>
             </div>
 
-            <input
-              type="text"
-              placeholder="Organisation name"
-              value={organizationEditForm.organizationName}
-              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, organizationName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+            <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Organisation Name</label>
+                <input
+                  type="text"
+                  placeholder="Organisation name"
+                  value={organizationEditForm.organizationName}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, organizationName: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <input
-              type="text"
-              placeholder="Contact person"
-              value={organizationEditForm.contactPerson}
-              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, contactPerson: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Contact Person</label>
+                <input
+                  type="text"
+                  placeholder="Contact person"
+                  value={organizationEditForm.contactPerson}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, contactPerson: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <input
-              type="text"
-              placeholder="District"
-              value={organizationEditForm.district}
-              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, district: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Phone Number</label>
+                <input
+                  type="text"
+                  placeholder="Phone number"
+                  value={organizationEditForm.phone}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, phone: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
 
-            <textarea
-              placeholder="Description"
-              rows={4}
-              value={organizationEditForm.description}
-              onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, description: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
-            />
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">District</label>
+                <input
+                  type="text"
+                  placeholder="District"
+                  value={organizationEditForm.district}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, district: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
+
+              {user.organizationProfile.type === 'business' && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Exact Address</label>
+                    <input
+                      type="text"
+                      placeholder="Address"
+                      value={organizationEditForm.address}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, address: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Business Type</label>
+                    <input
+                      type="text"
+                      placeholder="Business type"
+                      value={organizationEditForm.businessType}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, businessType: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Products/Services</label>
+                    <input
+                      type="text"
+                      placeholder="Products or services"
+                      value={organizationEditForm.productsOrServices}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, productsOrServices: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              {user.organizationProfile.type === 'cooperative' && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">EPA / Area</label>
+                    <input
+                      type="text"
+                      placeholder="Area"
+                      value={organizationEditForm.area}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, area: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Member Count</label>
+                    <input
+                      type="text"
+                      placeholder="Members"
+                      value={organizationEditForm.memberCount}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, memberCount: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Main Commodities</label>
+                    <input
+                      type="text"
+                      placeholder="Commodities"
+                      value={organizationEditForm.mainCommodities}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, mainCommodities: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              {user.organizationProfile.type === 'ngo' && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Focus Area</label>
+                    <input
+                      type="text"
+                      placeholder="Focus area"
+                      value={organizationEditForm.focusArea}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, focusArea: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Services Offered</label>
+                    <input
+                      type="text"
+                      placeholder="Services"
+                      value={organizationEditForm.servicesOffered}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, servicesOffered: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Website/Social</label>
+                    <input
+                      type="text"
+                      placeholder="Link"
+                      value={organizationEditForm.websiteOrSocial}
+                      onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, websiteOrSocial: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Registration Number</label>
+                <input
+                  type="text"
+                  placeholder="Reg number"
+                  value={organizationEditForm.registrationNumber}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, registrationNumber: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Description</label>
+                <textarea
+                  placeholder="Description"
+                  rows={3}
+                  value={organizationEditForm.description}
+                  onChange={(e) => setOrganizationEditForm({ ...organizationEditForm, description: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 outline-none"
+                />
+              </div>
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button
