@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, MapPin, Phone, Briefcase, Truck, Calendar, FileText } from 'lucide-react';
+import { Store, MapPin, Briefcase, ShieldCheck } from 'lucide-react';
 import { User as UserType } from '../../types';
 
 interface SellerProfileCardProps {
@@ -21,11 +21,16 @@ const SellerProfileCard: React.FC<SellerProfileCardProps> = ({
             <Store className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h3 className="text-xl font-bold">Seller Profile</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-bold">Seller Profile</h3>
+              {user.sellerProfile.verified && (
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              )}
+            </div>
             <p className="text-sm text-gray-500">{user.sellerProfile.businessName}</p>
           </div>
         </div>
-        <button 
+        <button
           onClick={openEditSeller}
           className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl hover:bg-emerald-100 transition-all text-sm"
         >
@@ -34,51 +39,21 @@ const SellerProfileCard: React.FC<SellerProfileCardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Location</p>
-              <p className="text-gray-700 dark:text-gray-300">{user.sellerProfile.area}, {user.sellerProfile.district}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Phone className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contact</p>
-              <p className="text-gray-700 dark:text-gray-300">{user.sellerProfile.phone}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Briefcase className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Category</p>
-              <p className="text-gray-700 dark:text-gray-300 capitalize">{user.sellerProfile.category}</p>
-            </div>
+        <div className="flex items-start gap-3">
+          <Briefcase className="w-5 h-5 text-emerald-500 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Category</p>
+            <p className="text-gray-700 dark:text-gray-300 capitalize">{user.sellerProfile.category || 'Not set'}</p>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <Truck className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Delivery</p>
-              <p className="text-gray-700 dark:text-gray-300 capitalize">{user.sellerProfile.deliveryMethod}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Calendar className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Experience</p>
-              <p className="text-gray-700 dark:text-gray-300">{user.sellerProfile.experienceYears} Years</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <FileText className="w-5 h-5 text-emerald-500 mt-0.5" />
-            <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Description</p>
-              <p className="text-gray-700 dark:text-gray-300 line-clamp-2">{user.sellerProfile.description}</p>
-            </div>
+        <div className="flex items-start gap-3">
+          <MapPin className="w-5 h-5 text-emerald-500 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Location</p>
+            <p className="text-gray-700 dark:text-gray-300">
+              {[user.sellerProfile.district, user.sellerProfile.region].filter(Boolean).join(', ') || 'Not set'}
+            </p>
           </div>
         </div>
       </div>

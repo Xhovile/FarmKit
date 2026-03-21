@@ -638,6 +638,9 @@ export const useAccountPageController = ({
   };
 
   const openSwitchRole = () => {
+    if (user) {
+      setSelectedPrimaryRole(user.primaryRole);
+    }
     setAccountView('switchRole');
     setIsAccountModalOpen(true);
   };
