@@ -63,9 +63,9 @@ export const useAccountPageController = ({
     businessName: '',
     fullName: user?.name || '',
     phone: user?.phone || '',
-    region: '',
-    district: '',
-    area: '',
+    region: user?.region || '',
+    district: user?.district || '',
+    area: user?.location || '',
     category: '',
     deliveryMethod: 'pickup',
     experienceYears: '',
@@ -76,9 +76,9 @@ export const useAccountPageController = ({
     organizationName: '',
     contactPerson: user?.name || '',
     phone: user?.phone || '',
-    region: '',
-    district: '',
-    address: '',
+    region: user?.region || '',
+    district: user?.district || '',
+    address: user?.location || '',
     businessType: '',
     productsOrServices: '',
     registrationNumber: '',
@@ -89,9 +89,9 @@ export const useAccountPageController = ({
     organizationName: '',
     contactPerson: user?.name || '',
     phone: user?.phone || '',
-    region: '',
-    district: '',
-    area: '',
+    region: user?.region || '',
+    district: user?.district || '',
+    area: user?.location || '',
     memberCount: '',
     mainCommodities: '',
     registrationNumber: '',
@@ -102,12 +102,49 @@ export const useAccountPageController = ({
     organizationName: '',
     contactPerson: user?.name || '',
     phone: user?.phone || '',
-    region: '',
-    district: '',
-    address: '',
+    region: user?.region || '',
+    district: user?.district || '',
+    address: user?.location || '',
     organizationType: '',
     description: '',
   });
+
+  React.useEffect(() => {
+    if (user) {
+      setSellerUpgradeForm(prev => ({
+        ...prev,
+        fullName: prev.fullName || user.name || '',
+        phone: prev.phone || user.phone || '',
+        region: prev.region || user.region || '',
+        district: prev.district || user.district || '',
+        area: prev.area || user.location || '',
+      }));
+      setBusinessUpgradeForm(prev => ({
+        ...prev,
+        contactPerson: prev.contactPerson || user.name || '',
+        phone: prev.phone || user.phone || '',
+        region: prev.region || user.region || '',
+        district: prev.district || user.district || '',
+        address: prev.address || user.location || '',
+      }));
+      setCooperativeUpgradeForm(prev => ({
+        ...prev,
+        contactPerson: prev.contactPerson || user.name || '',
+        phone: prev.phone || user.phone || '',
+        region: prev.region || user.region || '',
+        district: prev.district || user.district || '',
+        area: prev.area || user.location || '',
+      }));
+      setNgoUpgradeForm(prev => ({
+        ...prev,
+        contactPerson: prev.contactPerson || user.name || '',
+        phone: prev.phone || user.phone || '',
+        region: prev.region || user.region || '',
+        district: prev.district || user.district || '',
+        address: prev.address || user.location || '',
+      }));
+    }
+  }, [user]);
 
   const [isSubmittingRole, setIsSubmittingRole] = React.useState(false);
   const [isSubmittingRoleSwitch, setIsSubmittingRoleSwitch] = React.useState(false);
@@ -137,6 +174,7 @@ export const useAccountPageController = ({
     businessType: user?.organizationProfile?.businessType || '',
     productsOrServices: user?.organizationProfile?.productsOrServices || '',
     registrationNumber: user?.organizationProfile?.registrationNumber || '',
+    organizationType: user?.organizationProfile?.organizationType || '',
     area: user?.organizationProfile?.area || '',
     memberCount: user?.organizationProfile?.memberCount || '',
     mainCommodities: user?.organizationProfile?.mainCommodities || '',
@@ -175,6 +213,7 @@ export const useAccountPageController = ({
         businessType: user.organizationProfile.businessType || '',
         productsOrServices: user.organizationProfile.productsOrServices || '',
         registrationNumber: user.organizationProfile.registrationNumber || '',
+        organizationType: user.organizationProfile.organizationType || '',
         area: user.organizationProfile.area || '',
         memberCount: user.organizationProfile.memberCount || '',
         mainCommodities: user.organizationProfile.mainCommodities || '',
@@ -572,6 +611,7 @@ export const useAccountPageController = ({
         businessType: organizationEditForm.businessType.trim(),
         productsOrServices: organizationEditForm.productsOrServices.trim(),
         registrationNumber: organizationEditForm.registrationNumber.trim(),
+        organizationType: organizationEditForm.organizationType.trim(),
         area: organizationEditForm.area.trim(),
         memberCount: organizationEditForm.memberCount.trim(),
         mainCommodities: organizationEditForm.mainCommodities.trim(),

@@ -75,7 +75,7 @@ const EditOrganizationProfileModal: React.FC<EditOrganizationProfileModalProps> 
           <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Address / Area</label>
           <input 
             type="text" 
-            value={organizationEditForm.address || organizationEditForm.area}
+            value={organizationEditForm.address || organizationEditForm.area || ''}
             onChange={e => setOrganizationEditForm({...organizationEditForm, address: e.target.value, area: e.target.value})}
             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary outline-none"
           />
@@ -84,7 +84,7 @@ const EditOrganizationProfileModal: React.FC<EditOrganizationProfileModalProps> 
           <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Business/Org Type</label>
           <input 
             type="text" 
-            value={organizationEditForm.businessType || organizationEditForm.organizationType}
+            value={organizationEditForm.businessType || organizationEditForm.organizationType || ''}
             onChange={e => setOrganizationEditForm({...organizationEditForm, businessType: e.target.value, organizationType: e.target.value})}
             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary outline-none"
           />
