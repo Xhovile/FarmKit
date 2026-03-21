@@ -18,10 +18,10 @@ import PersonalAccountCard from '../components/account/PersonalAccountCard';
 import SellerProfileCard from '../components/account/SellerProfileCard';
 import OrganizationProfileCard from '../components/account/OrganizationProfileCard';
 import AccountActionsCard from '../components/account/AccountActionsCard';
-import RoleUpgradeModal from '../components/account/RoleUpgradeModal';
-import PrimaryRoleModal from '../components/account/PrimaryRoleModal';
-import EditSellerProfileModal from '../components/account/EditSellerProfileModal';
-import EditOrganizationProfileModal from '../components/account/EditOrganizationProfileModal';
+import RoleUpgradeForm from '../components/account/RoleUpgradeForm';
+import PrimaryRoleForm from '../components/account/PrimaryRoleForm';
+import EditSellerProfileForm from '../components/account/EditSellerProfileForm';
+import EditOrganizationProfileForm from '../components/account/EditOrganizationProfileForm';
 
 interface AccountPageProps {
   t: (key: string) => string;
@@ -76,7 +76,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     isEditingProfile,
     setIsEditingProfile,
     profileFormData,
-    setProfileFormData
+    setProfileFormData,
+    canSell,
+    openEditPersonal,
+    openEditSeller,
+    openEditOrganization,
+    openSwitchRole,
+    openUpgradeRole
   } = useAccountPageController({
     user,
     setUser,
@@ -102,13 +108,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     verified: 'bg-emerald-500 text-white',
     premium: 'bg-amber-500 text-white',
   };
-
-  const canSell = user ? (
-    user.roles.includes('seller') ||
-    user.roles.includes('business') ||
-    user.roles.includes('cooperative') ||
-    user.roles.includes('ngo')
-  ) : false;
 
   const organizationTypeLabelMap = {
     business: 'Business',
@@ -157,8 +156,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <PersonalAccountCard
         user={user}
         t={t}
-        setIsAccountModalOpen={setIsAccountModalOpen}
-        setAccountView={setAccountView}
+        openEditPersonal={openEditPersonal}
         statusBadgeClassMap={statusBadgeClassMap}
         statusLabelMap={statusLabelMap}
       />
@@ -172,16 +170,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       {user.sellerProfile && (
         <SellerProfileCard
           user={user}
-          setIsAccountModalOpen={setIsAccountModalOpen}
-          setAccountView={setAccountView}
+          openEditSeller={openEditSeller}
         />
       )}
 
       {user.organizationProfile && (
         <OrganizationProfileCard
           user={user}
-          setIsAccountModalOpen={setIsAccountModalOpen}
-          setAccountView={setAccountView}
+          openEditOrganization={openEditOrganization}
           organizationTypeLabelMap={organizationTypeLabelMap}
         />
       )}
@@ -189,9 +185,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <AccountActionsCard
         user={user}
         t={t}
-        setIsAccountModalOpen={setIsAccountModalOpen}
-        setAccountView={setAccountView}
-        setSelectedPrimaryRole={setSelectedPrimaryRole}
+        openSwitchRole={openSwitchRole}
+        openUpgradeRole={openUpgradeRole}
         canSell={canSell}
         lang={lang}
         setLang={setLang}
@@ -317,7 +312,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               )}
 
               {accountView === 'editSeller' && (
-                <EditSellerProfileModal
+                <EditSellerProfileForm
                   sellerEditForm={sellerEditForm}
                   setSellerEditForm={setSellerEditForm}
                   handleSellerProfileUpdate={handleSellerProfileUpdate}
@@ -326,7 +321,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               )}
 
               {accountView === 'editOrganization' && (
-                <EditOrganizationProfileModal
+                <EditOrganizationProfileForm
                   organizationEditForm={organizationEditForm}
                   setOrganizationEditForm={setOrganizationEditForm}
                   handleOrganizationProfileUpdate={handleOrganizationProfileUpdate}
@@ -335,7 +330,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               )}
 
               {accountView === 'switchRole' && (
-                <PrimaryRoleModal
+                <PrimaryRoleForm
                   user={user}
                   selectedPrimaryRole={selectedPrimaryRole}
                   setSelectedPrimaryRole={setSelectedPrimaryRole}
@@ -406,7 +401,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               )}
 
               {accountView === 'upgradeRole' && (
-                <RoleUpgradeModal
+                <RoleUpgradeForm
                   selectedRole={selectedRole}
                   setSelectedRole={setSelectedRole}
                   sellerUpgradeForm={sellerUpgradeForm}

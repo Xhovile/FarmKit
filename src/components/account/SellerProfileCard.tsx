@@ -4,14 +4,12 @@ import { User as UserType } from '../../types';
 
 interface SellerProfileCardProps {
   user: UserType;
-  setIsAccountModalOpen: (val: boolean) => void;
-  setAccountView: (view: any) => void;
+  openEditSeller: () => void;
 }
 
 const SellerProfileCard: React.FC<SellerProfileCardProps> = ({
   user,
-  setIsAccountModalOpen,
-  setAccountView,
+  openEditSeller,
 }) => {
   if (!user.sellerProfile) return null;
 
@@ -28,10 +26,7 @@ const SellerProfileCard: React.FC<SellerProfileCardProps> = ({
           </div>
         </div>
         <button 
-          onClick={() => {
-            setAccountView('editSeller');
-            setIsAccountModalOpen(true);
-          }}
+          onClick={openEditSeller}
           className="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl hover:bg-emerald-100 transition-all text-sm"
         >
           Manage

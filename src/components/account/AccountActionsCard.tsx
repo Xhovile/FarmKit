@@ -7,9 +7,8 @@ import { toast } from 'react-hot-toast';
 interface AccountActionsCardProps {
   user: UserType;
   t: (key: string) => string;
-  setIsAccountModalOpen: (val: boolean) => void;
-  setAccountView: (view: any) => void;
-  setSelectedPrimaryRole: (val: any) => void;
+  openSwitchRole: () => void;
+  openUpgradeRole: () => void;
   canSell: boolean;
   lang: 'en' | 'ny';
   setLang: (lang: 'en' | 'ny') => void;
@@ -20,9 +19,8 @@ interface AccountActionsCardProps {
 const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
   user,
   t,
-  setIsAccountModalOpen,
-  setAccountView,
-  setSelectedPrimaryRole,
+  openSwitchRole,
+  openUpgradeRole,
   canSell,
   lang,
   setLang,
@@ -44,11 +42,7 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
       <h3 className="text-xl font-bold mb-6">Account Actions</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button 
-          onClick={() => {
-            setSelectedPrimaryRole(user.primaryRole);
-            setAccountView('switchRole');
-            setIsAccountModalOpen(true);
-          }}
+          onClick={openSwitchRole}
           className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all group"
         >
           <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -60,23 +54,18 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
           </div>
         </button>
 
-        {!canSell && (
-          <button 
-            onClick={() => {
-              setAccountView('selectUpgradeRole');
-              setIsAccountModalOpen(true);
-            }}
-            className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all group"
-          >
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Store className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div className="text-left">
-              <p className="font-bold">Become a Seller</p>
-              <p className="text-xs text-gray-500">Upgrade your account</p>
-            </div>
-          </button>
-        )}
+        <button 
+          onClick={openUpgradeRole}
+          className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all group"
+        >
+          <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Store className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div className="text-left">
+            <p className="font-bold">{canSell ? 'Add Another Role' : 'Become a Seller'}</p>
+            <p className="text-xs text-gray-500">{canSell ? 'Expand your account' : 'Upgrade your account'}</p>
+          </div>
+        </button>
 
         <button 
           onClick={() => setLang(lang === 'en' ? 'ny' : 'en')}

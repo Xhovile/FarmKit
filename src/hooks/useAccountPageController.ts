@@ -608,6 +608,33 @@ export const useAccountPageController = ({
     }
   };
 
+  const canSell = user?.roles.some(r => ['seller', 'business', 'cooperative', 'ngo'].includes(r)) || false;
+
+  const openEditPersonal = () => {
+    setAccountView('editPersonal');
+    setIsAccountModalOpen(true);
+  };
+
+  const openEditSeller = () => {
+    setAccountView('editSeller');
+    setIsAccountModalOpen(true);
+  };
+
+  const openEditOrganization = () => {
+    setAccountView('editOrganization');
+    setIsAccountModalOpen(true);
+  };
+
+  const openSwitchRole = () => {
+    setAccountView('switchRole');
+    setIsAccountModalOpen(true);
+  };
+
+  const openUpgradeRole = () => {
+    setAccountView('selectUpgradeRole');
+    setIsAccountModalOpen(true);
+  };
+
   return {
     accountView,
     setAccountView,
@@ -643,5 +670,11 @@ export const useAccountPageController = ({
     setIsEditingProfile,
     profileFormData,
     setProfileFormData,
+    canSell,
+    openEditPersonal,
+    openEditSeller,
+    openEditOrganization,
+    openSwitchRole,
+    openUpgradeRole,
   };
 };

@@ -5,8 +5,7 @@ import { User as UserType } from '../../types';
 interface PersonalAccountCardProps {
   user: UserType;
   t: (key: string) => string;
-  setIsAccountModalOpen: (val: boolean) => void;
-  setAccountView: (view: any) => void;
+  openEditPersonal: () => void;
   statusBadgeClassMap: Record<UserType['status'], string>;
   statusLabelMap: Record<UserType['status'], string>;
 }
@@ -14,8 +13,7 @@ interface PersonalAccountCardProps {
 const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
   user,
   t,
-  setIsAccountModalOpen,
-  setAccountView,
+  openEditPersonal,
   statusBadgeClassMap,
   statusLabelMap,
 }) => {
@@ -32,10 +30,7 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
           </div>
         </div>
         <button 
-          onClick={() => {
-            setAccountView('editPersonal');
-            setIsAccountModalOpen(true);
-          }}
+          onClick={openEditPersonal}
           className="px-4 py-2 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-100 transition-all text-sm"
         >
           {t('common.edit')}

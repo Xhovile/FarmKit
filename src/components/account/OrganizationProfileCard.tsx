@@ -4,15 +4,13 @@ import { User as UserType } from '../../types';
 
 interface OrganizationProfileCardProps {
   user: UserType;
-  setIsAccountModalOpen: (val: boolean) => void;
-  setAccountView: (view: any) => void;
+  openEditOrganization: () => void;
   organizationTypeLabelMap: Record<string, string>;
 }
 
 const OrganizationProfileCard: React.FC<OrganizationProfileCardProps> = ({
   user,
-  setIsAccountModalOpen,
-  setAccountView,
+  openEditOrganization,
   organizationTypeLabelMap,
 }) => {
   if (!user.organizationProfile) return null;
@@ -39,10 +37,7 @@ const OrganizationProfileCard: React.FC<OrganizationProfileCardProps> = ({
           </div>
         </div>
         <button 
-          onClick={() => {
-            setAccountView('editOrganization');
-            setIsAccountModalOpen(true);
-          }}
+          onClick={openEditOrganization}
           className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold rounded-xl hover:bg-blue-100 transition-all text-sm"
         >
           Manage
