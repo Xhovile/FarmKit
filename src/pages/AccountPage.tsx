@@ -712,6 +712,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
           {isEditingProfile ? (
             <motion.div 
+              key="edit-profile"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
@@ -802,7 +803,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
             </motion.div>
           ) : (
-            <div className="space-y-6">
+            <div key="view-profile" className="space-y-6">
               <div>
                 <h2 className="text-3xl font-bold mb-1">{user?.name}</h2>
                 <p className="text-gray-500 flex items-center gap-1.5">
@@ -855,16 +856,43 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-2">
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-lg font-bold">Personal Account</h4>
+                    <p className="text-sm text-gray-500">Your basic FarmKit account details.</p>
+                  </div>
+
                   <button
-                    onClick={() => {
-                      setSelectedPrimaryRole(user.primaryRole);
-                      setIsSwitchingPrimaryRole(true);
-                    }}
-                    className="w-full py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-sm font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                    onClick={() => setIsEditingProfile(true)}
+                    className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
                   >
-                    Switch Primary Role
+                    Manage
                   </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Full Name</p>
+                    <p className="font-semibold">{user.name || '—'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
+                    <p className="font-semibold">{user.phone || '—'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Location</p>
+                    <p className="font-semibold">{user.location || '—'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Email</p>
+                    <p className="font-semibold break-all">{user.email || '—'}</p>
+                  </div>
                 </div>
               </div>
 
@@ -873,7 +901,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <h4 className="text-lg font-bold">Seller Profile</h4>
-                      <p className="text-sm text-gray-500">Your seller account details.</p>
+                      <p className="text-sm text-gray-500">Manage your seller identity and key selling details.</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -905,7 +933,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         }}
                         className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
                       >
-                        Edit
+                        Manage
                       </button>
                     </div>
                   </div>
@@ -917,18 +945,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Seller Name</p>
-                      <p className="font-semibold">{user.sellerProfile.fullName || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
-                      <p className="font-semibold">{user.sellerProfile.phone || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Region</p>
-                      <p className="font-semibold">{user.sellerProfile.region || '—'}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
+                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
@@ -937,39 +955,18 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area / Market</p>
-                      <p className="font-semibold">{user.sellerProfile.area || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Category</p>
-                      <p className="font-semibold">{user.sellerProfile.category || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Delivery Method</p>
-                      <p className="font-semibold capitalize">{user.sellerProfile.deliveryMethod || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Experience</p>
-                      <p className="font-semibold">{user.sellerProfile.experienceYears || '0'} Years</p>
-                    </div>
-
-                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{user.sellerProfile.description || 'No description provided.'}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
+                      <p className="font-semibold">{user.sellerProfile.phone || '—'}</p>
                     </div>
                   </div>
                 </div>
               )}
-
               {user.organizationProfile && (
                 <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <h4 className="text-lg font-bold">Organisation Profile</h4>
-                      <p className="text-sm text-gray-500">Your registered organisation details.</p>
+                      <p className="text-sm text-gray-500">Manage your organisation’s core details.</p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -1007,7 +1004,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         }}
                         className="px-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-600"
                       >
-                        Edit
+                        Manage
                       </button>
                     </div>
                   </div>
@@ -1031,92 +1028,37 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Phone</p>
-                      <p className="font-semibold">{user.organizationProfile.phone || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Region</p>
-                      <p className="font-semibold">{user.organizationProfile.region || '—'}</p>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                       <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">District</p>
                       <p className="font-semibold">{user.organizationProfile.district || '—'}</p>
                     </div>
-
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Reg Number</p>
-                      <p className="font-semibold">{user.organizationProfile.registrationNumber || '—'}</p>
-                    </div>
-
-                    {user.organizationProfile.type === 'business' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Address</p>
-                          <p className="font-semibold">{user.organizationProfile.address || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Business Type</p>
-                          <p className="font-semibold">{user.organizationProfile.businessType || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Products/Services</p>
-                          <p className="font-semibold">{user.organizationProfile.productsOrServices || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    {user.organizationProfile.type === 'cooperative' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Area</p>
-                          <p className="font-semibold">{user.organizationProfile.area || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Members</p>
-                          <p className="font-semibold">{user.organizationProfile.memberCount || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Main Commodities</p>
-                          <p className="font-semibold">{user.organizationProfile.mainCommodities || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    {user.organizationProfile.type === 'ngo' && (
-                      <>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Focus Area</p>
-                          <p className="font-semibold">{user.organizationProfile.focusArea || '—'}</p>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Website/Social</p>
-                          <p className="font-semibold">{user.organizationProfile.websiteOrSocial || '—'}</p>
-                        </div>
-                        <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Services Offered</p>
-                          <p className="font-semibold">{user.organizationProfile.servicesOffered || '—'}</p>
-                        </div>
-                      </>
-                    )}
-
-                    <div className="col-span-full bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Description</p>
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed italic">"{user.organizationProfile.description || 'No description provided.'}"</p>
-                    </div>
                   </div>
-
                 </div>
               )}
 
-              <div className="pt-2">
-                <button
-                  className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all"
-                  onClick={() => setIsRoleModalOpen(true)}
-                >
-                  {canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}
-                </button>
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+                <div>
+                  <h4 className="text-lg font-bold">Account Actions</h4>
+                  <p className="text-sm text-gray-500">Manage roles and account controls.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedPrimaryRole(user.primaryRole);
+                      setIsSwitchingPrimaryRole(true);
+                    }}
+                    className="w-full py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-sm font-bold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                  >
+                    Switch Primary Role
+                  </button>
+
+                  <button
+                    onClick={() => setIsRoleModalOpen(true)}
+                    className="w-full py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl hover:bg-emerald-700 transition-all"
+                  >
+                    {canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}
+                  </button>
+                </div>
               </div>
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-3 gap-3">
@@ -1158,8 +1100,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Role Upgrade Modal */}
         {isRoleModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div key="role-modal-overlay" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
+              key="role-modal-content"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="bg-white dark:bg-gray-800 w-full max-w-2xl max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col"
@@ -1561,8 +1504,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Role Switch Modal */}
         {isSwitchingPrimaryRole && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div key="role-switch-overlay" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
+              key="role-switch-content"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl"
@@ -1632,12 +1576,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Seller Edit Modal */}
         {isEditingSellerProfile && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div key="seller-edit-overlay" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div 
+              key="seller-edit-backdrop"
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsEditingSellerProfile(false)}
             />
             <motion.div
+              key="seller-edit-content"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-4"
@@ -1796,12 +1742,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
         {/* Organization Edit Modal */}
         {isEditingOrganizationProfile && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div key="org-edit-overlay" className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div 
+              key="org-edit-backdrop"
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsEditingOrganizationProfile(false)}
             />
             <motion.div
+              key="org-edit-content"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-4"
