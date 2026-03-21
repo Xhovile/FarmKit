@@ -965,8 +965,9 @@ export const MarketPage: React.FC<MarketPageProps> = ({
 
       {/* Report Modal */}
       {reportingItem && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div key="report-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <motion.div 
+            key="report-modal-content"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
@@ -1017,8 +1018,9 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       )}
 
       {saleListing && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div key="sale-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <motion.div
+            key="sale-modal-content"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
@@ -1088,8 +1090,9 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       )}
 
       {restockListing && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div key="restock-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <motion.div
+            key="restock-modal-content"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
@@ -1160,8 +1163,9 @@ export const MarketPage: React.FC<MarketPageProps> = ({
 
       {/* Found Quantity Modal */}
       {foundQtyRequest && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div key="found-qty-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <motion.div
+            key="found-qty-modal-content"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"

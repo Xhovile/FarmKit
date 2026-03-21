@@ -263,6 +263,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
     <AnimatePresence>
       {selectedItem && (
         <motion.div
+          key="detail-modal-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -270,6 +271,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
           onClick={() => setSelectedItem(null)}
         >
           <motion.div
+            key="detail-modal-content"
             initial={{ scale: 0.96, y: 16 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.96, y: 16 }}
@@ -608,6 +610,7 @@ export const DetailModal: React.FC<DetailModalProps> = ({
             <AnimatePresence>
               {isFullscreenOpen && galleryImages.length > 0 && (
                 <motion.div
+                  key="fullscreen-image-overlay"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

@@ -1053,6 +1053,7 @@ export const MarketplaceFilters: React.FC<{
 
       {showAdvanced && (
         <motion.div 
+          key="market-filters-advanced"
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -1268,6 +1269,7 @@ export const DemandFilters: React.FC<{
 
       {showAdvanced && (
         <motion.div
+          key="demand-filters-advanced"
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 grid grid-cols-1 md:grid-cols-4 gap-6"

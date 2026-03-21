@@ -19,21 +19,23 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({
   setTourStep,
   tourSteps
 }) => {
-  if (!showTour) return null;
-
   return (
     <AnimatePresence>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-      >
+      {showTour && (
         <motion.div 
-          initial={{ scale: 0.9, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          className="bg-white dark:bg-gray-800 w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative"
+          key="welcome-tour-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
+          <motion.div 
+            key="welcome-tour-content"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="bg-white dark:bg-gray-800 w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative"
+          >
           <div className="h-48 bg-primary relative flex items-center justify-center overflow-hidden">
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
@@ -92,6 +94,7 @@ export const WelcomeTour: React.FC<WelcomeTourProps> = ({
           </div>
         </motion.div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 };

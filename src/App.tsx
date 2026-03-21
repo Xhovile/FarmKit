@@ -907,6 +907,7 @@ export default function App() {
         <AnimatePresence mode="wait">
           {activeTab === 'info' && (
             <HomePage 
+              key="home-tab"
               t={t} 
               lang={lang}
               infoCategory={infoCategory} 
@@ -922,6 +923,7 @@ export default function App() {
 
           {activeTab === 'market' && (
             <MarketPage 
+              key="market-tab"
               t={t} 
               lang={lang}
               marketSearchQuery={marketSearchQuery} 
@@ -943,6 +945,7 @@ export default function App() {
 
           {activeTab === 'experts' && (
             <ExpertPage 
+              key="experts-tab"
               t={t} 
               lang={lang} 
               communityTab={communityTab as any} 
@@ -956,6 +959,7 @@ export default function App() {
 
           {activeTab === 'account' && (
             <AccountPage 
+              key="account-tab"
               t={t} 
               lang={lang}
               setLang={setLang}
@@ -987,8 +991,9 @@ export default function App() {
 
       {/* Marketplace Modal */}
       {isAddProductModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div key="add-product-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <motion.div 
+            key="add-product-modal-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             onClick={() => {
@@ -1000,6 +1005,7 @@ export default function App() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div 
+            key="add-product-modal-content"
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-xl bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl overflow-visible max-h-[90vh] flex flex-col"

@@ -26,6 +26,7 @@ export const PremiumLock: React.FC<PremiumLockProps> = ({
       </div>
       <div className="absolute inset-0 flex items-center justify-center p-6 z-10">
         <motion.div 
+          key="premium-lock-modal"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-8 rounded-[2.5rem] shadow-2xl border border-primary/20 text-center max-w-sm w-full"

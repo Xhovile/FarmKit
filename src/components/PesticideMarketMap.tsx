@@ -100,7 +100,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSellers.map((seller) => (
           <motion.div 
-            key={seller.id}
+            key={`seller-${seller.id}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden group hover:shadow-md transition-all"
@@ -226,8 +226,9 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang 
 
       {/* Report Modal */}
       {isReportModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div key="report-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <motion.div 
+            key="report-modal-content"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"

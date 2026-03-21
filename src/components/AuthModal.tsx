@@ -231,8 +231,9 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div key="auth-modal-overlay" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <motion.div 
+        key="auth-modal-content"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -346,6 +347,7 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
 
             {unverifiedUser && (
               <motion.div 
+                key="unverified-user-alert"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="pt-2"
@@ -386,6 +388,7 @@ export default function AuthModal({ isOpen, onClose, t, lang = 'en' }: AuthModal
 
               {showDeleteConfirm ? (
                 <motion.div 
+                  key="delete-confirm-box"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl space-y-3"
