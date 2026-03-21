@@ -62,8 +62,8 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
             <Store className="w-6 h-6 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="text-left">
-            <p className="font-bold">{canSell ? 'Add Another Role' : 'Become a Seller'}</p>
-            <p className="text-xs text-gray-500">{canSell ? 'Expand your account' : 'Upgrade your account'}</p>
+            <p className="font-bold">{canSell ? 'Add Another Role' : 'Become a Seller or Organisation'}</p>
+            <p className="text-xs text-gray-500">{canSell ? 'Expand your account capabilities' : 'Upgrade your account'}</p>
           </div>
         </button>
 
