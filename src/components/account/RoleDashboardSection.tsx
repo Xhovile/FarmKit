@@ -18,6 +18,11 @@ interface RoleDashboardSectionProps {
   user: UserType;
   t: (key: string) => string;
   setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
+  setSelectedItem: (item: any) => void;
+  setEditingListing: (listing: any) => void;
+  setEditingRequest: (request: any) => void;
+  setIsAddProductModalOpen: (open: boolean) => void;
+  setFormStep: (step: number) => void;
   openEditPersonal: () => void;
   openEditSeller: () => void;
   openEditOrganization: () => void;
@@ -28,12 +33,33 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
   user,
   t,
   setActiveTab,
+  setSelectedItem,
+  setEditingListing,
+  setEditingRequest,
+  setIsAddProductModalOpen,
+  setFormStep,
   openEditPersonal,
   openEditSeller,
   openEditOrganization,
   openUpgradeRole,
 }) => {
   const stats = useAccountRoleStats(user);
+
+  const handleAddListing = () => {
+    setSelectedItem(null);
+    setEditingListing(null);
+    setEditingRequest(null);
+    setIsAddProductModalOpen(true);
+    setFormStep(1); // Step 1 for listings
+  };
+
+  const handlePostRequest = () => {
+    setSelectedItem(null);
+    setEditingListing(null);
+    setEditingRequest(null);
+    setIsAddProductModalOpen(true);
+    setFormStep(10); // Step 10 for requests
+  };
 
   const isSellerOrOrg = ['seller', 'business', 'cooperative', 'ngo'].includes(user.primaryRole);
 
@@ -84,14 +110,14 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
               label="Add Listing" 
               icon={PlusCircle} 
               primary 
-              onClick={() => setActiveTab('market')} 
+              onClick={handleAddListing} 
             />
           ) : (
             <ActionButton 
               label="Post Request" 
               icon={PlusCircle} 
               primary 
-              onClick={() => setActiveTab('market')} 
+              onClick={handlePostRequest} 
             />
           )}
         </div>
@@ -178,7 +204,7 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
               : "List your first product to start selling on FarmKit."}
           </p>
           <button 
-            onClick={() => setActiveTab('market')}
+            onClick={user.primaryRole === 'buyer' ? handlePostRequest : handleAddListing}
             className="text-primary font-bold text-sm hover:underline"
           >
             {user.primaryRole === 'buyer' ? 'Post Request' : 'Create Listing'} &rarr;

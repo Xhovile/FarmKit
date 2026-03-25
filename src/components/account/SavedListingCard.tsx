@@ -6,9 +6,10 @@ interface Props {
   item: MarketListing;
   onOpen: (item: MarketListing) => void;
   onRemove: (item: MarketListing) => void;
+  isOpening?: boolean;
 }
 
-const SavedListingCard: React.FC<Props> = ({ item, onOpen, onRemove }) => {
+const SavedListingCard: React.FC<Props> = ({ item, onOpen, onRemove, isOpening }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 space-y-3">
       <div className="flex gap-4">
@@ -42,10 +43,11 @@ const SavedListingCard: React.FC<Props> = ({ item, onOpen, onRemove }) => {
 
       <button
         onClick={() => onOpen(item)}
-        className="w-full mt-2 px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold flex items-center justify-center gap-2"
+        disabled={isOpening}
+        className="w-full mt-2 px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        <ArrowUpRight className="w-4 h-4" />
-        View Listing
+        <ArrowUpRight className={`w-4 h-4 ${isOpening ? 'animate-spin' : ''}`} />
+        {isOpening ? 'Loading...' : 'View Listing'}
       </button>
     </div>
   );

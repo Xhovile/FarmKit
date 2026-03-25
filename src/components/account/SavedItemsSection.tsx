@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User, MarketListing } from '../../types';
 import { useSavedListings } from '../../hooks/useSavedListings';
 import SavedListingCard from './SavedListingCard';
 import { Bookmark } from 'lucide-react';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import toast from 'react-hot-toast';
 
 interface Props {
   user: User;
@@ -13,9 +14,28 @@ interface Props {
 
 const SavedItemsSection: React.FC<Props> = ({ user, setSelectedItem }) => {
   const { items, loading } = useSavedListings(user);
+  const [isOpening, setIsOpening] = useState<string | null>(null);
 
-  const handleOpen = (item: MarketListing) => {
-    setSelectedItem(item);
+  const handleOpen = async (item: MarketListing) => {
+    if (!item.id) return;
+    
+    setIsOpening(item.id);
+    try {
+      // Fetch the full listing from market_listings to ensure all details are present
+      const listingDoc = await getDoc(doc(db, 'market_listings', item.id));
+      if (listingDoc.exists()) {
+        setSelectedItem({ id: listingDoc.id, ...listingDoc.data() });
+      } else {
+        // Fallback to the saved metadata if the original listing is gone
+        setSelectedItem(item);
+        toast.error('Original listing details not found. Showing saved preview.');
+      }
+    } catch (err) {
+      console.error('Error fetching full listing:', err);
+      setSelectedItem(item);
+    } finally {
+      setIsOpening(null);
+    }
   };
 
   const handleRemove = async (item: MarketListing) => {
@@ -58,6 +78,7 @@ const SavedItemsSection: React.FC<Props> = ({ user, setSelectedItem }) => {
               item={item}
               onOpen={handleOpen}
               onRemove={handleRemove}
+              isOpening={isOpening === item.id}
             />
           ))}
         </div>

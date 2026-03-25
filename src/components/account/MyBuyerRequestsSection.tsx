@@ -76,7 +76,6 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
 
         <button
           onClick={() => {
-            setActiveTab('market');
             setSelectedItem(null);
             setEditingListing(null);
             setEditingRequest(null);
