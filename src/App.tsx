@@ -541,6 +541,25 @@ export default function App() {
         verified: user.status === 'verified',
         imageUrl: imageUrls[0] || null,
         imageUrls,
+        // Category-specific fields
+        condition: data.condition,
+        brand: data.brand,
+        model: data.model,
+        capacity: data.capacity,
+        fuelType: data.fuelType,
+        seedType: data.seedType,
+        variety: data.variety,
+        packSize: data.packSize,
+        season: data.season,
+        germinationRate: data.germinationRate,
+        breed: data.breed,
+        age: data.age,
+        sex: data.sex,
+        healthStatus: data.healthStatus,
+        vaccinationStatus: data.vaccinationStatus,
+        inputType: data.inputType,
+        usage: data.usage,
+        expiryDate: data.expiryDate,
       });
 
       toast.success('Listing created successfully!');
@@ -649,6 +668,25 @@ export default function App() {
         imageUrl: imageUrls[0] || null,
         imageUrls,
         status: data.stockStatus === 'out_of_stock' ? 'sold' : 'active',
+        // Category-specific fields
+        condition,
+        brand,
+        model,
+        capacity,
+        fuelType,
+        seedType,
+        variety,
+        packSize,
+        season,
+        germinationRate,
+        breed,
+        age,
+        sex,
+        healthStatus,
+        vaccinationStatus,
+        inputType,
+        usage,
+        expiryDate,
       });
 
       toast.success('Listing updated successfully!');

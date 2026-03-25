@@ -22,6 +22,19 @@ cloudinary.config({
 
 const upload = multer({ dest: 'uploads/' });
 
+// Helper to convert snake_case object to camelCase
+const toCamelCase = (obj: any): any => {
+  if (Array.isArray(obj)) return obj.map(toCamelCase);
+  if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).reduce((acc: any, key) => {
+      const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      acc[camelKey] = toCamelCase(obj[key]);
+      return acc;
+    }, {});
+  }
+  return obj;
+};
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
@@ -37,8 +50,13 @@ async function startServer() {
   }
 
   // API routes
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+  app.get("/api/health", async (req, res) => {
+    try {
+      await db.query('SELECT 1');
+      res.json({ status: "ok", database: "connected" });
+    } catch (error: any) {
+      res.status(503).json({ status: "error", database: "disconnected", error: error.message });
+    }
   });
 
   // --- User Routes ---
@@ -48,7 +66,7 @@ async function startServer() {
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'User not found' });
       }
-      res.json(result.rows[0]);
+      res.json(toCamelCase(result.rows[0]));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -78,7 +96,7 @@ async function startServer() {
          RETURNING *`,
         [uid, name, email, phone, location, bio, avatar, primaryRole, roles, status, emailVerified, JSON.stringify(sellerProfile), JSON.stringify(organizationProfile)]
       );
-      res.json(result.rows[0]);
+      res.json(toCamelCase(result.rows[0]));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -88,7 +106,11 @@ async function startServer() {
   app.get('/api/market-listings', async (req, res) => {
     try {
       const result = await db.query('SELECT * FROM market_listings WHERE status = \'active\' ORDER BY created_at DESC');
-      res.json(result.rows);
+      const rows = result.rows.map(row => {
+        const { specs, ...rest } = row;
+        return toCamelCase({ ...rest, ...specs });
+      });
+      res.json(rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -100,7 +122,8 @@ async function startServer() {
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Listing not found' });
       }
-      res.json(result.rows[0]);
+      const { specs, ...rest } = result.rows[0];
+      res.json(toCamelCase({ ...rest, ...specs }));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -110,7 +133,8 @@ async function startServer() {
     const {
       title, category, price, unit, quantity, availableQuantity, soldQuantity,
       location, deliveryMethod, description, businessName, phone,
-      sellerName, sellerStatus, verified, imageUrl, imageUrls
+      sellerName, sellerStatus, verified, imageUrl, imageUrls,
+      ...specs
     } = req.body;
     const sellerId = req.user?.uid;
 
@@ -119,16 +143,17 @@ async function startServer() {
         `INSERT INTO market_listings (
           title, category, price, unit, quantity, available_quantity, sold_quantity,
           location, delivery_method, description, business_name, phone,
-          seller_id, seller_name, seller_status, verified, image_url, image_urls
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+          seller_id, seller_name, seller_status, verified, image_url, image_urls, specs
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
         RETURNING *`,
         [
           title, category, price, unit, quantity, availableQuantity, soldQuantity,
           location, deliveryMethod, description, businessName, phone,
-          sellerId, sellerName, sellerStatus, verified, imageUrl, imageUrls
+          sellerId, sellerName, sellerStatus, verified, imageUrl, imageUrls, JSON.stringify(specs)
         ]
       );
-      res.json(result.rows[0]);
+      const { specs: resSpecs, ...rest } = result.rows[0];
+      res.json(toCamelCase({ ...rest, ...resSpecs }));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -138,7 +163,8 @@ async function startServer() {
     const {
       title, category, price, unit, quantity, availableQuantity, soldQuantity,
       location, deliveryMethod, description, businessName, phone,
-      imageUrl, imageUrls, status
+      imageUrl, imageUrls, status,
+      ...specs
     } = req.body;
     const sellerId = req.user?.uid;
 
@@ -154,15 +180,17 @@ async function startServer() {
           available_quantity = $6, sold_quantity = $7, location = $8,
           delivery_method = $9, description = $10, business_name = $11,
           phone = $12, image_url = $13, image_urls = $14, status = $15,
+          specs = $16,
           updated_at = CURRENT_TIMESTAMP
-        WHERE id = $16 RETURNING *`,
+        WHERE id = $17 RETURNING *`,
         [
           title, category, price, unit, quantity, availableQuantity, soldQuantity,
           location, deliveryMethod, description, businessName, phone,
-          imageUrl, imageUrls, status || 'active', req.params.id
+          imageUrl, imageUrls, status || 'active', JSON.stringify(specs), req.params.id
         ]
       );
-      res.json(result.rows[0]);
+      const { specs: resSpecs, ...rest } = result.rows[0];
+      res.json(toCamelCase({ ...rest, ...resSpecs }));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -183,7 +211,7 @@ async function startServer() {
   app.get('/api/buyer-requests', async (req, res) => {
     try {
       const result = await db.query('SELECT * FROM buyer_requests WHERE status = \'open\' ORDER BY created_at DESC');
-      res.json(result.rows);
+      res.json(toCamelCase(result.rows));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -191,19 +219,61 @@ async function startServer() {
 
   app.post('/api/buyer-requests', authMiddleware, async (req: AuthRequest, res) => {
     const {
-      commodity, category, quantity, unit, priceRange, location, urgency, buyerName, phone
+      commodity, category, quantity, unit, priceRange, location, urgency,
+      neededBy, buyerType, deliveryPreference, contactMethod, description,
+      referenceImageUrl, buyerName, phone
     } = req.body;
     const buyerId = req.user?.uid;
 
     try {
       const result = await db.query(
         `INSERT INTO buyer_requests (
-          commodity, category, quantity, unit, price_range, location, urgency, buyer_id, buyer_name, phone
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          commodity, category, quantity, unit, price_range, location, urgency,
+          needed_by, buyer_type, delivery_preference, contact_method, description,
+          reference_image_url, buyer_id, buyer_name, phone
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *`,
-        [commodity, category, quantity, unit, priceRange, location, urgency, buyerId, buyerName, phone]
+        [
+          commodity, category, quantity, unit, priceRange, location, urgency,
+          neededBy, buyerType, deliveryPreference, contactMethod, description,
+          referenceImageUrl, buyerId, buyerName, phone
+        ]
       );
-      res.json(result.rows[0]);
+      res.json(toCamelCase(result.rows[0]));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.put('/api/buyer-requests/:id', authMiddleware, async (req: AuthRequest, res) => {
+    const {
+      commodity, category, quantity, unit, priceRange, location, urgency,
+      neededBy, buyerType, deliveryPreference, contactMethod, description,
+      referenceImageUrl, buyerName, phone, status
+    } = req.body;
+    const buyerId = req.user?.uid;
+
+    try {
+      // Check ownership
+      const check = await db.query('SELECT buyer_id FROM buyer_requests WHERE id = $1', [req.params.id]);
+      if (check.rows.length === 0) return res.status(404).json({ error: 'Request not found' });
+      if (check.rows[0].buyer_id !== buyerId) return res.status(403).json({ error: 'Unauthorized' });
+
+      const result = await db.query(
+        `UPDATE buyer_requests SET
+          commodity = $1, category = $2, quantity = $3, unit = $4, price_range = $5,
+          location = $6, urgency = $7, needed_by = $8, buyer_type = $9,
+          delivery_preference = $10, contact_method = $11, description = $12,
+          reference_image_url = $13, buyer_name = $14, phone = $15, status = $16,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $17 RETURNING *`,
+        [
+          commodity, category, quantity, unit, priceRange, location, urgency,
+          neededBy, buyerType, deliveryPreference, contactMethod, description,
+          referenceImageUrl, buyerName, phone, status || 'open', req.params.id
+        ]
+      );
+      res.json(toCamelCase(result.rows[0]));
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -218,7 +288,11 @@ async function startServer() {
          WHERE sl.user_id = $1`,
         [req.user?.uid]
       );
-      res.json(result.rows);
+      const rows = result.rows.map(row => {
+        const { specs, ...rest } = row;
+        return toCamelCase({ ...rest, ...specs });
+      });
+      res.json(rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
