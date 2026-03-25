@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle, Languages, LogOut, Store, Settings } from 'lucide-react';
+import { UserCircle, Languages, LogOut, Store, Settings, HelpCircle } from 'lucide-react';
 import { User as UserType } from '../../types';
 import { auth } from '../../lib/firebase';
 import { toast } from 'react-hot-toast';
@@ -64,11 +64,19 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
       {/* Bottom Section: Secondary Actions (Icon Only) */}
       <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
         <button 
+          onClick={() => toast('Settings coming soon')}
+          title={t('common.settings')}
+          className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+        >
+          <Settings className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:rotate-90 transition-all" />
+        </button>
+
+        <button 
           onClick={() => setShowTour(true)}
           title={t('account.takeTour')}
-          className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all group"
+          className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group"
         >
-          <Settings className="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:rotate-90 transition-all" />
+          <HelpCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
         </button>
 
         <button 

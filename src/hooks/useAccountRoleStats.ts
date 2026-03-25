@@ -40,6 +40,7 @@ export const useAccountRoleStats = (user: User | null) => {
 
     const unsubscribers: Array<() => void> = [];
 
+    // Listings stats (for sellers/orgs)
     const listingsQuery = query(
       collection(db, 'market_listings'),
       where('sellerId', '==', user.uid)
@@ -69,6 +70,7 @@ export const useAccountRoleStats = (user: User | null) => {
 
     unsubscribers.push(unsubscribeListings);
 
+    // Requests stats (for buyers)
     const requestsQuery = query(
       collection(db, 'buyer_requests'),
       where('buyerId', '==', user.uid)
@@ -97,6 +99,7 @@ export const useAccountRoleStats = (user: User | null) => {
 
     unsubscribers.push(unsubscribeRequests);
 
+    // Saved listings stats
     const savedListingsRef = collection(db, 'users', user.uid, 'saved_listings');
 
     const unsubscribeSaved = onSnapshot(

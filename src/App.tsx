@@ -941,6 +941,7 @@ export default function App() {
               setUser={setUser} 
               setIsAuthModalOpen={setIsAuthModalOpen} 
               setShowTour={setShowTour} 
+              setActiveTab={setActiveTab}
             />
           )}
         </AnimatePresence>

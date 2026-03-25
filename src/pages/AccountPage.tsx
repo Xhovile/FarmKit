@@ -23,6 +23,8 @@ import PrimaryRoleForm from '../components/account/PrimaryRoleForm';
 import EditSellerProfileForm from '../components/account/EditSellerProfileForm';
 import EditOrganizationProfileForm from '../components/account/EditOrganizationProfileForm';
 
+import RoleDashboardSection from '../components/account/RoleDashboardSection';
+
 interface AccountPageProps {
   t: (key: string) => string;
   lang: 'en' | 'ny';
@@ -31,6 +33,7 @@ interface AccountPageProps {
   setUser: (user: UserType | null) => void;
   setIsAuthModalOpen: (val: boolean) => void;
   setShowTour: (val: boolean) => void;
+  setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
 }
 
 export const AccountPage: React.FC<AccountPageProps> = ({
@@ -40,7 +43,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   user,
   setUser,
   setIsAuthModalOpen,
-  setShowTour
+  setShowTour,
+  setActiveTab,
 }) => {
   const {
     accountView,
@@ -167,20 +171,33 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         statusLabelMap={statusLabelMap}
       />
 
-      {user.sellerProfile && (
+      <RoleDashboardSection
+        user={user}
+        t={t}
+        setActiveTab={setActiveTab}
+        openEditPersonal={openEditPersonal}
+        openEditSeller={openEditSeller}
+        openEditOrganization={openEditOrganization}
+        openUpgradeRole={openUpgradeRole}
+      />
+
+      {user.primaryRole === 'seller' && user.sellerProfile && (
         <SellerProfileCard
           user={user}
           openEditSeller={openEditSeller}
         />
       )}
 
-      {user.organizationProfile && (
-        <OrganizationProfileCard
-          user={user}
-          openEditOrganization={openEditOrganization}
-          organizationTypeLabelMap={organizationTypeLabelMap}
-        />
-      )}
+      {(user.primaryRole === 'business' ||
+        user.primaryRole === 'cooperative' ||
+        user.primaryRole === 'ngo') &&
+        user.organizationProfile && (
+          <OrganizationProfileCard
+            user={user}
+            openEditOrganization={openEditOrganization}
+            organizationTypeLabelMap={organizationTypeLabelMap}
+          />
+        )}
 
       <AccountActionsCard
         t={t}
