@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dns from 'dns';
+import net from 'net';
 
 // Force IPv4 resolution to avoid ECONNREFUSED issues with IPv6 on some environments
 if (typeof dns.setDefaultResultOrder === 'function') {
@@ -31,6 +32,12 @@ const pool = new Pool({
   ssl: isProduction || (hasDatabaseUrl && !process.env.DATABASE_URL?.includes('localhost') && !process.env.DATABASE_URL?.includes('127.0.0.1'))
     ? { rejectUnauthorized: false }
     : false,
+  // Force IPv4 at the network level
+  // @ts-ignore
+  createConnection: (options) => {
+    console.log(`Creating database connection to ${options.host}:${options.port} (family: 4)`);
+    return net.connect({ ...options, family: 4 });
+  }
 });
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);

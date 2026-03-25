@@ -1,4 +1,11 @@
 import "dotenv/config";
+import dns from 'dns';
+
+// Force IPv4 resolution early to avoid ECONNREFUSED issues with IPv6
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
