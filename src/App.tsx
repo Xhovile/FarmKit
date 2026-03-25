@@ -832,6 +832,47 @@ export default function App() {
     }
   };
 
+  const handleUpdateBuyerRequestStatus = async (
+    request: BuyerRequest,
+    nextStatus: 'open' | 'matched' | 'closed'
+  ) => {
+    if (!request.id) return;
+
+    if (user?.uid !== request.buyerId) {
+      toast.error('Only the request owner can change its status.');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'buyer_requests', request.id), {
+        status: nextStatus,
+        updatedAt: serverTimestamp(),
+      });
+
+      toast.success(
+        nextStatus === 'matched'
+          ? 'Request marked as matched.'
+          : nextStatus === 'closed'
+          ? 'Request closed.'
+          : 'Request reopened.'
+      );
+
+      setSelectedItem((current: any) => {
+        if (current?.id === request.id && current?.type === 'buyer_request') {
+          return {
+            ...current,
+            status: nextStatus,
+            updatedAt: { seconds: Math.floor(Date.now() / 1000) },
+          };
+        }
+        return current;
+      });
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      toast.error('Failed to update request status.');
+    } 
+  };
+
   return (
     <div className="bg-neutral-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
       <Toaster position="top-center" />
@@ -914,6 +955,7 @@ export default function App() {
               incrementListingShares={incrementListingShares}
               toggleSavedListing={toggleSavedListing}
               savedListingIds={savedListingIds}
+              onUpdateRequestStatus={handleUpdateBuyerRequestStatus}
             />
           )}
 
@@ -942,6 +984,12 @@ export default function App() {
               setIsAuthModalOpen={setIsAuthModalOpen} 
               setShowTour={setShowTour} 
               setActiveTab={setActiveTab}
+              setSelectedItem={setSelectedItem}
+              setEditingListing={setEditingListing}
+              setEditingRequest={setEditingRequest}
+              setIsAddProductModalOpen={setIsAddProductModalOpen}
+              setFormStep={setFormStep}
+              onUpdateRequestStatus={handleUpdateBuyerRequestStatus}
             />
           )}
         </AnimatePresence>

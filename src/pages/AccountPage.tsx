@@ -22,6 +22,7 @@ import RoleUpgradeForm from '../components/account/RoleUpgradeForm';
 import PrimaryRoleForm from '../components/account/PrimaryRoleForm';
 import EditSellerProfileForm from '../components/account/EditSellerProfileForm';
 import EditOrganizationProfileForm from '../components/account/EditOrganizationProfileForm';
+import MyBuyerRequestsSection from '../components/account/MyBuyerRequestsSection';
 
 import RoleDashboardSection from '../components/account/RoleDashboardSection';
 
@@ -34,6 +35,12 @@ interface AccountPageProps {
   setIsAuthModalOpen: (val: boolean) => void;
   setShowTour: (val: boolean) => void;
   setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
+  setSelectedItem: (item: any) => void;
+  setEditingListing: (listing: any) => void;
+  setEditingRequest: (request: any) => void;
+  setIsAddProductModalOpen: (open: boolean) => void;
+  setFormStep: (step: number) => void;
+  onUpdateRequestStatus: (request: any, nextStatus: 'open' | 'matched' | 'closed') => Promise<void> | void;
 }
 
 export const AccountPage: React.FC<AccountPageProps> = ({
@@ -45,6 +52,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   setIsAuthModalOpen,
   setShowTour,
   setActiveTab,
+  setSelectedItem,
+  setEditingListing,
+  setEditingRequest,
+  setIsAddProductModalOpen,
+  setFormStep,
+  onUpdateRequestStatus,
 }) => {
   const {
     accountView,
@@ -179,6 +192,17 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         openEditSeller={openEditSeller}
         openEditOrganization={openEditOrganization}
         openUpgradeRole={openUpgradeRole}
+      />
+
+      <MyBuyerRequestsSection
+        user={user}
+        setActiveTab={setActiveTab}
+        setSelectedItem={setSelectedItem}
+        setEditingListing={setEditingListing}
+        setEditingRequest={setEditingRequest}
+        setIsAddProductModalOpen={setIsAddProductModalOpen}
+        setFormStep={setFormStep}
+        onUpdateRequestStatus={onUpdateRequestStatus}
       />
 
       {user.primaryRole === 'seller' && user.sellerProfile && (

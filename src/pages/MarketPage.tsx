@@ -94,6 +94,10 @@ interface MarketPageProps {
   incrementListingViews: (listingId?: string) => Promise<void> | void;
   toggleSavedListing: (listing: MarketListing) => Promise<void> | void;
   incrementListingShares: (listingId?: string) => Promise<void> | void;
+  onUpdateRequestStatus: (
+    request: BuyerRequest,
+    nextStatus: 'open' | 'matched' | 'closed'
+  ) => Promise<void> | void;
   savedListingIds: string[];
 }
 
@@ -113,6 +117,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   incrementListingViews,
   toggleSavedListing,
   incrementListingShares,
+  onUpdateRequestStatus,
   savedListingIds
 }) => {
   const [marketTab, setMarketTab] = useState<'supply' | 'demand' | 'insights'>('supply');
@@ -343,47 +348,6 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       toast.error('Failed to restock listing.');
     } finally {
       setIsStockActionLoading(false);
-    }
-  };
-
-  const handleUpdateRequestStatus = async (
-    request: BuyerRequest,
-    nextStatus: 'open' | 'matched' | 'closed'
-  ) => {
-    if (!request.id) return;
-
-    if (user?.uid !== request.buyerId) {
-      toast.error('Only the request owner can change its status.');
-      return;
-    }
-
-    try {
-      await updateDoc(doc(db, 'buyer_requests', request.id), {
-        status: nextStatus,
-        updatedAt: serverTimestamp(),
-      });
-
-      toast.success(
-        nextStatus === 'matched'
-          ? 'Request marked as matched.'
-          : nextStatus === 'closed'
-          ? 'Request closed.'
-          : 'Request reopened.'
-      );
-
-      setSelectedItem((current: any) => {
-        if (current?.id === request.id && current?.type === 'buyer_request') {
-          return {
-            ...current,
-            status: nextStatus,
-            updatedAt: { seconds: Math.floor(Date.now() / 1000) },
-          };
-        }
-        return current;
-      });
-    } catch (error) {
-      console.error('Error updating request status:', error);
-      toast.error('Failed to update request status.');
     }
   };
 
@@ -907,7 +871,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         t={t}
                         currentUserId={user?.uid}
                         onOpenDetails={handleOpenRequestDetails}
-                        onUpdateStatus={handleUpdateRequestStatus}
+                        onUpdateStatus={onUpdateRequestStatus}
                         onUpdateFoundQuantity={(request) => {
                           setFoundQtyRequest(request);
                           setFoundQtyValue(String(request.quantityFound ?? 0));
