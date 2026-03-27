@@ -94,7 +94,7 @@ const RoleUpgradeForm: React.FC<RoleUpgradeFormProps> = ({
                 className={`w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-primary appearance-none ${!sellerUpgradeForm.region ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <option value="">Select District</option>
-                {sellerUpgradeForm.region && malawiDistrictsByRegion[sellerUpgradeForm.region as keyof typeof malawiDistrictsByRegion].map(district => (
+                {sellerUpgradeForm.region && malawiDistrictsByRegion[sellerUpgradeForm.region as keyof typeof malawiDistrictsByRegion]?.map(district => (
                   <option key={district} value={district}>{district}</option>
                 ))}
               </select>

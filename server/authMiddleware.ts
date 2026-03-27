@@ -17,7 +17,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
 
   const token = authHeader.split(' ')[1];
   try {
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth().verifyIdToken(token);
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,

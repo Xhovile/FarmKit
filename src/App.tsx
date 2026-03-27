@@ -187,7 +187,15 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [loading, setLoading] = useState(false);
   const [marketListings, setMarketListings] = useState<MarketListing[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, _setUser] = useState<User | null>(null);
+
+  const setUser = (u: User | null) => {
+    if (u && auth.currentUser) {
+      _setUser(normalizeUserData(auth.currentUser, u));
+    } else {
+      _setUser(u);
+    }
+  };
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
@@ -214,7 +222,7 @@ export default function App() {
       if (firebaseUser) {
         try {
           // Fetch user from PostgreSQL via API
-          let userData: User;
+          let userData: any;
           try {
             userData = await api.get('/api/users/me');
           } catch (error: any) {
@@ -241,7 +249,10 @@ export default function App() {
               throw error;
             }
           }
-          setUser(userData);
+          
+          // Normalize user data before setting state
+          const normalized = normalizeUserData(firebaseUser, userData);
+          setUser(normalized);
         } catch (error) {
           console.error('Auth sync error:', error);
         }

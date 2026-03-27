@@ -19,21 +19,25 @@ function getServiceAccount() {
   );
 }
 
-if (!admin.apps.length) {
-  const serviceAccount = getServiceAccount();
+let adminApp: admin.app.App | null = null;
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+function getAdminApp() {
+  if (!adminApp) {
+    const serviceAccount = getServiceAccount();
+    adminApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  }
+  return adminApp;
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
-// Set the database ID if provided
-if (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)') {
-  // In newer versions of firebase-admin, you might need to use getFirestore(app, databaseId)
-  // but for simplicity, let's try to use the default one first or check if the SDK supports it this way.
-  // Actually, the best way is:
-  // import { getFirestore } from 'firebase-admin/firestore';
-  // export const adminDb = getFirestore(admin.app(), firebaseConfig.firestoreDatabaseId);
-}
+export const adminAuth = () => getAdminApp().auth();
+export const adminDb = () => {
+  const app = getAdminApp();
+  const db = app.firestore();
+  if (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)') {
+    // Note: If using multiple databases, you might need to use getFirestore(app, databaseId)
+    // from 'firebase-admin/firestore'. For now, we assume default or handle it here.
+  }
+  return db;
+};

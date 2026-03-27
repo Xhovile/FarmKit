@@ -45,7 +45,7 @@ const toCamelCase = (obj: any): any => {
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = 3000;
 
   app.use(express.json({ limit: "1mb" }));
 
@@ -56,7 +56,8 @@ async function startServer() {
   app.get("/api/health", async (req, res) => {
     try {
       // Simple check for Firestore
-      await adminDb.collection('health').doc('check').get();
+      const db = adminDb();
+      await db.collection('health').doc('check').get();
       res.json({ status: "ok", database: "connected" });
     } catch (error: any) {
       res.status(503).json({ status: "error", database: "disconnected", error: error.message });
@@ -66,7 +67,8 @@ async function startServer() {
   // --- User Routes ---
   app.get('/api/users/me', authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const userDoc = await adminDb.collection('users').doc(req.user?.uid!).get();
+      const db = adminDb();
+      const userDoc = await db.collection('users').doc(req.user?.uid!).get();
       if (!userDoc.exists) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -81,7 +83,8 @@ async function startServer() {
     const uid = req.user?.uid;
 
     try {
-      const userRef = adminDb.collection('users').doc(uid!);
+      const db = adminDb();
+      const userRef = db.collection('users').doc(uid!);
       const userData = {
         uid, name, email, phone, location, bio, avatar, primaryRole, roles, status, emailVerified, sellerProfile, organizationProfile,
         updatedAt: new Date().toISOString()
@@ -100,7 +103,7 @@ async function startServer() {
     const updates = req.body;
     
     try {
-      const userRef = adminDb.collection('users').doc(uid!);
+      const userRef = adminDb().collection('users').doc(uid!);
       await userRef.set({ ...updates, updatedAt: new Date().toISOString() }, { merge: true });
       const updatedDoc = await userRef.get();
       res.json(toCamelCase(updatedDoc.data()));
@@ -112,7 +115,7 @@ async function startServer() {
   // --- Market Listing Routes ---
   app.get('/api/market-listings', async (req, res) => {
     try {
-      const snapshot = await adminDb.collection('market_listings')
+      const snapshot = await adminDb().collection('market_listings')
         .where('status', '==', 'active')
         .get();
       
@@ -136,7 +139,7 @@ async function startServer() {
 
   app.get('/api/market-listings/:id', async (req, res) => {
     try {
-      const doc = await adminDb.collection('market_listings').doc(req.params.id).get();
+      const doc = await adminDb().collection('market_listings').doc(req.params.id).get();
       if (!doc.exists) {
         return res.status(404).json({ error: 'Listing not found' });
       }
@@ -160,7 +163,7 @@ async function startServer() {
         sharesCount: 0
       };
       
-      const docRef = await adminDb.collection('market_listings').add(listingData);
+      const docRef = await adminDb().collection('market_listings').add(listingData);
       const newDoc = await docRef.get();
       res.json(toCamelCase({ id: newDoc.id, ...newDoc.data() }));
     } catch (error: any) {
@@ -173,7 +176,7 @@ async function startServer() {
     const sellerId = req.user?.uid;
 
     try {
-      const docRef = adminDb.collection('market_listings').doc(req.params.id);
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
       const doc = await docRef.get();
       
       if (!doc.exists) return res.status(404).json({ error: 'Listing not found' });
@@ -190,7 +193,7 @@ async function startServer() {
   app.delete('/api/market-listings/:id', authMiddleware, async (req: AuthRequest, res) => {
     const sellerId = req.user?.uid;
     try {
-      const docRef = adminDb.collection('market_listings').doc(req.params.id);
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
       const doc = await docRef.get();
       
       if (!doc.exists) return res.status(404).json({ error: 'Listing not found' });
@@ -206,7 +209,7 @@ async function startServer() {
   // --- Buyer Request Routes ---
   app.get('/api/buyer-requests', async (req, res) => {
     try {
-      const snapshot = await adminDb.collection('buyer_requests')
+      const snapshot = await adminDb().collection('buyer_requests')
         .where('status', '==', 'open')
         .get();
       
@@ -240,7 +243,7 @@ async function startServer() {
         updatedAt: new Date().toISOString()
       };
       
-      const docRef = await adminDb.collection('buyer_requests').add(requestData);
+      const docRef = await adminDb().collection('buyer_requests').add(requestData);
       const newDoc = await docRef.get();
       res.json(toCamelCase({ id: newDoc.id, ...newDoc.data() }));
     } catch (error: any) {
@@ -253,7 +256,7 @@ async function startServer() {
     const buyerId = req.user?.uid;
 
     try {
-      const docRef = adminDb.collection('buyer_requests').doc(req.params.id);
+      const docRef = adminDb().collection('buyer_requests').doc(req.params.id);
       const doc = await docRef.get();
       
       if (!doc.exists) return res.status(404).json({ error: 'Request not found' });
@@ -271,12 +274,12 @@ async function startServer() {
   app.get('/api/saved-listings', authMiddleware, async (req: AuthRequest, res) => {
     try {
       const uid = req.user?.uid;
-      const savedSnapshot = await adminDb.collection('users').doc(uid!).collection('saved_listings').get();
+      const savedSnapshot = await adminDb().collection('users').doc(uid!).collection('saved_listings').get();
       const listingIds = savedSnapshot.docs.map(doc => doc.data().listingId);
       
       if (listingIds.length === 0) return res.json([]);
 
-      const listingsSnapshot = await adminDb.collection('market_listings')
+      const listingsSnapshot = await adminDb().collection('market_listings')
         .where('__name__', 'in', listingIds)
         .get();
       
@@ -293,7 +296,7 @@ async function startServer() {
   app.post('/api/saved-listings/:id', authMiddleware, async (req: AuthRequest, res) => {
     try {
       const uid = req.user?.uid;
-      await adminDb.collection('users').doc(uid!).collection('saved_listings').doc(req.params.id).set({
+      await adminDb().collection('users').doc(uid!).collection('saved_listings').doc(req.params.id).set({
         listingId: req.params.id,
         savedAt: new Date().toISOString()
       });
@@ -306,7 +309,7 @@ async function startServer() {
   app.delete('/api/saved-listings/:id', authMiddleware, async (req: AuthRequest, res) => {
     try {
       const uid = req.user?.uid;
-      await adminDb.collection('users').doc(uid!).collection('saved_listings').doc(req.params.id).delete();
+      await adminDb().collection('users').doc(uid!).collection('saved_listings').doc(req.params.id).delete();
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -315,7 +318,7 @@ async function startServer() {
 
   app.post('/api/market-listings/:id/increment-views', authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const docRef = adminDb.collection('market_listings').doc(req.params.id);
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
       await docRef.update({
         viewsCount: admin.firestore.FieldValue.increment(1),
         updatedAt: new Date().toISOString()
@@ -328,7 +331,7 @@ async function startServer() {
 
   app.post('/api/market-listings/:id/increment-shares', authMiddleware, async (req: AuthRequest, res) => {
     try {
-      const docRef = adminDb.collection('market_listings').doc(req.params.id);
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
       await docRef.update({
         sharesCount: admin.firestore.FieldValue.increment(1),
         updatedAt: new Date().toISOString()
@@ -344,15 +347,15 @@ async function startServer() {
     try {
       const uid = req.user.uid;
       
-      const listingsSnapshot = await adminDb.collection('market_listings')
+      const listingsSnapshot = await adminDb().collection('market_listings')
         .where('sellerId', '==', uid)
         .get();
       
-      const requestsSnapshot = await adminDb.collection('buyer_requests')
+      const requestsSnapshot = await adminDb().collection('buyer_requests')
         .where('buyerId', '==', uid)
         .get();
       
-      const savedSnapshot = await adminDb.collection('users').doc(uid).collection('saved_listings').get();
+      const savedSnapshot = await adminDb().collection('users').doc(uid).collection('saved_listings').get();
 
       const listings = listingsSnapshot.docs.map(d => d.data());
       const requests = requestsSnapshot.docs.map(d => d.data());
@@ -424,13 +427,13 @@ async function startServer() {
       const uid = req.user.uid;
 
       // Delete from Firestore
-      await adminDb.collection('users').doc(uid).delete();
+      await adminDb().collection('users').doc(uid).delete();
       
       // Note: In a real app, you might want to delete their listings too, 
       // but for now we just delete the user profile.
 
       // Then delete auth user
-      await adminAuth.deleteUser(uid);
+      await adminAuth().deleteUser(uid);
 
       return res.json({ success: true });
     } catch (error: any) {
