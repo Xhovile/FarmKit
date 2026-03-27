@@ -427,10 +427,10 @@ export default function App() {
     }
 
     const canSell =
-      user.roles.includes('seller') ||
-      user.roles.includes('business') ||
-      user.roles.includes('cooperative') ||
-      user.roles.includes('ngo');
+      user.roles?.includes('seller') ||
+      user.roles?.includes('business') ||
+      user.roles?.includes('cooperative') ||
+      user.roles?.includes('ngo');
 
     if (!canSell) {
       throw new Error('Please upgrade your account to a seller or organisation before creating listings.');

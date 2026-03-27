@@ -33,7 +33,7 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
           Active Roles
         </h4>
         <div className="flex flex-wrap gap-2">
-          {user.roles.map((role) => (
+          {user.roles?.map((role) => (
             <span
               key={role}
               className="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-xs font-semibold"

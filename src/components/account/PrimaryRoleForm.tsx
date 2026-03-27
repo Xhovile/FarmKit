@@ -27,7 +27,7 @@ const PrimaryRoleModal: React.FC<PrimaryRoleModalProps> = ({
       </p>
 
       <div className="space-y-3">
-        {user.roles.map((role) => (
+        {user.roles?.map((role) => (
           <button
             key={role}
             onClick={() => setSelectedPrimaryRole(role)}

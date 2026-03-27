@@ -269,7 +269,7 @@ export const useAccountPageController = ({
   const handleRoleUpgrade = async () => {
     if (!user || !selectedRole) return;
 
-    const nextRoles = Array.from(new Set([...user.roles, selectedRole]));
+    const nextRoles = Array.from(new Set([...(user.roles || []), selectedRole]));
     const nextPrimaryRole = user.primaryRole === 'buyer' ? selectedRole : user.primaryRole;
 
     const updatePayload: Partial<UserType> = {
@@ -630,7 +630,7 @@ export const useAccountPageController = ({
   const handlePrimaryRoleSwitch = async () => {
     if (!user) return;
 
-    if (!user.roles.includes(selectedPrimaryRole)) {
+    if (!user.roles?.includes(selectedPrimaryRole)) {
       toast.error('You can only switch to a role already on your account.');
       return;
     }
