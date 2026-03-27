@@ -183,7 +183,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             <div className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
               <ArrowLeft className="w-5 h-5" />
             </div>
-            <span>Back to Account Hub</span>
+            <span>Back to Account</span>
           </button>
         </div>
         
