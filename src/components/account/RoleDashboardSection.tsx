@@ -27,6 +27,7 @@ interface RoleDashboardSectionProps {
   openEditSeller: () => void;
   openEditOrganization: () => void;
   openUpgradeRole: () => void;
+  setAccountView: (view: any) => void;
 }
 
 const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
@@ -42,23 +43,22 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
   openEditSeller,
   openEditOrganization,
   openUpgradeRole,
+  setAccountView,
 }) => {
   const stats = useAccountRoleStats(user);
 
   const handleAddListing = () => {
-    setSelectedItem(null);
-    setEditingListing(null);
     setEditingRequest(null);
+    setEditingListing(null);
+    setFormStep(0); // listing mode
     setIsAddProductModalOpen(true);
-    setFormStep(1); // Step 1 for listings
   };
 
   const handlePostRequest = () => {
-    setSelectedItem(null);
     setEditingListing(null);
     setEditingRequest(null);
+    setFormStep(10); // request mode
     setIsAddProductModalOpen(true);
-    setFormStep(10); // Step 10 for requests
   };
 
   const isSellerOrOrg = ['seller', 'business', 'cooperative', 'ngo'].includes(user.primaryRole);
@@ -163,28 +163,28 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
               value={stats.activeListings} 
               icon={ShoppingBag} 
               colorClass="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-              onClick={() => setActiveTab('market')}
+              onClick={() => setAccountView('myListings')}
             />
             <StatCard 
               label="Low Stock" 
               value={stats.lowStockListings} 
               icon={AlertCircle} 
               colorClass="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
-              onClick={() => setActiveTab('market')}
+              onClick={() => setAccountView('myListings')}
             />
             <StatCard 
               label="Sold" 
               value={stats.soldListings} 
               icon={CheckCircle2} 
               colorClass="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-              onClick={() => setActiveTab('market')}
+              onClick={() => setAccountView('myListings')}
             />
             <StatCard 
               label="Total" 
               value={stats.totalListings} 
               icon={ClipboardList} 
               colorClass="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-              onClick={() => setActiveTab('market')}
+              onClick={() => setAccountView('myListings')}
             />
           </>
         )}

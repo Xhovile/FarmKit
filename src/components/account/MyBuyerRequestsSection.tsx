@@ -43,11 +43,10 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
   };
 
   const handleEdit = (request: BuyerRequest) => {
-    setSelectedItem(null);
     setEditingListing(null);
     setEditingRequest(request);
+    setFormStep(10); // request mode
     setIsAddProductModalOpen(true);
-    setFormStep(10);
   };
 
   const handleToggleStatus = async (request: BuyerRequest) => {
@@ -76,11 +75,10 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
 
         <button
           onClick={() => {
-            setSelectedItem(null);
             setEditingListing(null);
             setEditingRequest(null);
+            setFormStep(10); // request mode
             setIsAddProductModalOpen(true);
-            setFormStep(10);
           }}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700"
         >

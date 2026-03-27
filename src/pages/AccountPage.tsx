@@ -23,6 +23,7 @@ import PrimaryRoleForm from '../components/account/PrimaryRoleForm';
 import EditSellerProfileForm from '../components/account/EditSellerProfileForm';
 import EditOrganizationProfileForm from '../components/account/EditOrganizationProfileForm';
 import MyBuyerRequestsSection from '../components/account/MyBuyerRequestsSection';
+import MyListingsSection from '../components/account/MyListingsSection';
 import SavedItemsSection from '../components/account/SavedItemsSection';
 
 import RoleDashboardSection from '../components/account/RoleDashboardSection';
@@ -161,6 +162,46 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     );
   }
 
+  if (accountView === 'myListings') {
+    return (
+      <motion.div 
+        key="my-listings-view"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className="space-y-6"
+      >
+        <button 
+          onClick={() => setAccountView('hub')}
+          className="flex items-center gap-2 text-gray-500 hover:text-primary font-bold transition-colors mb-4"
+        >
+          <X className="w-5 h-5" />
+          Back to Account Hub
+        </button>
+        
+        <MyListingsSection
+          user={user}
+          onAddListing={() => {
+            setEditingListing(null);
+            setEditingRequest(null);
+            setFormStep(0);
+            setIsAddProductModalOpen(true);
+          }}
+          onEditListing={(listing) => {
+            setEditingListing(listing);
+            setEditingRequest(null);
+            setFormStep(0);
+            setIsAddProductModalOpen(true);
+          }}
+          onViewDetails={(listing) => {
+            setSelectedItem(listing);
+            setActiveTab('market');
+          }}
+        />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div 
       key="account-auth"
@@ -201,6 +242,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         openEditSeller={openEditSeller}
         openEditOrganization={openEditOrganization}
         openUpgradeRole={openUpgradeRole}
+        setAccountView={setAccountView}
       />
 
       {user.primaryRole === 'buyer' && (

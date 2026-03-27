@@ -137,6 +137,65 @@ async function startServer() {
     }
   });
 
+  app.get('/api/users/me/listings', authMiddleware, async (req: AuthRequest, res) => {
+    try {
+      const uid = req.user?.uid;
+      const snapshot = await adminDb().collection('market_listings')
+        .where('sellerId', '==', uid)
+        .get();
+      
+      const listings = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Sort in-memory
+      listings.sort((a: any, b: any) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      res.json(toCamelCase(listings));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/market-listings/:id/relist', authMiddleware, async (req: AuthRequest, res) => {
+    const sellerId = req.user?.uid;
+    const { quantity, price } = req.body;
+
+    try {
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
+      const doc = await docRef.get();
+      
+      if (!doc.exists) return res.status(404).json({ error: 'Listing not found' });
+      if (doc.data()?.sellerId !== sellerId) return res.status(403).json({ error: 'Unauthorized' });
+
+      const updates: any = {
+        status: 'active',
+        updatedAt: new Date().toISOString()
+      };
+
+      if (quantity !== undefined) {
+        updates.quantity = Number(quantity);
+        updates.availableQuantity = Number(quantity);
+        updates.soldQuantity = 0;
+      }
+
+      if (price !== undefined) {
+        updates.price = Number(price);
+      }
+
+      await docRef.update(updates);
+      const updatedDoc = await docRef.get();
+      res.json(toCamelCase({ id: updatedDoc.id, ...updatedDoc.data() }));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/market-listings/:id', async (req, res) => {
     try {
       const doc = await adminDb().collection('market_listings').doc(req.params.id).get();
@@ -207,6 +266,23 @@ async function startServer() {
   });
 
   // --- Buyer Request Routes ---
+  app.delete('/api/market-listings/:id', authMiddleware, async (req: AuthRequest, res) => {
+    const sellerId = req.user?.uid;
+
+    try {
+      const docRef = adminDb().collection('market_listings').doc(req.params.id);
+      const doc = await docRef.get();
+      
+      if (!doc.exists) return res.status(404).json({ error: 'Listing not found' });
+      if (doc.data()?.sellerId !== sellerId) return res.status(403).json({ error: 'Unauthorized' });
+
+      await docRef.delete();
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/buyer-requests', async (req, res) => {
     try {
       const snapshot = await adminDb().collection('buyer_requests')

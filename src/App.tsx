@@ -29,10 +29,10 @@ import { ExpertPage } from './pages/ExpertPage';
 import { AccountPage } from './pages/AccountPage';
 import { ChatWidget } from './components/ChatWidget';
 import { WelcomeTour } from './components/WelcomeTour';
+import AddProductModal from './components/market/AddProductModal';
 import { DetailModal } from './components/DetailModal';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
-import { AddListingForm, AddRequestForm } from './components/MarketplaceForms';
 import { tourSteps } from './data/constants';
 // Real data states (placeholders for now)
 const experts: any[] = [];
@@ -183,7 +183,7 @@ export default function App() {
   const [editingListing, setEditingListing] = useState<MarketListing | null>(null);
   const [editingRequest, setEditingRequest] = useState<BuyerRequest | null>(null);
   const [isSubmittingListing, setIsSubmittingListing] = useState(false);
-  const [formStep, setFormStep] = useState(1);
+  const [formStep, setFormStep] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [loading, setLoading] = useState(false);
   const [marketListings, setMarketListings] = useState<MarketListing[]>([]);
@@ -913,130 +913,28 @@ export default function App() {
       />
 
       {/* Marketplace Modal */}
-      {isAddProductModalOpen && (
-        <div key="add-product-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <motion.div 
-            key="add-product-modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={() => {
-              setIsAddProductModalOpen(false);
-              setFormStep(1);
-              setEditingListing(null);
-              setEditingRequest(null);
-            }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          />
-          <motion.div 
-            key="add-product-modal-content"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-xl bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl overflow-visible max-h-[90vh] flex flex-col"
-          >
-            <div className="p-8 md:p-10 overflow-y-auto max-h-[90vh]">
-              {formStep < 10 ? (
-                <AddListingForm 
-                  t={t} 
-                  user={user} 
-                  step={formStep} 
-                  setStep={setFormStep} 
-                  initialData={editingFormData}
-                  isEditMode={!!editingListing}
-                  isSubmitting={isSubmittingListing}
-                  onClose={() => {
-                    setIsAddProductModalOpen(false);
-                    setFormStep(1);
-                    setEditingListing(null);
-                    setEditingRequest(null);
-                  }} 
-                  onSubmit={async (data) => {
-                    if (loading || isSubmittingListing) return;
-                    try {
-                      if (editingListing?.id) {
-                        await handleUpdateListing(editingListing.id, data);
-                      } else {
-                        await handleCreateListing(data);
-                      }
-                      setIsAddProductModalOpen(false);
-                      setFormStep(1);
-                      setEditingListing(null);
-                      setEditingRequest(null);
-                    } catch (error: any) {
-                      console.error('Error saving listing:', error);
-                      toast.error(error.message || 'Failed to save listing.');
-                    }
-                  }} 
-                />
-              ) : (
-                <AddRequestForm 
-                  t={t} 
-                  user={user} 
-                  step={formStep} 
-                  setStep={setFormStep} 
-                  initialData={editingRequest}
-                  isEditMode={!!editingRequest}
-                  onClose={() => {
-                    setIsAddProductModalOpen(false);
-                    setFormStep(1);
-                    setEditingRequest(null);
-                  }} 
-                  onSubmit={async (data) => {
-                    if (!user) {
-                      toast.error(t('account.signIn'));
-                      return;
-                    }
-
-                    setLoading(true);
-                    try {
-                      let referenceImageUrl =
-                        data.removeExistingImage ? null : (editingRequest?.referenceImageUrl || null);
-
-                      if (data.imageFile) {
-                        referenceImageUrl = await uploadImageToCloudinary(data.imageFile);
-                      }
-
-                      const requestData = {
-                        commodity: data.commodity,
-                        category: data.category || 'other',
-                        quantity: Number(data.quantity),
-                        unit: data.unit,
-                        priceRange: data.priceRange,
-                        location: data.location,
-                        neededBy: data.neededBy || '',
-                        urgency: data.urgency || 'normal',
-                        buyerType: data.buyerType || 'individual',
-                        deliveryPreference: data.deliveryPreference || 'pickup',
-                        contactMethod: data.contactMethod || 'whatsapp',
-                        description: data.description || '',
-                        referenceImageUrl: referenceImageUrl,
-                        buyerName: user.name,
-                        phone: data.phone || user.phone,
-                      };
-
-                      if (editingRequest?.id) {
-                        await api.put(`/api/buyer-requests/${editingRequest.id}`, requestData);
-                        toast.success('Request updated successfully!');
-                      } else {
-                        await api.post('/api/buyer-requests', requestData);
-                        toast.success(t('market.requestPosted') || 'Request posted successfully!');
-                      }
-
-                      setIsAddProductModalOpen(false);
-                      setFormStep(1);
-                      setEditingRequest(null);
-                    } catch (error: any) {
-                      console.error('Error saving request:', error);
-                      toast.error(error.message || t('common.error') || 'An error occurred');
-                    } finally {
-                      setLoading(false);
-                    }
-                  }} 
-                />
-              )}
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <AddProductModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => {
+          setIsAddProductModalOpen(false);
+          setFormStep(0);
+          setEditingListing(null);
+          setEditingRequest(null);
+        }}
+        editingListing={editingListing}
+        editingRequest={editingRequest}
+        formStep={formStep}
+        setFormStep={setFormStep}
+        t={t}
+        user={user}
+        editingFormData={editingFormData}
+        isSubmittingListing={isSubmittingListing}
+        handleUpdateListing={handleUpdateListing}
+        handleCreateListing={handleCreateListing}
+        uploadImageToCloudinary={uploadImageToCloudinary}
+        setLoading={setLoading}
+        loading={loading}
+      />
     </div>
   );
 }

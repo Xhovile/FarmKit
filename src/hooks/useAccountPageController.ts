@@ -16,7 +16,8 @@ export type AccountView =
   | 'editOrganization'
   | 'switchRole'
   | 'upgradeRole'
-  | 'selectUpgradeRole';
+  | 'selectUpgradeRole'
+  | 'myListings';
 
 interface UseAccountPageControllerProps {
   user: UserType | null;

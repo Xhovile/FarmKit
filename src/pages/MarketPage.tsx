@@ -337,8 +337,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     setSelectedItem(null);
     setEditingListing(null);
     setEditingRequest(request);
-    setIsAddProductModalOpen(true);
     setFormStep(10);
+    setIsAddProductModalOpen(true);
   };
 
   const handleUpdateFoundQuantity = async () => {
@@ -635,8 +635,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   if (user) {
                     setEditingListing(null);
                     setEditingRequest(null);
+                    setFormStep(marketTab === 'supply' ? 0 : 10);
                     setIsAddProductModalOpen(true);
-                    setFormStep(marketTab === 'supply' ? 1 : 10);
                   } else {
                     toast.error(t('account.signIn'));
                   }
@@ -674,8 +674,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                       if (user) {
                         setEditingListing(null);
                         setEditingRequest(null);
+                        setFormStep(0);
                         setIsAddProductModalOpen(true);
-                        setFormStep(1);
                       } else {
                         toast.error(t('account.signIn'));
                       }
@@ -714,7 +714,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         onHide={handleHideListing}
                         onEdit={(listing) => {
                           setEditingListing(listing);
-                          setFormStep(1);
+                          setFormStep(0);
                           setIsAddProductModalOpen(true);
                         }}
                         onDelete={handleDeleteListing}
@@ -794,8 +794,8 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                       if (user) {
                         setEditingListing(null);
                         setEditingRequest(null);
-                        setIsAddProductModalOpen(true);
                         setFormStep(10);
+                        setIsAddProductModalOpen(true);
                       } else {
                         toast.error(t('account.signIn'));
                       }
