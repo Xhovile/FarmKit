@@ -220,13 +220,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             }}
           />
 
-          {user.primaryRole !== 'buyer' && (
-            <VerificationCenter 
-              user={user} 
-              openUpload={() => setIsVerificationModalOpen(true)} 
-            />
-          )}
-
           {user.primaryRole === 'buyer' && (
             <MyBuyerRequestsSection
               user={user}
@@ -272,6 +265,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             setShowTour={setShowTour}
             setUser={setUser}
           />
+
+          {user.primaryRole !== 'buyer' && (
+            <VerificationCenter 
+              user={user} 
+              openUpload={() => setIsVerificationModalOpen(true)} 
+            />
+          )}
         </div>
       } />
 

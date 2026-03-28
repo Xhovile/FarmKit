@@ -67,6 +67,25 @@
         "status": { "type": "string", "enum": ["basic", "verified", "premium"] },
         "sellerProfile": { "$ref": "SellerProfile" },
         "organizationProfile": { "$ref": "OrganizationProfile" },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["none", "pending", "verified", "rejected"] },
+            "type": { "type": "string", "enum": ["seller", "business", "cooperative", "ngo"] },
+            "submittedAt": { "type": "string", "format": "date-time" },
+            "reviewedAt": { "type": "string", "format": "date-time" },
+            "rejectionReason": { "type": "string" },
+            "documents": {
+              "type": "object",
+              "properties": {
+                "idDocument": { "type": "string" },
+                "certificate": { "type": "string" },
+                "license": { "type": "string" },
+                "proofImage": { "type": "string" }
+              }
+            }
+          }
+        },
         "emailVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

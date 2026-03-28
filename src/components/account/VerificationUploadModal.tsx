@@ -64,9 +64,9 @@ const VerificationUploadModal: React.FC<Props> = ({ user, onClose }) => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+        className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
-        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-indigo-600 text-white">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-indigo-600 text-white shrink-0">
           <div>
             <h3 className="text-xl font-bold">Submit Verification</h3>
             <p className="text-xs text-white/70">Build trust with the FarmKit community</p>
@@ -79,7 +79,7 @@ const VerificationUploadModal: React.FC<Props> = ({ user, onClose }) => {
           </button>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
           {/* ID Document */}
           <div className="space-y-3">
             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">

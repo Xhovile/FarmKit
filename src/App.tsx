@@ -155,6 +155,7 @@ const normalizeUserData = (firebaseUser: any, data: any) => {
 
     sellerProfile: data?.sellerProfile || null,
     organizationProfile: data?.organizationProfile || null,
+    verification: data?.verification || { status: 'none' },
 
     createdAt: data?.createdAt || new Date().toISOString(),
     emailVerified: firebaseUser.emailVerified,

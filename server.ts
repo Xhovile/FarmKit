@@ -350,7 +350,10 @@ async function startServer() {
   });
 
   app.post('/api/admin/verify-user/:uid', authMiddleware, async (req: AuthRequest, res) => {
-    // In a real app, check if req.user is an admin
+    // Basic admin check
+    const isAdmin = req.user?.email === 'isaacmtsiriza310@gmail.com';
+    if (!isAdmin) return res.status(403).json({ error: 'Forbidden: Admin access required' });
+
     const { status, rejectionReason } = req.body;
     const targetUid = req.params.uid;
 
@@ -363,6 +366,11 @@ async function startServer() {
         'verification.reviewedAt': new Date().toISOString()
       };
       if (rejectionReason) verificationUpdate['verification.rejectionReason'] = rejectionReason;
+
+      // If verified, also update the main user status to 'verified'
+      if (status === 'verified') {
+        verificationUpdate.status = 'verified';
+      }
 
       await userRef.update(verificationUpdate);
 

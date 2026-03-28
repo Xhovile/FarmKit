@@ -254,7 +254,60 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 pb-24">
-      <div className="sticky top-[56px] z-20 bg-neutral-50/90 dark:bg-dark-900/90 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-gray-800 mb-4">
+      {/* Hero Section: Image Gallery */}
+      <div className="relative h-72 sm:h-[50vh] overflow-hidden bg-gray-100 dark:bg-gray-800">
+        {galleryImages.length > 0 ? (
+          <img
+            src={galleryImages[activeImage] || galleryImages[0]}
+            alt={selectedItem.title || selectedItem.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            <Package className="w-16 h-16" />
+          </div>
+        )}
+
+        {galleryImages.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setIsFullscreenOpen(true)}
+            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all z-10"
+          >
+            <Expand className="w-5 h-5" />
+          </button>
+        )}
+
+        {galleryImages.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={showPrevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all z-10"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={showNextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all z-10"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/65 text-white text-xs font-semibold z-10">
+              {activeImage + 1} / {galleryImages.length}
+            </div>
+          </>
+        )}
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+      </div>
+
+      {/* Sticky Back Button - Stays below header (56px) */}
+      <div className="sticky top-[56px] z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto">
           <button 
             onClick={() => navigate(-1)}
@@ -266,10 +319,10 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 mt-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-800"
         >
           <div className="flex items-center justify-between gap-4 px-6 py-4 bg-white/92 dark:bg-gray-900/92 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
@@ -337,56 +390,8 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
           </div>
 
           <div className="p-6 sm:p-8 overflow-y-auto bg-neutral-50/70 dark:bg-gray-950/40">
-            <div className="relative h-72 sm:h-80 rounded-[30px] overflow-hidden mb-4 border border-gray-200 dark:border-gray-800 shadow-lg">
-              {galleryImages.length > 0 ? (
-                <img
-                  src={galleryImages[activeImage] || galleryImages[0]}
-                  alt={selectedItem.title || selectedItem.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400">
-                  <Package className="w-12 h-12" />
-                </div>
-              )}
-
-              {galleryImages.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsFullscreenOpen(true)}
-                  className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
-                >
-                  <Expand className="w-5 h-5" />
-                </button>
-              )}
-
-              {galleryImages.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={showPrevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={showNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/85 dark:bg-black/55 text-gray-900 dark:text-white border border-white/40 dark:border-white/10 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-black/70 transition-all"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-
-                  <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/65 text-white text-xs font-semibold">
-                    {activeImage + 1} / {galleryImages.length}
-                  </div>
-                </>
-              )}
-            </div>
-
             {galleryImages.length > 1 && (
-              <div className="flex gap-3 mb-6 px-1 overflow-x-auto pb-2">
+              <div className="flex gap-3 mb-6 px-1 overflow-x-auto pb-2 no-scrollbar">
                 {galleryImages.map((img: string, idx: number) => (
                   <button
                     key={`${img}-${idx}`}

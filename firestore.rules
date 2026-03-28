@@ -44,6 +44,7 @@ service cloud.firestore {
     //   - createdAt: string (required)
     //   - emailVerified: boolean (required)
     //   - role: string (optional, admin only)
+    //   - verification: map (optional)
     //
     // ===============================================================
 
@@ -127,7 +128,8 @@ service cloud.firestore {
              isValidEmail(data.email) &&
              isValidRole(data.primaryRole) &&
              areValidRoles(data.roles) &&
-             data.status in ['basic', 'verified', 'premium'];
+             data.status in ['basic', 'verified', 'premium'] &&
+             (!('verification' in data) || data.verification is map);
     }
 
     // ===============================================================
@@ -178,7 +180,10 @@ service cloud.firestore {
                       (request.resource.data.status == resource.data.status || isAdmin()) &&
                       (request.resource.data.email == resource.data.email || isAdmin()) &&
                       (request.resource.data.uid == resource.data.uid || isAdmin()) &&
-                      (!('role' in request.resource.data) || request.resource.data.role == resource.data.role || isAdmin());
+                      (!('role' in request.resource.data) || request.resource.data.role == resource.data.role || isAdmin()) &&
+                      (!('verification' in request.resource.data) || request.resource.data.verification == resource.data.verification || isAdmin() || 
+                       (request.resource.data.verification.status == 'pending' && resource.data.verification.status == 'none') ||
+                       (request.resource.data.verification.status == 'pending' && resource.data.verification.status == 'rejected'));
       
       match /hidden_listings/{listingId} {
         allow read, write: if isOwner(userId);
