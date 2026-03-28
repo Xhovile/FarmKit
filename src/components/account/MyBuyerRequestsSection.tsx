@@ -4,14 +4,11 @@ import { useBuyerRequests } from '../../hooks/useBuyerRequests';
 import BuyerRequestManageCard from './BuyerRequestManageCard';
 import { ClipboardList, PlusCircle } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+
 interface MyBuyerRequestsSectionProps {
   user: User;
   setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
-  setSelectedItem: (item: any) => void;
-  setEditingListing: (listing: any) => void;
-  setEditingRequest: (request: BuyerRequest | null) => void;
-  setIsAddProductModalOpen: (open: boolean) => void;
-  setFormStep: (step: number) => void;
   onUpdateBuyerRequestStatus: (
     request: BuyerRequest,
     nextStatus: 'open' | 'matched' | 'closed'
@@ -21,13 +18,9 @@ interface MyBuyerRequestsSectionProps {
 const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
   user,
   setActiveTab,
-  setSelectedItem,
-  setEditingListing,
-  setEditingRequest,
-  setIsAddProductModalOpen,
-  setFormStep,
   onUpdateBuyerRequestStatus,
 }) => {
+  const navigate = useNavigate();
   const { requests, loading } = useBuyerRequests(user);
   const [tab, setTab] = useState<'open' | 'matched' | 'closed'>('open');
 
@@ -36,17 +29,11 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
   }, [requests, tab]);
 
   const handleOpenDetails = (request: BuyerRequest) => {
-    setSelectedItem({
-      ...request,
-      type: 'buyer_request',
-    });
+    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'buyer_request' } });
   };
 
   const handleEdit = (request: BuyerRequest) => {
-    setEditingListing(null);
-    setEditingRequest(request);
-    setFormStep(10); // request mode
-    setIsAddProductModalOpen(true);
+    navigate('/add-product', { state: { editingRequest: request, isRequest: true } });
   };
 
   const handleToggleStatus = async (request: BuyerRequest) => {
@@ -75,10 +62,7 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
 
         <button
           onClick={() => {
-            setEditingListing(null);
-            setEditingRequest(null);
-            setFormStep(10); // request mode
-            setIsAddProductModalOpen(true);
+            navigate('/add-product', { state: { isRequest: true } });
           }}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700"
         >

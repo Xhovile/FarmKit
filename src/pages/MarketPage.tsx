@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
   ChartLine, 
@@ -80,10 +81,7 @@ interface MarketPageProps {
   setMarketSearchQuery: (query: string) => void;
   user: User | null;
   marketListings: MarketListing[];
-  setIsAddProductModalOpen: (open: boolean) => void;
-  setFormStep: (step: number) => void;
   setActiveTab: (tab: any) => void;
-  setSelectedItem: (item: any) => void;
   setEditingListing: (listing: MarketListing | null) => void;
   setEditingRequest: (request: BuyerRequest | null) => void;
   incrementListingViews: (listingId?: string) => Promise<void> | void;
@@ -103,10 +101,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   setMarketSearchQuery, 
   user,
   marketListings,
-  setIsAddProductModalOpen, 
-  setFormStep,
   setActiveTab,
-  setSelectedItem,
   setEditingListing,
   setEditingRequest,
   incrementListingViews,
@@ -115,18 +110,12 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   onUpdateBuyerRequestStatus,
   savedListingIds
 }) => {
+  const navigate = useNavigate();
   const [marketTab, setMarketTab] = useState<'supply' | 'demand' | 'insights'>('supply');
   const [activeCategory, setActiveCategory] = useState('all');
-  const [reportingItem, setReportingItem] = useState<any>(null);
-  const [reportReason, setReportReason] = useState('');
   const [requests, setRequests] = useState<BuyerRequest[]>([]);
   const [isRequestsLoading, setIsRequestsLoading] = useState(true);
   const [hiddenListingIds, setHiddenListingIds] = useState<string[]>([]);
-  const [saleListing, setSaleListing] = useState<MarketListing | null>(null);
-  const [restockListing, setRestockListing] = useState<MarketListing | null>(null);
-  const [saleAmount, setSaleAmount] = useState('');
-  const [restockAmount, setRestockAmount] = useState('');
-  const [isStockActionLoading, setIsStockActionLoading] = useState(false);
 
   // New Filters
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -191,36 +180,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   }, [user?.uid]);
 
   useEffect(() => {
-    setSelectedItem((current: any) => {
-      if (!current || current.type !== 'buyer_request' || !current.id) {
-        return current;
-      }
-
-      const updatedRequest = requests.find((req) => req.id === current.id);
-
-      if (!updatedRequest) {
-        return current;
-      }
-
-      return {
-        ...updatedRequest,
-        type: 'buyer_request',
-      };
-    });
-  }, [requests, setSelectedItem]);
+    // Sync logic removed as we use navigation now
+  }, [requests]);
 
   const isPremium = user?.status === 'premium' || user?.status === 'verified';
   const onUpgrade = () => setActiveTab('account');
-
-  const handleReport = () => {
-    if (!reportReason.trim()) {
-      toast.error(t('market.provideReason'));
-      return;
-    }
-    toast.success(t('market.reportSuccess'));
-    setReportingItem(null);
-    setReportReason('');
-  };
 
   const handleToggleListingAvailability = async (listing: MarketListing) => {
     if (!listing.id) return;
@@ -251,130 +215,6 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     } catch (error) {
       console.error('Error updating listing status:', error);
       toast.error('Failed to update listing.');
-    }
-  };
-
-  const handleRecordSale = async () => {
-    if (!saleListing?.id) return;
-
-    const amount = Number(saleAmount);
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error('Enter a valid sold amount.');
-      return;
-    }
-
-    const currentAvailable = saleListing.availableQuantity ?? saleListing.quantity ?? 0;
-    const currentSold = saleListing.soldQuantity ?? 0;
-
-    if (amount > currentAvailable) {
-      toast.error('Sold amount cannot be greater than available stock.');
-      return;
-    }
-
-    setIsStockActionLoading(true);
-
-    try {
-      const nextAvailableQuantity = currentAvailable - amount;
-      const nextSoldQuantity = currentSold + amount;
-
-      await api.put(`/api/market-listings/${saleListing.id}`, {
-        availableQuantity: nextAvailableQuantity,
-        soldQuantity: nextSoldQuantity,
-        status: nextAvailableQuantity <= 0 ? 'sold' : 'active',
-      });
-
-      toast.success('Sale recorded successfully.');
-      setSaleListing(null);
-      setSaleAmount('');
-    } catch (error) {
-      console.error('Error recording sale:', error);
-      toast.error('Failed to record sale.');
-    } finally {
-      setIsStockActionLoading(false);
-    }
-  };
-
-  const handleRestock = async () => {
-    if (!restockListing?.id) return;
-
-    const amount = Number(restockAmount);
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error('Enter a valid restock amount.');
-      return;
-    }
-
-    const currentAvailable = restockListing.availableQuantity ?? restockListing.quantity ?? 0;
-    const currentSold = restockListing.soldQuantity ?? 0;
-    const currentQuantity = restockListing.quantity ?? 0;
-
-    setIsStockActionLoading(true);
-
-    try {
-      const nextAvailableQuantity = currentAvailable + amount;
-      const nextQuantity = currentQuantity + amount;
-
-      await api.put(`/api/market-listings/${restockListing.id}`, {
-        quantity: nextQuantity,
-        availableQuantity: nextAvailableQuantity,
-        soldQuantity: currentSold,
-        status: 'active',
-      });
-
-      toast.success('Stock added successfully.');
-      setRestockListing(null);
-      setRestockAmount('');
-    } catch (error) {
-      console.error('Error restocking listing:', error);
-      toast.error('Failed to restock listing.');
-    } finally {
-      setIsStockActionLoading(false);
-    }
-  };
-
-  const handleOpenEditRequest = (request: BuyerRequest) => {
-    setSelectedItem(null);
-    setEditingListing(null);
-    setEditingRequest(request);
-    setFormStep(10);
-    setIsAddProductModalOpen(true);
-  };
-
-  const handleUpdateFoundQuantity = async () => {
-    if (!foundQtyRequest?.id) return;
-
-    const amount = Number(foundQtyValue);
-
-    if (!Number.isFinite(amount) || amount < 0) {
-      toast.error('Enter a valid found quantity.');
-      return;
-    }
-
-    if (amount > (foundQtyRequest.quantity ?? 0)) {
-      toast.error('Found quantity cannot be greater than requested quantity.');
-      return;
-    }
-
-    try {
-      const nextStatus =
-        amount >= (foundQtyRequest.quantity ?? 0)
-          ? 'matched'
-          : foundQtyRequest.status === 'closed'
-          ? 'closed'
-          : 'open';
-
-      await api.put(`/api/buyer-requests/${foundQtyRequest.id}`, {
-        quantityFound: amount,
-        status: nextStatus,
-      });
-
-      toast.success('Found quantity updated successfully.');
-      setFoundQtyRequest(null);
-      setFoundQtyValue('');
-    } catch (error) {
-      console.error('Error updating found quantity:', error);
-      toast.error('Failed to update found quantity.');
     }
   };
 
@@ -410,10 +250,6 @@ export const MarketPage: React.FC<MarketPageProps> = ({
     try {
       await api.delete(`/api/market-listings/${listing.id}`);
 
-      if ((window as any).__farmkitSelectedListingId === listing.id) {
-        setSelectedItem(null);
-      }
-
       toast.success('Listing deleted successfully.');
     } catch (error) {
       console.error('Error deleting listing:', error);
@@ -422,22 +258,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   };
 
   const handleOpenListingDetails = (listing: MarketListing) => {
-    (window as any).__farmkitSelectedListingId = listing.id;
-
-    incrementListingViews(listing.id);
-
-    setSelectedItem({
-      ...listing,
-      image: listing.imageUrl || '/placeholder-image.png',
-      type: 'market_listing',
-    });
+    navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'listing' } });
   };
 
   const handleOpenRequestDetails = (request: BuyerRequest) => {
-    setSelectedItem({
-      ...request,
-      type: 'buyer_request',
-    });
+    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'request' } });
   };
 
   const verifiedSellers = Array.from(
@@ -446,12 +271,13 @@ export const MarketPage: React.FC<MarketPageProps> = ({
    .filter(Boolean);
 
   return (
-    <motion.div 
-      key="market"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="space-y-8"
-    >
+    <div className="max-w-7xl mx-auto px-4 mt-8">
+      <motion.div 
+        key="market"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="space-y-8"
+      >
       {/* Market Sub-Nav */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-2 flex gap-2 overflow-x-auto no-scrollbar">
         <button
@@ -633,10 +459,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
               <button 
                 onClick={() => {
                   if (user) {
-                    setEditingListing(null);
-                    setEditingRequest(null);
-                    setFormStep(marketTab === 'supply' ? 0 : 10);
-                    setIsAddProductModalOpen(true);
+                    navigate('/add-product', { state: { isRequest: marketTab === 'demand' } });
                   } else {
                     toast.error(t('account.signIn'));
                   }
@@ -672,12 +495,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   <button 
                     onClick={() => {
                       if (user) {
-                        setEditingListing(null);
-                        setEditingRequest(null);
-                        setFormStep(0);
-                        setIsAddProductModalOpen(true);
+                        navigate('/add-product');
                       } else {
                         toast.error(t('account.signIn'));
+                        navigate('/auth');
                       }
                     }}
                     className="px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20"
@@ -709,23 +530,19 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         listing={item}
                         t={t}
                         currentUserId={user?.uid}
-                        onReport={setReportingItem}
+                        onReport={(item) => navigate('/report', { state: { item, type: 'listing' } })}
                         onMarkSold={handleToggleListingAvailability}
                         onHide={handleHideListing}
                         onEdit={(listing) => {
-                          setEditingListing(listing);
-                          setFormStep(0);
-                          setIsAddProductModalOpen(true);
+                          navigate('/add-product', { state: { editingListing: listing } });
                         }}
                         onDelete={handleDeleteListing}
                         onOpenDetails={handleOpenListingDetails}
                         onRecordSale={(listing) => {
-                          setSaleListing(listing);
-                          setSaleAmount('');
+                          navigate('/stock-action', { state: { listing, type: 'sale' } });
                         }}
                         onRestock={(listing) => {
-                          setRestockListing(listing);
-                          setRestockAmount('');
+                          navigate('/stock-action', { state: { listing, type: 'restock' } });
                         }}
                         onToggleSave={toggleSavedListing}
                         onShareListing={incrementListingShares}
@@ -792,12 +609,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   <button 
                     onClick={() => {
                       if (user) {
-                        setEditingListing(null);
-                        setEditingRequest(null);
-                        setFormStep(10);
-                        setIsAddProductModalOpen(true);
+                        navigate('/add-product', { state: { isRequest: true } });
                       } else {
                         toast.error(t('account.signIn'));
+                        navigate('/auth');
                       }
                     }}
                     className="px-8 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-500/20"
@@ -849,10 +664,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         onOpenDetails={handleOpenRequestDetails}
                         onUpdateStatus={onUpdateBuyerRequestStatus}
                         onUpdateFoundQuantity={(request) => {
-                          setFoundQtyRequest(request);
-                          setFoundQtyValue(String(request.quantityFound ?? 0));
+                          navigate('/stock-action', { state: { request, type: 'found-quantity' } });
                         }}
-                        onEditRequest={handleOpenEditRequest}
+                        onEditRequest={(request) => {
+                          navigate('/add-product', { state: { editingRequest: request } });
+                        }}
                       />
                     ))}
 
@@ -903,275 +719,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
       </>
     )}
 
-      {/* Report Modal */}
-      {reportingItem && (
-        <div key="report-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div 
-            key="report-modal-content"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-          >
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <h3 className="text-xl font-black flex items-center gap-2 text-rose-600">
-                <Flag className="w-6 h-6" />
-                {t('market.reportSuspicious')}
-              </h3>
-              <button onClick={() => setReportingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.reporting')}</p>
-                <p className="font-bold">{reportingItem.title || reportingItem.businessName}</p>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  {t('market.reasonForReport')}
-                </label>
-                <textarea 
-                  value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)}
-                  placeholder={t('market.describeIssue')}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-rose-500 outline-none text-sm"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={() => setReportingItem(null)}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button 
-                  onClick={handleReport}
-                  className="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-700 transition-all"
-                >
-                  {t('market.submitReport')}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {saleListing && (
-        <div key="sale-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div
-            key="sale-modal-content"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-          >
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-black text-gray-900 dark:text-white">Record sale</h3>
-                <p className="text-sm text-gray-500 mt-1">{saleListing.title}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setSaleListing(null);
-                  setSaleAmount('');
-                }}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="rounded-2xl bg-gray-50 dark:bg-gray-700/40 p-4 border border-gray-100 dark:border-gray-700">
-                <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Current stock</p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Available: <span className="font-bold">{saleListing.availableQuantity ?? saleListing.quantity ?? 0}</span>
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Sold: <span className="font-bold">{saleListing.soldQuantity ?? 0}</span>
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Units sold
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={saleAmount}
-                  onChange={(e) => setSaleAmount(e.target.value)}
-                  placeholder="e.g. 20"
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => {
-                    setSaleListing(null);
-                    setSaleAmount('');
-                  }}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  onClick={handleRecordSale}
-                  disabled={isStockActionLoading}
-                  className="flex-1 py-3 bg-black text-white dark:bg-white dark:text-black font-bold rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
-                >
-                  Confirm sale
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {restockListing && (
-        <div key="restock-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div
-            key="restock-modal-content"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-          >
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-black text-gray-900 dark:text-white">Restock listing</h3>
-                <p className="text-sm text-gray-500 mt-1">{restockListing.title}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setRestockListing(null);
-                  setRestockAmount('');
-                }}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="rounded-2xl bg-gray-50 dark:bg-gray-700/40 p-4 border border-gray-100 dark:border-gray-700">
-                <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Current stock</p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Available: <span className="font-bold">{restockListing.availableQuantity ?? restockListing.quantity ?? 0}</span>
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Sold: <span className="font-bold">{restockListing.soldQuantity ?? 0}</span>
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Units added
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={restockAmount}
-                  onChange={(e) => setRestockAmount(e.target.value)}
-                  placeholder="e.g. 50"
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-primary outline-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => {
-                    setRestockListing(null);
-                    setRestockAmount('');
-                  }}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  onClick={handleRestock}
-                  disabled={isStockActionLoading}
-                  className="flex-1 py-3 bg-black text-white dark:bg-white dark:text-black font-bold rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
-                >
-                  Add stock
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Found Quantity Modal */}
-      {foundQtyRequest && (
-        <div key="found-qty-modal-overlay" className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div
-            key="found-qty-modal-content"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-          >
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-black text-gray-900 dark:text-white">Update found quantity</h3>
-                <p className="text-sm text-gray-500 mt-1">{foundQtyRequest.commodity}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setFoundQtyRequest(null);
-                  setFoundQtyValue('');
-                }}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="rounded-2xl bg-gray-50 dark:bg-gray-700/40 p-4 border border-gray-100 dark:border-gray-700">
-                <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Request progress</p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Requested: <span className="font-bold">{foundQtyRequest.quantity} {foundQtyRequest.unit}</span>
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-200">
-                  Found so far: <span className="font-bold">{foundQtyRequest.quantityFound ?? 0}</span>
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
-                  Found quantity
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={foundQtyValue}
-                  onChange={(e) => setFoundQtyValue(e.target.value)}
-                  placeholder="e.g. 4"
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => {
-                    setFoundQtyRequest(null);
-                    setFoundQtyValue('');
-                  }}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  onClick={handleUpdateFoundQuantity}
-                  className="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </motion.div>
+    </div>
   );
 };

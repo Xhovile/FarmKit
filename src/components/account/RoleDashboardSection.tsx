@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ShoppingBag, 
   PlusCircle, 
@@ -18,11 +19,6 @@ interface RoleDashboardSectionProps {
   user: UserType;
   t: (key: string) => string;
   setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
-  setSelectedItem: (item: any) => void;
-  setEditingListing: (listing: any) => void;
-  setEditingRequest: (request: any) => void;
-  setIsAddProductModalOpen: (open: boolean) => void;
-  setFormStep: (step: number) => void;
   openEditPersonal: () => void;
   openEditSeller: () => void;
   openEditOrganization: () => void;
@@ -34,31 +30,21 @@ const RoleDashboardSection: React.FC<RoleDashboardSectionProps> = ({
   user,
   t,
   setActiveTab,
-  setSelectedItem,
-  setEditingListing,
-  setEditingRequest,
-  setIsAddProductModalOpen,
-  setFormStep,
   openEditPersonal,
   openEditSeller,
   openEditOrganization,
   openUpgradeRole,
   setAccountView,
 }) => {
+  const navigate = useNavigate();
   const stats = useAccountRoleStats(user);
 
   const handleAddListing = () => {
-    setEditingRequest(null);
-    setEditingListing(null);
-    setFormStep(0); // listing mode
-    setIsAddProductModalOpen(true);
+    navigate('/add-product');
   };
 
   const handlePostRequest = () => {
-    setEditingListing(null);
-    setEditingRequest(null);
-    setFormStep(10); // request mode
-    setIsAddProductModalOpen(true);
+    navigate('/add-product', { state: { isRequest: true } });
   };
 
   const isSellerOrOrg = ['seller', 'business', 'cooperative', 'ngo'].includes(user.primaryRole);

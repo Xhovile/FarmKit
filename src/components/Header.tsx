@@ -1,13 +1,14 @@
 import React from 'react';
 import { Sprout, UserCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   t: (key: string) => string;
   user: any;
-  setIsAuthModalOpen: (open: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ t, user, setIsAuthModalOpen }) => {
+export const Header: React.FC<HeaderProps> = ({ t, user }) => {
+  const navigate = useNavigate();
   const isCompact = true;
 
   return (
@@ -16,7 +17,10 @@ export const Header: React.FC<HeaderProps> = ({ t, user, setIsAuthModalOpen }) =
     >
       <div className="max-w-7xl mx-auto px-4 py-2.5">
         <div className="flex justify-between items-center gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+          <div 
+            className="flex items-center gap-3 min-w-0 cursor-pointer" 
+            onClick={() => navigate('/')}
+          >
             <div className="bg-white/10 backdrop-blur-md border border-white/20 shrink-0 rounded-lg p-2">
               <Sprout className="text-white w-6 h-6" />
             </div>
@@ -31,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ t, user, setIsAuthModalOpen }) =
             {user ? (
               <button
                 type="button"
+                onClick={() => navigate('/account')}
                 className="bg-white/10 backdrop-blur-md text-white border border-white/20 flex items-center shadow-sm h-9 w-9 rounded-full justify-center"
                 aria-label={user.name}
               >
@@ -38,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ t, user, setIsAuthModalOpen }) =
               </button>
             ) : (
               <button
-                onClick={() => setIsAuthModalOpen(true)}
+                onClick={() => navigate('/auth')}
                 className="bg-amber-400 text-primary shadow-md hover:bg-amber-300 transition-all font-bold h-9 px-3 rounded-full text-xs"
               >
                 Sign in

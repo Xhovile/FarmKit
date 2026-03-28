@@ -1,24 +1,22 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { 
+  BrowserRouter as Router, 
+  Routes, 
+  Route, 
+  Navigate, 
+  useNavigate, 
+  useLocation 
+} from 'react-router-dom';
+import { 
   Wifi
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { auth } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import AuthModal from './components/AuthModal';
 import { Toaster } from 'react-hot-toast';
 import { api } from './lib/api';
 import { BuyerRequest, MarketListing, StockStatus, User } from './types';
 import toast from 'react-hot-toast';
-
-const computeStockStatus = (
-  availableQuantity: number,
-  totalQuantity: number
-): StockStatus => {
-  if (availableQuantity <= 0) return 'out_of_stock';
-  if (totalQuantity > 0 && availableQuantity <= totalQuantity * 0.2) return 'low_stock';
-  return 'in_stock';
-};
 
 // New Imports
 import { Header } from './components/Header';
@@ -27,16 +25,15 @@ import { HomePage } from './pages/HomePage';
 import { MarketPage } from './pages/MarketPage';
 import { ExpertPage } from './pages/ExpertPage';
 import { AccountPage } from './pages/AccountPage';
+import AuthPage from './pages/AuthPage';
+import AddProductPage from './pages/AddProductPage';
+import ItemDetailPage from './pages/ItemDetailPage';
+import WelcomePage from './pages/WelcomePage';
+import ReportPage from './pages/ReportPage';
+import StockActionPage from './pages/StockActionPage';
 import { ChatWidget } from './components/ChatWidget';
-import { WelcomeTour } from './components/WelcomeTour';
-import AddProductModal from './components/market/AddProductModal';
-import { DetailModal } from './components/DetailModal';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
-import { tourSteps } from './data/constants';
-// Real data states (placeholders for now)
-const experts: any[] = [];
-const successStories: any[] = [];
 import { useTranslation } from './hooks/useTranslation';
 
 type Tab = 'info' | 'market' | 'experts' | 'account';
@@ -166,24 +163,13 @@ const normalizeUserData = (firebaseUser: any, data: any) => {
 
 export default function App() {
   const { t, lang, setLang } = useTranslation();
-  const [activeTab, setActiveTab] = useState<Tab>('info');
-  const tabScrollPositionsRef = useRef<Record<string, number>>({
-    info: 0,
-    market: 0,
-    experts: 0,
-    account: 0,
-  });
-
-  const previousActiveTabRef = useRef<Tab>('info');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [infoCategory, setInfoCategory] = useState<'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map'>('overview');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [marketSearchQuery, setMarketSearchQuery] = useState('');
-  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
-  const [editingListing, setEditingListing] = useState<MarketListing | null>(null);
-  const [editingRequest, setEditingRequest] = useState<BuyerRequest | null>(null);
   const [isSubmittingListing, setIsSubmittingListing] = useState(false);
-  const [formStep, setFormStep] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [loading, setLoading] = useState(false);
   const [marketListings, setMarketListings] = useState<MarketListing[]>([]);
@@ -196,10 +182,7 @@ export default function App() {
       _setUser(u);
     }
   };
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [showTour, setShowTour] = useState(false);
-  const [tourStep, setTourStep] = useState(0);
-  const [communityTab, setCommunityTab] = useState<'experts' | 'organizations' | 'support' | 'stories'>('experts');
+
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([
@@ -269,33 +252,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      tabScrollPositionsRef.current[activeTab] = window.scrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (previousActiveTabRef.current !== activeTab) {
-      const savedPosition = tabScrollPositionsRef.current[activeTab] ?? 0;
-
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: savedPosition,
-          behavior: 'auto',
-        });
-      });
-
-      previousActiveTabRef.current = activeTab;
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
     const fetchListings = async () => {
       try {
         const listings = await api.get('/api/market-listings');
@@ -328,20 +284,6 @@ export default function App() {
 
     fetchSavedIds();
   }, [user?.uid]);
-
-  useEffect(() => {
-    if (selectedItem && selectedItem.id && selectedItem.type === 'market_listing') {
-      const updatedItem = marketListings.find(item => item.id === selectedItem.id);
-      if (updatedItem) {
-        // Sync the selected item with live data
-        setSelectedItem({
-          ...updatedItem,
-          image: updatedItem.imageUrl,
-          type: 'market_listing'
-        });
-      }
-    }
-  }, [marketListings]);
 
   const t_old = (en: string, ny: string) => lang === 'en' ? en : ny;
 
@@ -427,10 +369,6 @@ export default function App() {
   usage: listing.usage || '',
   expiryDate: listing.expiryDate || '',
 });
-
-  const editingFormData = useMemo(() => {
-    return editingListing ? mapListingToFormData(editingListing) : undefined;
-  }, [editingListing]);
 
   const handleCreateListing = async (data: ListingFormData) => {
     if (!user) {
@@ -564,7 +502,7 @@ export default function App() {
     }
   };
 
-  const handleUpdateListing = async (listingId: string, data: ListingFormData) => {
+  const handleUpdateListing = async (listingId: string, data: ListingFormData, editingListing?: MarketListing) => {
     if (!user) {
       throw new Error('You must be signed in to edit a listing.');
     }
@@ -760,17 +698,6 @@ export default function App() {
           ? 'Request closed.'
           : 'Request reopened.'
       );
-
-      setSelectedItem((current: any) => {
-        if (current?.id === request.id && current?.type === 'buyer_request') {
-          return {
-            ...current,
-            status: nextStatus,
-            updatedAt: { seconds: Math.floor(Date.now() / 1000) },
-          };
-        }
-        return current;
-      });
     } catch (error) {
       console.error('Error updating request status:', error);
       toast.error('Failed to update request status.');
@@ -781,13 +708,6 @@ export default function App() {
     <div className="bg-neutral-50 dark:bg-dark-900 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
       <Toaster position="top-center" />
       
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-        t={t} 
-        lang={lang}
-      />
-
       {/* Offline Indicator */}
       {!isOnline && (
         <div className="fixed top-2.5 right-2.5 z-50 bg-red-500 text-white px-3 py-1 rounded-lg text-sm shadow-lg flex items-center animate-bounce">
@@ -798,104 +718,105 @@ export default function App() {
       <Header 
         t={t} 
         user={user} 
-        setIsAuthModalOpen={setIsAuthModalOpen} 
       />
 
-      <DetailModal 
-        t={t} 
-        lang={lang}
-        selectedItem={selectedItem} 
-        setSelectedItem={setSelectedItem} 
-        toggleSavedListing={toggleSavedListing}
-        incrementListingShares={incrementListingShares}
-        savedListingIds={savedListingIds}
-      />
+      <BottomNav t={t} />
 
-      <WelcomeTour 
-        t={t} 
-        showTour={showTour} 
-        setShowTour={setShowTour} 
-        tourStep={tourStep} 
-        setTourStep={setTourStep} 
-        tourSteps={tourSteps} 
-      />
-
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
-
-      <main className="max-w-7xl mx-auto px-4 pb-24 md:pb-16 mt-8">
+      <main className="pb-24 md:pb-16">
         <AnimatePresence mode="wait">
-          {activeTab === 'info' && (
-            <HomePage 
-              key="home-tab"
-              t={t} 
-              lang={lang}
-              infoCategory={infoCategory} 
-              setInfoCategory={setInfoCategory} 
-              searchQuery={searchQuery} 
-              setSearchQuery={setSearchQuery} 
-              setSelectedItem={setSelectedItem} 
-              user={user}
-              setActiveTab={setActiveTab}
-              setIsChatOpen={setIsChatOpen}
-            />
-          )}
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <HomePage 
+                t={t} 
+                lang={lang}
+                infoCategory={infoCategory} 
+                setInfoCategory={setInfoCategory} 
+                searchQuery={searchQuery} 
+                setSearchQuery={setSearchQuery} 
+                user={user}
+                setActiveTab={() => {}}
+                setIsChatOpen={setIsChatOpen}
+              />
+            } />
+            
+            <Route path="/market" element={
+              <MarketPage 
+                t={t} 
+                lang={lang}
+                marketSearchQuery={marketSearchQuery} 
+                setMarketSearchQuery={setMarketSearchQuery} 
+                user={user}
+                marketListings={marketListings}
+                setActiveTab={() => {}}
+                setEditingListing={(item) => navigate('/add-product', { state: { editingListing: item } })}
+                setEditingRequest={(item) => navigate('/add-product', { state: { editingRequest: item } })}
+                incrementListingViews={incrementListingViews}
+                incrementListingShares={incrementListingShares}
+                toggleSavedListing={toggleSavedListing}
+                savedListingIds={savedListingIds}
+                onUpdateBuyerRequestStatus={handleUpdateBuyerRequestStatus}
+              />
+            } />
 
-          {activeTab === 'market' && (
-            <MarketPage 
-              key="market-tab"
-              t={t} 
-              lang={lang}
-              marketSearchQuery={marketSearchQuery} 
-              setMarketSearchQuery={setMarketSearchQuery} 
-              user={user}
-              marketListings={marketListings}
-              setIsAddProductModalOpen={setIsAddProductModalOpen} 
-              setFormStep={setFormStep} 
-              setActiveTab={setActiveTab}
-              setSelectedItem={setSelectedItem}
-              setEditingListing={setEditingListing}
-              setEditingRequest={setEditingRequest}
-              incrementListingViews={incrementListingViews}
-              incrementListingShares={incrementListingShares}
-              toggleSavedListing={toggleSavedListing}
-              savedListingIds={savedListingIds}
-              onUpdateBuyerRequestStatus={handleUpdateBuyerRequestStatus}
-            />
-          )}
+            <Route path="/experts" element={
+              <ExpertPage 
+                t={t} 
+                lang={lang} 
+                communityTab={'experts'} 
+                setCommunityTab={() => {}} 
+                experts={realExperts} 
+                successStories={realSuccessStories} 
+                user={user}
+                setActiveTab={() => {}}
+              />
+            } />
 
-          {activeTab === 'experts' && (
-            <ExpertPage 
-              key="experts-tab"
-              t={t} 
-              lang={lang} 
-              communityTab={communityTab as any} 
-              setCommunityTab={setCommunityTab as any} 
-              experts={realExperts} 
-              successStories={realSuccessStories} 
-              user={user}
-              setActiveTab={setActiveTab}
-            />
-          )}
+            <Route path="/account/*" element={
+              <AccountPage 
+                t={t} 
+                lang={lang}
+                setLang={setLang}
+                user={user} 
+                setUser={setUser} 
+                setShowTour={() => navigate('/welcome')} 
+                setActiveTab={() => {}}
+                onUpdateBuyerRequestStatus={handleUpdateBuyerRequestStatus}
+              />
+            } />
 
-          {activeTab === 'account' && (
-            <AccountPage 
-              key="account-tab"
-              t={t} 
-              lang={lang}
-              setLang={setLang}
-              user={user} 
-              setUser={setUser} 
-              setIsAuthModalOpen={setIsAuthModalOpen} 
-              setShowTour={setShowTour} 
-              setActiveTab={setActiveTab}
-              setSelectedItem={setSelectedItem}
-              setEditingListing={setEditingListing}
-              setEditingRequest={setEditingRequest}
-              setIsAddProductModalOpen={setIsAddProductModalOpen}
-              setFormStep={setFormStep}
-              onUpdateBuyerRequestStatus={handleUpdateBuyerRequestStatus}
-            />
-          )}
+            <Route path="/auth" element={<AuthPage t={t} lang={lang} />} />
+            
+            <Route path="/add-product" element={
+              <AddProductPage 
+                t={t}
+                user={user}
+                isSubmittingListing={isSubmittingListing}
+                handleUpdateListing={handleUpdateListing}
+                handleCreateListing={handleCreateListing}
+                uploadImageToCloudinary={uploadImageToCloudinary}
+                setLoading={setLoading}
+                loading={loading}
+              />
+            } />
+
+            <Route path="/item-detail/:id" element={
+              <ItemDetailPage 
+                t={t}
+                lang={lang}
+                marketListings={marketListings}
+                toggleSavedListing={toggleSavedListing}
+                incrementListingShares={incrementListingShares}
+                savedListingIds={savedListingIds}
+              />
+            } />
+
+            <Route path="/welcome" element={<WelcomePage t={t} />} />
+            
+            <Route path="/report" element={<ReportPage />} />
+            <Route path="/stock-action" element={<StockActionPage />} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </AnimatePresence>
       </main>
 
@@ -910,30 +831,6 @@ export default function App() {
         setChatMessage={setChatMessage} 
         messages={messages} 
         setMessages={setMessages} 
-      />
-
-      {/* Marketplace Modal */}
-      <AddProductModal
-        isOpen={isAddProductModalOpen}
-        onClose={() => {
-          setIsAddProductModalOpen(false);
-          setFormStep(0);
-          setEditingListing(null);
-          setEditingRequest(null);
-        }}
-        editingListing={editingListing}
-        editingRequest={editingRequest}
-        formStep={formStep}
-        setFormStep={setFormStep}
-        t={t}
-        user={user}
-        editingFormData={editingFormData}
-        isSubmittingListing={isSubmittingListing}
-        handleUpdateListing={handleUpdateListing}
-        handleCreateListing={handleCreateListing}
-        uploadImageToCloudinary={uploadImageToCloudinary}
-        setLoading={setLoading}
-        loading={loading}
       />
     </div>
   );

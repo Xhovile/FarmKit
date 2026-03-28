@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
   MapPin, 
@@ -24,10 +25,9 @@ interface PesticideMarketMapProps {
 }
 
 export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedSeller, setSelectedSeller] = React.useState<any>(null);
-  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
-  const [reportReason, setReportReason] = React.useState('');
 
   const filteredSellers = pesticideSellers.filter(seller => 
     seller.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -35,17 +35,6 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang 
     seller.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleReport = () => {
-    if (!reportReason.trim()) {
-      toast.error(t('market.provideReason'));
-      return;
-    }
-    // In a real app, this would be a database call
-    console.log(`Reporting seller ${selectedSeller?.businessName} for: ${reportReason}`);
-    toast.success(t('market.reportSuccess'));
-    setIsReportModalOpen(false);
-    setReportReason('');
-  };
 
   return (
     <div className="space-y-8">
@@ -123,8 +112,7 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang 
                 </div>
                 <button 
                   onClick={() => {
-                    setSelectedSeller(seller);
-                    setIsReportModalOpen(true);
+                    navigate('/report', { state: { item: seller, type: 'seller' } });
                   }}
                   className="p-2 text-gray-400 hover:text-rose-500 transition-colors"
                   title={t('market.reportSuspicious')}
@@ -223,60 +211,6 @@ export const PesticideMarketMap: React.FC<PesticideMarketMapProps> = ({ t, lang 
           </ul>
         </div>
       </div>
-
-      {/* Report Modal */}
-      {isReportModalOpen && (
-        <div key="report-modal-overlay" className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <motion.div 
-            key="report-modal-content"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
-          >
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <h3 className="text-xl font-black flex items-center gap-2 text-rose-600">
-                <AlertTriangle className="w-6 h-6" />
-                {t('market.reportSuspicious')}
-              </h3>
-              <button onClick={() => setIsReportModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t('market.reporting')}</p>
-                <p className="font-bold">{selectedSeller?.businessName}</p>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  {t('market.reasonForReport')}
-                </label>
-                <textarea 
-                  value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)}
-                  placeholder={t('market.describeIssue')}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-none rounded-2xl focus:ring-2 focus:ring-rose-500 outline-none text-sm"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={() => setIsReportModalOpen(false)}
-                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 transition-all"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button 
-                  onClick={handleReport}
-                  className="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 hover:bg-rose-700 transition-all"
-                >
-                  {t('market.submitReport')}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };

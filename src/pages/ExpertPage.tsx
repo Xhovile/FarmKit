@@ -126,12 +126,13 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
   const isPremium = user?.status === 'premium' || user?.status === 'verified';
   const onUpgrade = () => setActiveTab('account');
   return (
-    <motion.div 
-      key="experts"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="space-y-6"
-    >
+    <div className="max-w-7xl mx-auto px-4 mt-8">
+      <motion.div 
+        key="experts"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="space-y-6"
+      >
       {/* Experts Sub-Nav */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-2 flex gap-2 overflow-x-auto no-scrollbar">
         <button 
@@ -348,5 +349,6 @@ export const ExpertPage: React.FC<ExpertPageProps> = ({
         </div>
       )}
     </motion.div>
+    </div>
   );
 };

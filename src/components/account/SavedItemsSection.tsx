@@ -6,12 +6,14 @@ import { Bookmark } from 'lucide-react';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
 
+import { useNavigate } from 'react-router-dom';
+
 interface Props {
   user: User;
-  setSelectedItem: (item: any) => void;
 }
 
-const SavedItemsSection: React.FC<Props> = ({ user, setSelectedItem }) => {
+const SavedItemsSection: React.FC<Props> = ({ user }) => {
+  const navigate = useNavigate();
   const { items, loading } = useSavedListings(user);
   const [isOpening, setIsOpening] = useState<string | null>(null);
 
@@ -23,15 +25,15 @@ const SavedItemsSection: React.FC<Props> = ({ user, setSelectedItem }) => {
       // Fetch the full listing from market_listings to ensure all details are present
       const listing = await api.get(`/api/market-listings/${item.id}`);
       if (listing) {
-        setSelectedItem(listing);
+        navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'listing' } });
       } else {
         // Fallback to the saved metadata if the original listing is gone
-        setSelectedItem(item);
+        navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'listing' } });
         toast.error('Original listing details not found. Showing saved preview.');
       }
     } catch (err) {
       console.error('Error fetching full listing:', err);
-      setSelectedItem(item);
+      navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'listing' } });
     } finally {
       setIsOpening(null);
     }

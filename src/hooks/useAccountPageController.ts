@@ -30,8 +30,6 @@ export const useAccountPageController = ({
   setUser,
   t,
 }: UseAccountPageControllerProps) => {
-  const [accountView, setAccountView] = React.useState<AccountView>('hub');
-  const [isAccountModalOpen, setIsAccountModalOpen] = React.useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = React.useState(false);
   const [isSubmittingSellerProfile, setIsSubmittingSellerProfile] = React.useState(false);
   const [isSubmittingOrganizationProfile, setIsSubmittingOrganizationProfile] = React.useState(false);
@@ -185,7 +183,7 @@ export const useAccountPageController = ({
   });
 
   React.useEffect(() => {
-    if (accountView === 'editSeller' && user?.sellerProfile) {
+    if (user?.sellerProfile) {
       setSellerEditForm({
         businessName: user.sellerProfile.businessName || '',
         fullName: user.sellerProfile.fullName || '',
@@ -199,10 +197,10 @@ export const useAccountPageController = ({
         description: user.sellerProfile.description || '',
       });
     }
-  }, [accountView, user?.sellerProfile]);
+  }, [user?.sellerProfile]);
 
   React.useEffect(() => {
-    if (accountView === 'editOrganization' && user?.organizationProfile) {
+    if (user?.organizationProfile) {
       setOrganizationEditForm({
         organizationName: user.organizationProfile.organizationName || '',
         contactPerson: user.organizationProfile.contactPerson || '',
@@ -223,7 +221,7 @@ export const useAccountPageController = ({
         description: user.organizationProfile.description || '',
       });
     }
-  }, [accountView, user?.organizationProfile]);
+  }, [user?.organizationProfile]);
 
   const handleProfileUpdate = async () => {
     if (!user) return;
@@ -256,8 +254,6 @@ export const useAccountPageController = ({
 
       const result = await api.put('/api/users/me', updatedData);
       setUser(result as UserType);
-      setIsAccountModalOpen(false);
-      setAccountView('hub');
       toast.success(t('account.profileUpdated'));
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update profile.';
@@ -430,8 +426,6 @@ export const useAccountPageController = ({
       setUser(result as UserType);
 
       toast.success('Account upgraded successfully.');
-      setIsAccountModalOpen(false);
-      setAccountView('hub');
       setSelectedRole(null);
 
       setSellerUpgradeForm({
@@ -537,8 +531,6 @@ export const useAccountPageController = ({
       setUser(result as UserType);
 
       toast.success('Seller profile updated.');
-      setIsAccountModalOpen(false);
-      setAccountView('hub');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update seller profile.';
       toast.error(message);
@@ -618,8 +610,6 @@ export const useAccountPageController = ({
       setUser(result as UserType);
 
       toast.success('Organisation profile updated.');
-      setIsAccountModalOpen(false);
-      setAccountView('hub');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update organisation profile.';
       toast.error(message);
@@ -645,8 +635,6 @@ export const useAccountPageController = ({
       setUser(result as UserType);
 
       toast.success('Primary role updated.');
-      setIsAccountModalOpen(false);
-      setAccountView('hub');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update primary role.';
       toast.error(message);
@@ -657,39 +645,7 @@ export const useAccountPageController = ({
 
   const canSell = user?.roles?.some(r => ['seller', 'business', 'cooperative', 'ngo'].includes(r)) || false;
 
-  const openEditPersonal = () => {
-    setAccountView('editPersonal');
-    setIsAccountModalOpen(true);
-  };
-
-  const openEditSeller = () => {
-    setAccountView('editSeller');
-    setIsAccountModalOpen(true);
-  };
-
-  const openEditOrganization = () => {
-    setAccountView('editOrganization');
-    setIsAccountModalOpen(true);
-  };
-
-  const openSwitchRole = () => {
-    if (user) {
-      setSelectedPrimaryRole(user.primaryRole);
-    }
-    setAccountView('switchRole');
-    setIsAccountModalOpen(true);
-  };
-
-  const openUpgradeRole = () => {
-    setAccountView('selectUpgradeRole');
-    setIsAccountModalOpen(true);
-  };
-
   return {
-    accountView,
-    setAccountView,
-    isAccountModalOpen,
-    setIsAccountModalOpen,
     isSubmittingProfile,
     isSubmittingSellerProfile,
     isSubmittingOrganizationProfile,
@@ -721,10 +677,5 @@ export const useAccountPageController = ({
     profileFormData,
     setProfileFormData,
     canSell,
-    openEditPersonal,
-    openEditSeller,
-    openEditOrganization,
-    openSwitchRole,
-    openUpgradeRole,
   };
 };

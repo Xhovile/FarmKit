@@ -1,18 +1,10 @@
 import React from 'react';
 import { Book, Store, GraduationCap, UserCircle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface BottomNavProps {
-  activeTab: string;
-  setActiveTab: (tab: any) => void;
   t: (key: string) => string;
 }
-
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-};
 
 const NavAction: React.FC<{
   active: boolean;
@@ -37,8 +29,22 @@ const NavAction: React.FC<{
   </button>
 );
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t }) => {
-  const handleTabClick = (tab: string) => {
+export const BottomNav: React.FC<BottomNavProps> = ({ t }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/' || path.startsWith('/info')) return 'info';
+    if (path.startsWith('/market')) return 'market';
+    if (path.startsWith('/experts')) return 'experts';
+    if (path.startsWith('/account')) return 'account';
+    return 'info';
+  };
+
+  const activeTab = getActiveTab();
+
+  const handleTabClick = (tab: string, path: string) => {
     if (activeTab === tab) {
       window.scrollTo({
         top: 0,
@@ -47,7 +53,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t
       return;
     }
 
-    setActiveTab(tab);
+    navigate(path);
   };
 
   return (
@@ -56,28 +62,28 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab, t
         <div className="flex justify-around md:justify-center items-center gap-1 md:gap-4 py-2 md:py-0">
           <NavAction
             active={activeTab === 'info'}
-            onClick={() => handleTabClick('info')}
+            onClick={() => handleTabClick('info', '/')}
             icon={<Book className="w-5 h-5 md:w-4 md:h-4" />}
             label={t('common.home')}
           />
 
           <NavAction
             active={activeTab === 'market'}
-            onClick={() => handleTabClick('market')}
+            onClick={() => handleTabClick('market', '/market')}
             icon={<Store className="w-5 h-5 md:w-4 md:h-4" />}
             label={t('common.market')}
           />
 
           <NavAction
             active={activeTab === 'experts'}
-            onClick={() => handleTabClick('experts')}
+            onClick={() => handleTabClick('experts', '/experts')}
             icon={<GraduationCap className="w-5 h-5 md:w-4 md:h-4" />}
             label={t('common.experts')}
           />
 
           <NavAction
             active={activeTab === 'account'}
-            onClick={() => handleTabClick('account')}
+            onClick={() => handleTabClick('account', '/account')}
             icon={<UserCircle className="w-5 h-5 md:w-4 md:h-4" />}
             label={t('common.account')}
           />

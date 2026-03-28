@@ -46,7 +46,6 @@ interface HomePageProps {
   setInfoCategory: (cat: 'overview' | 'crops' | 'livestock' | 'prices' | 'markets' | 'training' | 'alerts' | 'pesticide_map') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  setSelectedItem: (item: any) => void;
   user: User | null;
   setActiveTab: (tab: any) => void;
   setIsChatOpen: (val: boolean) => void;
@@ -59,7 +58,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   setInfoCategory, 
   searchQuery, 
   setSearchQuery, 
-  setSelectedItem,
   user,
   setActiveTab,
   setIsChatOpen
@@ -83,13 +81,14 @@ export const HomePage: React.FC<HomePageProps> = ({
   const currentCategory = categories.find(c => c.id === infoCategory) || categories[0];
 
   return (
-    <motion.div 
-      key="info"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="space-y-6"
-    >
+    <div className="max-w-7xl mx-auto px-4 mt-8">
+      <motion.div 
+        key="info"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        className="space-y-6"
+      >
       {/* Search Section */}
       <section className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <div className="mb-8">
@@ -214,6 +213,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
     </motion.div>
+    </div>
   );
 };
 
