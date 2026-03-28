@@ -366,6 +366,7 @@ export const AddListingForm: React.FC<AddListingFormProps> = ({
       soldQuantity: 0,
       stockStatus: computeStockStatus(qty, qty),
       location: resolvedLocation,
+      verified: user?.verification?.status === 'verified',
       locationData: {
         region: formData.region,
         district: formData.district,

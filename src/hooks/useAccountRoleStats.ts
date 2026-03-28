@@ -39,10 +39,15 @@ export const useAccountRoleStats = (user: User | null) => {
 
     const fetchStats = async () => {
       try {
+        console.log(`[useAccountRoleStats] Fetching stats for user ${user?.uid}...`);
         const data = await api.get('/api/users/me/stats');
+        console.log(`[useAccountRoleStats] Stats received:`, data);
         setStats(data as AccountRoleStats);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading account stats:', error);
+        if (error.message === 'Failed to fetch') {
+          console.error('[useAccountRoleStats] Network error - the server might be unreachable or the request was blocked.');
+        }
       }
     };
 

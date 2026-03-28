@@ -803,6 +803,7 @@ export default function App() {
               <ItemDetailPage 
                 t={t}
                 lang={lang}
+                user={user}
                 marketListings={marketListings}
                 toggleSavedListing={toggleSavedListing}
                 incrementListingShares={incrementListingShares}

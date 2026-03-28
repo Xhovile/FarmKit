@@ -258,11 +258,11 @@ export const MarketPage: React.FC<MarketPageProps> = ({
   };
 
   const handleOpenListingDetails = (listing: MarketListing) => {
-    navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'listing' } });
+    navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'market_listing', from: 'market' } });
   };
 
   const handleOpenRequestDetails = (request: BuyerRequest) => {
-    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'request' } });
+    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'buyer_request', from: 'market' } });
   };
 
   const verifiedSellers = Array.from(
@@ -459,7 +459,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
               <button 
                 onClick={() => {
                   if (user) {
-                    navigate('/add-product', { state: { isRequest: marketTab === 'demand' } });
+                    navigate('/add-product', { state: { isRequest: marketTab === 'demand', from: 'market' } });
                   } else {
                     toast.error(t('account.signIn'));
                   }
@@ -495,7 +495,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   <button 
                     onClick={() => {
                       if (user) {
-                        navigate('/add-product');
+                        navigate('/add-product', { state: { from: 'market' } });
                       } else {
                         toast.error(t('account.signIn'));
                         navigate('/auth');
@@ -530,19 +530,19 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         listing={item}
                         t={t}
                         currentUserId={user?.uid}
-                        onReport={(item) => navigate('/report', { state: { item, type: 'listing' } })}
+                        onReport={(item) => navigate('/report', { state: { item, type: 'market_listing', from: 'market' } })}
                         onMarkSold={handleToggleListingAvailability}
                         onHide={handleHideListing}
                         onEdit={(listing) => {
-                          navigate('/add-product', { state: { editingListing: listing } });
+                          navigate('/add-product', { state: { editingListing: listing, from: 'market' } });
                         }}
                         onDelete={handleDeleteListing}
                         onOpenDetails={handleOpenListingDetails}
                         onRecordSale={(listing) => {
-                          navigate('/stock-action', { state: { listing, type: 'sale' } });
+                          navigate('/stock-action', { state: { listing, type: 'sale', from: 'market' } });
                         }}
                         onRestock={(listing) => {
-                          navigate('/stock-action', { state: { listing, type: 'restock' } });
+                          navigate('/stock-action', { state: { listing, type: 'restock', from: 'market' } });
                         }}
                         onToggleSave={toggleSavedListing}
                         onShareListing={incrementListingShares}
@@ -609,7 +609,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                   <button 
                     onClick={() => {
                       if (user) {
-                        navigate('/add-product', { state: { isRequest: true } });
+                        navigate('/add-product', { state: { isRequest: true, from: 'market' } });
                       } else {
                         toast.error(t('account.signIn'));
                         navigate('/auth');
@@ -664,10 +664,10 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         onOpenDetails={handleOpenRequestDetails}
                         onUpdateStatus={onUpdateBuyerRequestStatus}
                         onUpdateFoundQuantity={(request) => {
-                          navigate('/stock-action', { state: { request, type: 'found-quantity' } });
+                          navigate('/stock-action', { state: { request, type: 'found-quantity', from: 'market' } });
                         }}
                         onEditRequest={(request) => {
-                          navigate('/add-product', { state: { editingRequest: request } });
+                          navigate('/add-product', { state: { editingRequest: request, from: 'market' } });
                         }}
                       />
                     ))}

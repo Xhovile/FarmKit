@@ -25,15 +25,15 @@ const SavedItemsSection: React.FC<Props> = ({ user }) => {
       // Fetch the full listing from market_listings to ensure all details are present
       const listing = await api.get(`/api/market-listings/${item.id}`);
       if (listing) {
-        navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'listing' } });
+        navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'market_listing', from: 'account' } });
       } else {
         // Fallback to the saved metadata if the original listing is gone
-        navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'listing' } });
+        navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'market_listing', from: 'account' } });
         toast.error('Original listing details not found. Showing saved preview.');
       }
     } catch (err) {
       console.error('Error fetching full listing:', err);
-      navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'listing' } });
+      navigate(`/item-detail/${item.id}`, { state: { item: item, type: 'market_listing', from: 'account' } });
     } finally {
       setIsOpening(null);
     }

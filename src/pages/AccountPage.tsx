@@ -36,6 +36,8 @@ import MyListingsSection from '../components/account/MyListingsSection';
 import SavedItemsSection from '../components/account/SavedItemsSection';
 
 import RoleDashboardSection from '../components/account/RoleDashboardSection';
+import VerificationCenter from '../components/account/VerificationCenter';
+import VerificationUploadModal from '../components/account/VerificationUploadModal';
 
 interface AccountPageProps {
   t: (key: string) => string;
@@ -101,6 +103,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     setUser,
     t
   });
+
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = React.useState(false);
 
   const handleProfileUpdateWithNav = async () => {
     await handleProfileUpdate();
@@ -216,6 +220,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             }}
           />
 
+          {user.primaryRole !== 'buyer' && (
+            <VerificationCenter 
+              user={user} 
+              openUpload={() => setIsVerificationModalOpen(true)} 
+            />
+          )}
+
           {user.primaryRole === 'buyer' && (
             <MyBuyerRequestsSection
               user={user}
@@ -291,13 +302,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             <MyListingsSection
               user={user}
               onAddListing={() => {
-                navigate('/add-product');
+                navigate('/add-product', { state: { from: 'account' } });
               }}
               onEditListing={(listing) => {
-                navigate('/add-product', { state: { editingListing: listing } });
+                navigate('/add-product', { state: { editingListing: listing, from: 'account' } });
               }}
               onViewDetails={(listing) => {
-                navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'listing' } });
+                navigate(`/item-detail/${listing.id}`, { state: { item: listing, type: 'market_listing', from: 'account' } });
               }}
             />
           </div>
@@ -558,6 +569,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
         </div>
       } />
     </Routes>
+
+      {isVerificationModalOpen && (
+        <VerificationUploadModal 
+          user={user} 
+          onClose={() => setIsVerificationModalOpen(false)} 
+        />
+      )}
     </div>
   );
 };

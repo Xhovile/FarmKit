@@ -35,10 +35,29 @@ export const BottomNav: React.FC<BottomNavProps> = ({ t }) => {
 
   const getActiveTab = () => {
     const path = location.pathname;
+    const stateFrom = location.state?.from;
+
+    // Prioritize state-based tab if available
+    if (stateFrom === 'market') return 'market';
+    if (stateFrom === 'account') return 'account';
+    if (stateFrom === 'experts') return 'experts';
+    if (stateFrom === 'info') return 'info';
+
     if (path === '/' || path.startsWith('/info')) return 'info';
     if (path.startsWith('/market')) return 'market';
     if (path.startsWith('/experts')) return 'experts';
     if (path.startsWith('/account')) return 'account';
+    
+    // Default mappings for action pages
+    if (
+      path.startsWith('/item-detail') || 
+      path.startsWith('/add-product') || 
+      path.startsWith('/report') || 
+      path.startsWith('/stock-action')
+    ) {
+      return 'market';
+    }
+
     return 'info';
   };
 

@@ -137,10 +137,12 @@ async function startServer() {
         .where('status', '==', 'active')
         .get();
       
-      const listings = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const listings = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter((l: any) => l.verified === true);
 
       // Sort in-memory to avoid composite index requirement
       listings.sort((a: any, b: any) => {
@@ -347,6 +349,42 @@ async function startServer() {
     }
   });
 
+  app.post('/api/admin/verify-user/:uid', authMiddleware, async (req: AuthRequest, res) => {
+    // In a real app, check if req.user is an admin
+    const { status, rejectionReason } = req.body;
+    const targetUid = req.params.uid;
+
+    try {
+      const db = adminDb();
+      const userRef = db.collection('users').doc(targetUid);
+      
+      const verificationUpdate: any = {
+        'verification.status': status,
+        'verification.reviewedAt': new Date().toISOString()
+      };
+      if (rejectionReason) verificationUpdate['verification.rejectionReason'] = rejectionReason;
+
+      await userRef.update(verificationUpdate);
+
+      if (status === 'verified') {
+        // Update all user's listings to be verified
+        const listingsSnapshot = await db.collection('market_listings')
+          .where('sellerId', '==', targetUid)
+          .get();
+        
+        const batch = db.batch();
+        listingsSnapshot.docs.forEach(doc => {
+          batch.update(doc.ref, { verified: true });
+        });
+        await batch.commit();
+      }
+
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // --- Saved Listings Routes ---
   app.get('/api/saved-listings', authMiddleware, async (req: AuthRequest, res) => {
     try {
@@ -421,8 +459,11 @@ async function startServer() {
 
   // User Stats
   app.get('/api/users/me/stats', authMiddleware, async (req: any, res) => {
+    console.log(`[API] GET /api/users/me/stats - User: ${req.user?.uid}`);
     try {
       const uid = req.user.uid;
+      
+      console.log(`[API] Fetching stats for user ${uid}...`);
       
       const listingsSnapshot = await adminDb().collection('market_listings')
         .where('sellerId', '==', uid)
@@ -436,6 +477,8 @@ async function startServer() {
 
       const listings = listingsSnapshot.docs.map(d => d.data());
       const requests = requestsSnapshot.docs.map(d => d.data());
+
+      console.log(`[API] Found ${listings.length} listings and ${requests.length} requests for user ${uid}`);
 
       const stats = {
         savedCount: savedSnapshot.size,
@@ -454,6 +497,7 @@ async function startServer() {
         }).length,
       };
 
+      console.log(`[API] Stats calculated for user ${uid}:`, stats);
       res.json(stats);
     } catch (error) {
       console.error('Error fetching user stats:', error);

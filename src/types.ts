@@ -71,6 +71,21 @@ export interface MarketListing {
 
 export type UserRole = 'buyer' | 'seller' | 'business' | 'cooperative' | 'ngo';
 export type AccountStatus = 'basic' | 'verified' | 'premium';
+export type VerificationStatus = 'none' | 'pending' | 'verified' | 'rejected';
+
+export interface VerificationData {
+  status: VerificationStatus;
+  type: UserRole;
+  submittedAt?: any;
+  reviewedAt?: any;
+  rejectionReason?: string;
+  documents: {
+    idDocument?: string;
+    certificate?: string;
+    license?: string;
+    proofImage?: string;
+  };
+}
 
 export interface SellerProfile {
   type: 'individual_seller';
@@ -177,6 +192,8 @@ export interface User {
 
   sellerProfile: SellerProfile | null;
   organizationProfile: OrganizationProfile | null;
+
+  verification?: VerificationData;
 
   createdAt: string;
   emailVerified: boolean;

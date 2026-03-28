@@ -23,10 +23,16 @@ export const api = {
 
   async post(endpoint: string, data: any) {
     const headers = await getAuthHeaders();
+    const isFormData = data instanceof FormData;
+    
+    if (isFormData) {
+      delete (headers as any)['Content-Type'];
+    }
+
     const response = await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Unknown error' }));

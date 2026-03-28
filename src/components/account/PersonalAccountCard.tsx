@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, UserCircle, Phone, FileText, Shield, Mail, CalendarDays } from 'lucide-react';
+import { MapPin, UserCircle, Phone, FileText, Shield, Mail, CalendarDays, ShieldCheck } from 'lucide-react';
 import { User as UserType } from '../../types';
 
 interface PersonalAccountCardProps {
@@ -71,6 +71,24 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Verification</p>
               <p className={user.emailVerified ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'}>
                 {user.emailVerified ? 'Verified' : 'Not Verified'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-gray-400 mt-0.5" />
+            <div>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Identity Verification</p>
+              <p className={`font-semibold ${
+                user.verification?.status === 'verified' ? 'text-emerald-600' :
+                user.verification?.status === 'pending' ? 'text-indigo-600' :
+                user.verification?.status === 'rejected' ? 'text-rose-600' :
+                'text-gray-400'
+              }`}>
+                {user.verification?.status === 'verified' ? 'Verified' :
+                 user.verification?.status === 'pending' ? 'Pending Review' :
+                 user.verification?.status === 'rejected' ? 'Rejected' :
+                 'Not Verified'}
               </p>
             </div>
           </div>

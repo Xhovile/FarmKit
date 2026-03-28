@@ -16,14 +16,16 @@ import {
   Expand,
   ChevronLeft,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  AlertTriangle
 } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { MarketListing, BuyerRequest } from '../types';
+import { MarketListing, BuyerRequest, User } from '../types';
 
 interface ItemDetailPageProps {
   t: (key: string) => string;
   lang: string;
+  user: User | null;
   marketListings: MarketListing[];
   toggleSavedListing?: (listing: any) => void;
   incrementListingShares?: (listingId?: string) => void;
@@ -110,6 +112,7 @@ const renderMarketSpecs = (item: any) => {
 const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
   t,
   lang,
+  user,
   marketListings,
   toggleSavedListing,
   incrementListingShares,
@@ -126,8 +129,16 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
     return marketListings.find(l => l.id === id);
   }, [id, marketListings, location.state]);
 
-  const isMarketListing = selectedItem?.type === 'market_listing';
-  const isBuyerRequest = selectedItem?.type === 'buyer_request';
+  const itemType = useMemo(() => {
+    if (location.state?.type) return location.state.type;
+    // Fallback: infer from properties
+    if (selectedItem?.price !== undefined) return 'listing';
+    if (selectedItem?.commodity !== undefined) return 'request';
+    return 'listing';
+  }, [location.state, selectedItem]);
+
+  const isMarketListing = itemType === 'listing' || itemType === 'market_listing';
+  const isBuyerRequest = itemType === 'request' || itemType === 'buyer_request' || itemType === 'buyer-request';
 
   const specs = useMemo(() => {
     if (!selectedItem) return [];
@@ -197,6 +208,24 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
     );
   }
 
+  const isOwner = user?.uid === selectedItem?.uid;
+
+  const handleEdit = () => {
+    if (isMarketListing) {
+      navigate('/add-product', { state: { editingListing: selectedItem, from: 'market' } });
+    } else {
+      navigate('/add-product', { state: { editingRequest: selectedItem, isRequest: true, from: 'market' } });
+    }
+  };
+
+  const handleReport = () => {
+    navigate('/report', { state: { item: selectedItem, from: 'market' } });
+  };
+
+  const handleStockAction = () => {
+    navigate('/stock-action', { state: { item: selectedItem, from: 'market' } });
+  };
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -225,7 +254,7 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-dark-900 pb-24">
-      <div className="sticky top-[56px] z-20 bg-neutral-50/80 dark:bg-dark-900/80 backdrop-blur-md px-4 py-4 border-b border-gray-200 dark:border-gray-800 mb-6">
+      <div className="sticky top-[56px] z-20 bg-neutral-50/90 dark:bg-dark-900/90 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-gray-800 mb-4">
         <div className="max-w-7xl mx-auto">
           <button 
             onClick={() => navigate(-1)}
@@ -254,6 +283,35 @@ const ItemDetailPage: React.FC<ItemDetailPageProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
+              {isOwner ? (
+                <button
+                  type="button"
+                  onClick={handleEdit}
+                  className="h-10 px-4 rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-all shadow-sm font-bold text-sm"
+                >
+                  Edit
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleReport}
+                  className="h-10 w-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm"
+                  title="Report"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                </button>
+              )}
+
+              {isOwner && isMarketListing && (
+                <button
+                  type="button"
+                  onClick={handleStockAction}
+                  className="h-10 px-4 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all shadow-sm font-bold text-sm"
+                >
+                  Stock
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleShare}

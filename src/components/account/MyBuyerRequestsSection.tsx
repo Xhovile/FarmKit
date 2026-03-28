@@ -29,11 +29,11 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
   }, [requests, tab]);
 
   const handleOpenDetails = (request: BuyerRequest) => {
-    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'buyer_request' } });
+    navigate(`/item-detail/${request.id}`, { state: { item: request, type: 'buyer_request', from: 'account' } });
   };
 
   const handleEdit = (request: BuyerRequest) => {
-    navigate('/add-product', { state: { editingRequest: request, isRequest: true } });
+    navigate('/add-product', { state: { editingRequest: request, isRequest: true, from: 'account' } });
   };
 
   const handleToggleStatus = async (request: BuyerRequest) => {
@@ -62,7 +62,7 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
 
         <button
           onClick={() => {
-            navigate('/add-product', { state: { isRequest: true } });
+            navigate('/add-product', { state: { isRequest: true, from: 'account' } });
           }}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700"
         >

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Leaf, 
   Search, 
@@ -62,8 +63,9 @@ export const HomePage: React.FC<HomePageProps> = ({
   setActiveTab,
   setIsChatOpen
 }) => {
+  const navigate = useNavigate();
   const isPremium = user?.status === 'premium' || user?.status === 'verified';
-  const onUpgrade = () => setActiveTab('account');
+  const onUpgrade = () => navigate('/account');
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);
 
@@ -107,7 +109,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <button 
-            onClick={() => setActiveTab('market')}
+            onClick={() => navigate('/market')}
             className="flex flex-col items-center gap-3 p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border border-emerald-100 dark:border-emerald-900/20 hover:shadow-md transition-all"
           >
             <div className="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -116,7 +118,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <span className="font-bold text-sm text-emerald-700 dark:text-emerald-300">{t('common.market')}</span>
           </button>
           <button 
-            onClick={() => setActiveTab('experts')}
+            onClick={() => navigate('/experts')}
             className="flex flex-col items-center gap-3 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20 hover:shadow-md transition-all"
           >
             <div className="w-12 h-12 bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -126,7 +128,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </button>
           <button 
             onClick={() => {
-              setActiveTab('experts');
+              navigate('/experts');
               setInfoCategory('alerts');
             }}
             className="flex flex-col items-center gap-3 p-6 bg-rose-50 dark:bg-rose-900/10 rounded-3xl border border-rose-100 dark:border-rose-900/20 hover:shadow-md transition-all"
@@ -137,7 +139,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <span className="font-bold text-sm text-rose-700 dark:text-rose-300">{t('common.alerts')}</span>
           </button>
           <button 
-            onClick={() => setActiveTab('account')}
+            onClick={() => navigate('/account')}
             className="flex flex-col items-center gap-3 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-3xl border border-amber-100 dark:border-amber-900/20 hover:shadow-md transition-all"
           >
             <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -151,7 +153,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">{t('home.featured')}</h3>
-            <button onClick={() => setActiveTab('experts')} className="text-primary text-sm font-bold hover:underline">
+            <button onClick={() => navigate('/experts')} className="text-primary text-sm font-bold hover:underline">
               {t('common.viewAll')}
             </button>
           </div>
@@ -160,7 +162,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Price Trend Summary */}
             <div 
               onClick={() => {
-                setActiveTab('experts');
+                navigate('/experts');
                 setInfoCategory('prices');
               }}
               className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-3xl border border-emerald-100 dark:border-emerald-900/20 cursor-pointer hover:shadow-lg transition-all"
@@ -178,7 +180,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Seasonal Alert Summary */}
             <div 
               onClick={() => {
-                setActiveTab('experts');
+                navigate('/experts');
                 setInfoCategory('alerts');
               }}
               className="bg-rose-50 dark:bg-rose-900/10 p-6 rounded-3xl border border-rose-100 dark:border-rose-900/20 cursor-pointer hover:shadow-lg transition-all"
