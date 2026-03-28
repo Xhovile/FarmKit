@@ -37,7 +37,7 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 space-y-6">
+    <div className="space-y-6">
       {/* Top Section: Primary Actions (Stacked) */}
       <div className="space-y-3">
         <button 
@@ -62,15 +62,7 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
       </div>
 
       {/* Bottom Section: Secondary Actions (Icon Only) */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
-        <button 
-          onClick={() => toast('Settings coming soon')}
-          title={t('common.settings')}
-          className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
-        >
-          <Settings className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:rotate-90 transition-all" />
-        </button>
-
+      <div className="flex items-center justify-around pt-2 border-t border-gray-100 dark:border-gray-700">
         <button 
           onClick={() => setShowTour(true)}
           title={t('account.takeTour')}

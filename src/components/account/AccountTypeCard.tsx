@@ -13,7 +13,7 @@ const AccountTypeCard: React.FC<AccountTypeCardProps> = ({
   statusLabelMap,
 }) => {
   return (
-    <div className="bg-gray-50 dark:bg-gray-700/50 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-4">
+    <div className="space-y-4">
       <div>
         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
           Account Type

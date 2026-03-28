@@ -1,27 +1,30 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Settings, X, User, Camera } from 'lucide-react';
 import { User as UserType } from '../../types';
 
 interface AccountHeaderProps {
   user: UserType;
-  isEditingProfile: boolean;
-  setIsEditingProfile: (val: boolean) => void;
+  showSettings: boolean;
+  setShowSettings: (val: boolean) => void;
+  settingsContent?: React.ReactNode;
 }
 
 const AccountHeader: React.FC<AccountHeaderProps> = ({
   user,
-  isEditingProfile,
-  setIsEditingProfile,
+  showSettings,
+  setShowSettings,
+  settingsContent,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden relative">
       {/* Profile Header */}
       <div className="h-32 bg-primary relative">
         <button 
-          onClick={() => setIsEditingProfile(!isEditingProfile)}
-          className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur-md transition-all"
+          onClick={() => setShowSettings(!showSettings)}
+          className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur-md transition-all z-50"
         >
-          {isEditingProfile ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
+          {showSettings ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
         </button>
       </div>
 
@@ -37,7 +40,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
                 </div>
               )}
             </div>
-            {isEditingProfile && (
+            {showSettings && (
               <button className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl">
                 <Camera className="w-8 h-8" />
               </button>
@@ -45,6 +48,17 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border-t border-gray-100 dark:border-gray-700 p-6 bg-gray-50/50 dark:bg-gray-900/20"
+        >
+          {settingsContent}
+        </motion.div>
+      )}
     </div>
   );
 };

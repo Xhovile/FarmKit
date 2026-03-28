@@ -93,8 +93,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     handleSellerProfileUpdate,
     handleOrganizationProfileUpdate,
     handlePrimaryRoleSwitch,
-    isEditingProfile,
-    setIsEditingProfile,
+    showSettings,
+    setShowSettings,
     profileFormData,
     setProfileFormData,
     canSell,
@@ -189,8 +189,30 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           <div className="space-y-6">
           <AccountHeader 
             user={user} 
-            isEditingProfile={isEditingProfile} 
-            setIsEditingProfile={setIsEditingProfile} 
+            showSettings={showSettings} 
+            setShowSettings={setShowSettings} 
+            settingsContent={
+              <div className="space-y-6">
+                <AccountTypeCard
+                  user={user}
+                  roleLabelMap={roleLabelMap}
+                  statusLabelMap={statusLabelMap}
+                />
+                <AccountActionsCard
+                  t={t}
+                  openSwitchRole={() => {
+                    setSelectedPrimaryRole(user.primaryRole);
+                    navigate('switch-role');
+                  }}
+                  openUpgradeRole={() => navigate('upgrade')}
+                  canSell={canSell}
+                  lang={lang}
+                  setLang={setLang}
+                  setShowTour={setShowTour}
+                  setUser={setUser}
+                />
+              </div>
+            }
           />
 
           <PersonalAccountCard
@@ -198,12 +220,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             t={t}
             openEditPersonal={() => navigate('edit-profile')}
             statusBadgeClassMap={statusBadgeClassMap}
-            statusLabelMap={statusLabelMap}
-          />
-
-          <AccountTypeCard
-            user={user}
-            roleLabelMap={roleLabelMap}
             statusLabelMap={statusLabelMap}
           />
 
@@ -251,20 +267,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 organizationTypeLabelMap={organizationTypeLabelMap}
               />
             )}
-
-          <AccountActionsCard
-            t={t}
-            openSwitchRole={() => {
-              setSelectedPrimaryRole(user.primaryRole);
-              navigate('switch-role');
-            }}
-            openUpgradeRole={() => navigate('upgrade')}
-            canSell={canSell}
-            lang={lang}
-            setLang={setLang}
-            setShowTour={setShowTour}
-            setUser={setUser}
-          />
 
           {user.primaryRole !== 'buyer' && (
             <VerificationCenter 

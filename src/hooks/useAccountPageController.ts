@@ -35,7 +35,7 @@ export const useAccountPageController = ({
   const [isSubmittingOrganizationProfile, setIsSubmittingOrganizationProfile] = React.useState(false);
   const [selectedRole, setSelectedRole] = React.useState<'seller' | 'business' | 'cooperative' | 'ngo' | null>(null);
   
-  const [isEditingProfile, setIsEditingProfile] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
   const [profileFormData, setProfileFormData] = React.useState({
     name: user?.name || '',
     region: user?.region || '',
@@ -672,8 +672,8 @@ export const useAccountPageController = ({
     handleSellerProfileUpdate,
     handleOrganizationProfileUpdate,
     handlePrimaryRoleSwitch,
-    isEditingProfile,
-    setIsEditingProfile,
+    showSettings,
+    setShowSettings,
     profileFormData,
     setProfileFormData,
     canSell,
