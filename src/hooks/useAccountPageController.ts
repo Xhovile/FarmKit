@@ -149,6 +149,20 @@ export const useAccountPageController = ({
 
   const [selectedPrimaryRole, setSelectedPrimaryRole] = React.useState<UserType['primaryRole']>(user?.primaryRole || 'buyer');
 
+  const accountState = {
+    isBuyer: user?.primaryRole === 'buyer',
+    isSeller: user?.primaryRole === 'seller',
+    isBusiness: user?.primaryRole === 'business',
+    isCooperative: user?.primaryRole === 'cooperative',
+    isNgo: user?.primaryRole === 'ngo',
+    isVerified: user?.status === 'verified' || user?.status === 'premium',
+    hasSellerProfile: !!user?.sellerProfile,
+    hasOrgProfile: !!user?.organizationProfile,
+    canManageListings:
+      ['seller', 'business', 'cooperative', 'ngo'].includes(user?.primaryRole || '') &&
+      (user?.sellerProfile?.verified || user?.organizationProfile?.verified || false),
+  };
+
   const [sellerEditForm, setSellerEditForm] = React.useState({
     businessName: user?.sellerProfile?.businessName || '',
     fullName: user?.sellerProfile?.fullName || '',
@@ -267,11 +281,13 @@ export const useAccountPageController = ({
     if (!user || !selectedRole) return;
 
     const nextRoles = Array.from(new Set([...(user.roles || []), selectedRole]));
-    const nextPrimaryRole = user.primaryRole === 'buyer' ? selectedRole : user.primaryRole;
+
+    const shouldSetPrimaryRole =
+      user.roles?.length === 1 && user.roles[0] === 'buyer';
 
     const updatePayload: Partial<UserType> = {
       roles: nextRoles,
-      primaryRole: nextPrimaryRole,
+      ...(shouldSetPrimaryRole ? { primaryRole: selectedRole } : {}),
     };
 
     if (selectedRole === 'seller') {
@@ -626,14 +642,19 @@ export const useAccountPageController = ({
       return;
     }
 
+    if (selectedPrimaryRole === user.primaryRole) {
+      toast('That role is already active.');
+      return;
+    }
+
     try {
       setIsSubmittingRoleSwitch(true);
+
       const result = await api.put('/api/users/me', {
         primaryRole: selectedPrimaryRole,
       });
 
       setUser(result as UserType);
-
       toast.success('Primary role updated.');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update primary role.';
@@ -642,8 +663,6 @@ export const useAccountPageController = ({
       setIsSubmittingRoleSwitch(false);
     }
   };
-
-  const canSell = user?.roles?.some(r => ['seller', 'business', 'cooperative', 'ngo'].includes(r)) || false;
 
   return {
     isSubmittingProfile,
@@ -692,6 +711,13 @@ export const useAccountPageController = ({
     setShowSettings,
     profileFormData,
     setProfileFormData,
-    canSell,
+    canSell: (user?.primaryRole === 'seller' && !!user.sellerProfile) ||
+      (['business', 'cooperative', 'ngo'].includes(user?.primaryRole || '') && !!user.organizationProfile),
+    canEditCurrentProfile: user?.primaryRole === 'seller'
+      ? !!user.sellerProfile
+      : ['business', 'cooperative', 'ngo'].includes(user?.primaryRole || '')
+        ? !!user.organizationProfile
+        : true,
+    accountState,
   };
 };

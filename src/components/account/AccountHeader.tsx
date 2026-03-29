@@ -20,19 +20,19 @@ interface AccountHeaderProps {
   onAvatarUpload?: (file: File) => Promise<void>;
 }
 
-const roleLabelMap: Record<UserType['primaryRole'], string> = {
-  buyer: 'Buyer',
-  seller: 'Seller',
-  business: 'Business',
-  cooperative: 'Cooperative',
-  ngo: 'NGO',
-};
+const roleLabelMap = (t: (k: string) => string): Record<UserType['primaryRole'], string> => ({
+  buyer: t('account.buyer'),
+  seller: t('account.seller'),
+  business: t('account.business'),
+  cooperative: t('account.cooperative'),
+  ngo: t('account.ngo'),
+});
 
-const statusLabelMap: Record<UserType['status'], string> = {
-  basic: 'Basic',
-  verified: 'Verified',
-  premium: 'Premium',
-};
+const statusLabelMap = (t: (k: string) => string): Record<UserType['status'], string> => ({
+  basic: t('account.basicAccount'),
+  verified: t('account.verifiedAccount'),
+  premium: t('account.premiumAccount'),
+});
 
 const statusClassMap: Record<UserType['status'], string> = {
   basic: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
@@ -40,11 +40,11 @@ const statusClassMap: Record<UserType['status'], string> = {
   premium: 'bg-amber-500 text-white',
 };
 
-const verificationLabel = (status?: string) => {
-  if (status === 'verified') return 'Identity verified';
-  if (status === 'pending') return 'Verification pending';
-  if (status === 'rejected') return 'Verification rejected';
-  return 'Not verified';
+const verificationLabel = (t: (k: string) => string, status?: string) => {
+  if (status === 'verified') return t('account.identityVerified');
+  if (status === 'pending') return t('account.verificationPending');
+  if (status === 'rejected') return t('account.verificationRejected');
+  return t('account.notVerified');
 };
 
 const verificationClass = (status?: string) => {
@@ -127,7 +127,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
                   onClick={handleAvatarClick}
                   disabled={isUploading}
                   className="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/35 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all disabled:cursor-not-allowed"
-                  aria-label="Upload avatar"
+                  aria-label={t('account.uploadAvatar')}
                 >
                   <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
@@ -140,16 +140,16 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                    {roleLabelMap[user.primaryRole]}
+                    {roleLabelMap(t)[user.primaryRole]}
                   </span>
 
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusClassMap[user.status]}`}>
-                    {statusLabelMap[user.status]}
+                    {statusLabelMap(t)[user.status]}
                   </span>
 
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${verificationClass(user.verification?.status)}`}>
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    {verificationLabel(user.verification?.status)}
+                    {verificationLabel(t, user.verification?.status)}
                   </span>
                 </div>
 
@@ -157,13 +157,13 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
                   <div className="flex items-center gap-2 min-w-0">
                     <MapPin className="w-4 h-4 shrink-0" />
                     <span className="truncate">
-                      {location || 'Location not set'}
+                      {location || t('account.locationNotSet')}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <BadgeCheck className="w-4 h-4 shrink-0" />
-                    <span>Member since {memberSince}</span>
+                    <span>{t('account.memberSince')} {memberSince}</span>
                   </div>
                 </div>
               </div>
@@ -181,12 +181,12 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
                 {showSettings ? (
                   <>
                     <X className="w-4 h-4" />
-                    <span>Close</span>
+                    <span>{t('account.close')}</span>
                   </>
                 ) : (
                   <>
                     <Settings className="w-4 h-4" />
-                    <span>Edit profile</span>
+                    <span>{t('account.editProfile')}</span>
                   </>
                 )}
               </button>
@@ -195,10 +195,10 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 
           <div className="mt-5 flex flex-wrap gap-2">
             <div className="px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-600 dark:text-gray-300">
-              Account: {statusLabelMap[user.status]}
+              {t('account.accountStatus')}: {statusLabelMap(t)[user.status]}
             </div>
             <div className="px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-600 dark:text-gray-300">
-              Role: {roleLabelMap[user.primaryRole]}
+              {t('account.activeRole')}: {roleLabelMap(t)[user.primaryRole]}
             </div>
           </div>
         </div>
@@ -213,10 +213,10 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
         >
           <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-gray-100 dark:border-gray-700">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Account details
+              {t('account.accountDetails')}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Profile information and settings.
+              {t('account.profileInfoAndSettings')}
             </p>
           </div>
 

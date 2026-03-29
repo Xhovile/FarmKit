@@ -13,6 +13,7 @@ interface AccountActionsCardProps {
   openEditSeller: () => void;
   openEditOrganization: () => void;
   canSell: boolean;
+  canEditCurrentProfile: boolean;
   lang: 'en' | 'ny';
   setLang: (lang: 'en' | 'ny') => void;
   setShowTour: (val: boolean) => void;
@@ -28,6 +29,7 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
   openEditSeller,
   openEditOrganization,
   canSell,
+  canEditCurrentProfile,
   lang,
   setLang,
   setShowTour,
@@ -44,14 +46,11 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
     }
   };
 
-  const hasProfile = (user.primaryRole === 'seller' && user.sellerProfile) || 
-                   (['business', 'cooperative', 'ngo'].includes(user.primaryRole) && user.organizationProfile);
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 space-y-6">
       {/* Top Section: Primary Actions (Stacked) */}
       <div className="space-y-3">
-        {hasProfile && (
+        {canEditCurrentProfile && user.primaryRole !== 'buyer' && (
           <button 
             onClick={user.primaryRole === 'seller' ? openEditSeller : openEditOrganization}
             className="w-full flex items-center justify-between p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/10 hover:bg-primary/10 transition-all group"

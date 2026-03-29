@@ -99,6 +99,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     profileFormData,
     setProfileFormData,
     canSell,
+    canEditCurrentProfile,
+    accountState,
   } = useAccountPageController({
     user,
     setUser,
@@ -195,13 +197,34 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             t={t}
             onAvatarUpload={handleAvatarUpload}
             settingsContent={
-              <PersonalAccountCard
-                user={user}
-                t={t}
-                openEditPersonal={() => navigate('edit-profile')}
-                statusBadgeClassMap={statusBadgeClassMap}
-                statusLabelMap={statusLabelMap}
-              />
+              <div className="space-y-6">
+                <PersonalAccountCard
+                  user={user}
+                  t={t}
+                  openEditPersonal={() => navigate('edit-profile')}
+                  statusBadgeClassMap={statusBadgeClassMap}
+                  statusLabelMap={statusLabelMap}
+                />
+                
+                {accountState.isSeller && user.sellerProfile && (
+                  <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+                    <SellerProfileCard
+                      user={user}
+                      openEditSeller={() => navigate('edit-seller')}
+                    />
+                  </div>
+                )}
+
+                {(accountState.isBusiness || accountState.isCooperative || accountState.isNgo) && user.organizationProfile && (
+                  <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
+                    <OrganizationProfileCard
+                      user={user}
+                      openEditOrganization={() => navigate('edit-org')}
+                      organizationTypeLabelMap={organizationTypeLabelMap}
+                    />
+                  </div>
+                )}
+              </div>
             }
           />
 
@@ -230,13 +253,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             openEditSeller={() => navigate('edit-seller')}
             openEditOrganization={() => navigate('edit-org')}
             canSell={canSell}
+            canEditCurrentProfile={canEditCurrentProfile}
             lang={lang}
             setLang={setLang}
             setShowTour={setShowTour}
             setUser={setUser}
           />
 
-          {user.primaryRole === 'buyer' && (
+          {accountState.isBuyer && (
             <MyBuyerRequestsSection
               user={user}
               t={t}
@@ -245,7 +269,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             />
           )}
 
-          {user.primaryRole === 'buyer' && (
+          {accountState.isBuyer && (
             <SavedItemsSection
               user={user}
               t={t}
