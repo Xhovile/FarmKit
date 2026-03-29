@@ -22,7 +22,7 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
     : '—';
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+    <div className="space-y-8">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
@@ -50,7 +50,7 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
           <div className="flex items-start gap-3">
             <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Location</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('common.location')}</p>
               <p className="text-gray-700 dark:text-gray-300">
                 {[user.location, user.district, user.region].filter(Boolean).join(', ') || t('account.notSet')}
               </p>
@@ -68,9 +68,9 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
           <div className="flex items-start gap-3">
             <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Verification</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('account.emailVerification')}</p>
               <p className={user.emailVerified ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'}>
-                {user.emailVerified ? 'Verified' : 'Not Verified'}
+                {user.emailVerified ? t('account.verified') : t('account.notVerified')}
               </p>
             </div>
           </div>
@@ -78,17 +78,17 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
           <div className="flex items-start gap-3">
             <ShieldCheck className="w-5 h-5 text-gray-400 mt-0.5" />
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Identity Verification</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('account.identityVerification')}</p>
               <p className={`font-semibold ${
                 user.verification?.status === 'verified' ? 'text-emerald-600' :
                 user.verification?.status === 'pending' ? 'text-indigo-600' :
                 user.verification?.status === 'rejected' ? 'text-rose-600' :
                 'text-gray-400'
               }`}>
-                {user.verification?.status === 'verified' ? 'Verified' :
-                 user.verification?.status === 'pending' ? 'Pending Review' :
-                 user.verification?.status === 'rejected' ? 'Rejected' :
-                 'Not Verified'}
+                {user.verification?.status === 'verified' ? t('account.verified') :
+                 user.verification?.status === 'pending' ? t('account.pendingReview') :
+                 user.verification?.status === 'rejected' ? t('account.rejected') :
+                 t('account.notVerified')}
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ const PersonalAccountCard: React.FC<PersonalAccountCardProps> = ({
           <div className="flex items-start gap-3">
             <CalendarDays className="w-5 h-5 text-gray-400 mt-0.5" />
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Member Since</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('account.memberSince')}</p>
               <p className="text-gray-700 dark:text-gray-300">{memberSince}</p>
             </div>
           </div>

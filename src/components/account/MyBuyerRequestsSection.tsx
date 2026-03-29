@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface MyBuyerRequestsSectionProps {
   user: User;
+  t: (key: string) => string;
   setActiveTab: (tab: 'info' | 'market' | 'experts' | 'account') => void;
   onUpdateBuyerRequestStatus: (
     request: BuyerRequest,
@@ -17,6 +18,7 @@ interface MyBuyerRequestsSectionProps {
 
 const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
   user,
+  t,
   setActiveTab,
   onUpdateBuyerRequestStatus,
 }) => {
@@ -53,10 +55,10 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
         <div>
           <h3 className="text-2xl font-black flex items-center gap-2">
             <ClipboardList className="w-6 h-6 text-indigo-600" />
-            My Buyer Requests
+            {t('account.myBuyerRequests')}
           </h3>
           <p className="text-sm text-gray-500 mt-1">
-            Manage your open, matched, and closed requests from one place.
+            {t('account.manageRequestsDesc')}
           </p>
         </div>
 
@@ -67,7 +69,7 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
           className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700"
         >
           <PlusCircle className="w-5 h-5" />
-          Post Request
+          {t('account.postRequest')}
         </button>
       </div>
 
@@ -80,7 +82,7 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
               : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
           }`}
         >
-          Open ({counts.open})
+          {t('account.open')} ({counts.open})
         </button>
 
         <button
@@ -91,7 +93,7 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
               : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
           }`}
         >
-          Matched ({counts.matched})
+          {t('account.matched')} ({counts.matched})
         </button>
 
         <button
@@ -102,21 +104,23 @@ const MyBuyerRequestsSection: React.FC<MyBuyerRequestsSectionProps> = ({
               : 'bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
           }`}
         >
-          Closed ({counts.closed})
+          {t('account.closed')} ({counts.closed})
         </button>
       </div>
 
       {loading ? (
         <div className="rounded-2xl bg-gray-50 dark:bg-gray-700/30 p-6 text-sm text-gray-500">
-          Loading your requests...
+          {t('account.loadingRequests')}
         </div>
       ) : filteredRequests.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
-          <h4 className="text-lg font-bold mb-2">No {tab} requests</h4>
+          <h4 className="text-lg font-bold mb-2">
+            {t('account.noRequestsTitle').replace('{status}', t(`account.${tab}`))}
+          </h4>
           <p className="text-sm text-gray-500">
-            {tab === 'open' && 'You do not have any open requests right now.'}
-            {tab === 'matched' && 'No requests have been matched yet.'}
-            {tab === 'closed' && 'You have not closed any requests yet.'}
+            {tab === 'open' && t('account.noOpenRequests')}
+            {tab === 'matched' && t('account.noMatchedRequests')}
+            {tab === 'closed' && t('account.noClosedRequests')}
           </p>
         </div>
       ) : (

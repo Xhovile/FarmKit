@@ -10,9 +10,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface Props {
   user: User;
+  t: (key: string) => string;
 }
 
-const SavedItemsSection: React.FC<Props> = ({ user }) => {
+const SavedItemsSection: React.FC<Props> = ({ user, t }) => {
   const navigate = useNavigate();
   const { items, loading } = useSavedListings(user);
   const [isOpening, setIsOpening] = useState<string | null>(null);
@@ -55,10 +56,10 @@ const SavedItemsSection: React.FC<Props> = ({ user }) => {
       <div>
         <h3 className="text-2xl font-black flex items-center gap-2">
           <Bookmark className="w-6 h-6 text-indigo-600" />
-          Saved Items
+          {t('account.savedItems')}
         </h3>
         <p className="text-sm text-gray-500">
-          Listings you saved for later.
+          {t('account.savedItemsDesc')}
         </p>
       </div>
 
@@ -66,9 +67,9 @@ const SavedItemsSection: React.FC<Props> = ({ user }) => {
         <div className="text-sm text-gray-500">Loading...</div>
       ) : items.length === 0 ? (
         <div className="border border-dashed p-10 rounded-2xl text-center">
-          <h4 className="font-bold mb-2">No saved items</h4>
+          <h4 className="font-bold mb-2">{t('account.noSavedItems')}</h4>
           <p className="text-sm text-gray-500">
-            Start exploring the market and save listings to track them here.
+            {t('account.noSavedItemsDesc')}
           </p>
         </div>
       ) : (

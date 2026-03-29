@@ -672,6 +672,22 @@ export const useAccountPageController = ({
     handleSellerProfileUpdate,
     handleOrganizationProfileUpdate,
     handlePrimaryRoleSwitch,
+    handleAvatarUpload: async (file: File) => {
+      if (!user) return;
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const { url } = await api.post('/api/upload', formData);
+        
+        const result = await api.put('/api/users/me', { avatar: url });
+        setUser(result as UserType);
+        toast.success('Avatar updated successfully.');
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to upload avatar.');
+      }
+    },
     showSettings,
     setShowSettings,
     profileFormData,

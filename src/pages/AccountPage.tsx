@@ -93,6 +93,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     handleSellerProfileUpdate,
     handleOrganizationProfileUpdate,
     handlePrimaryRoleSwitch,
+    handleAvatarUpload,
     showSettings,
     setShowSettings,
     profileFormData,
@@ -113,7 +114,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
   const handleRoleUpgradeWithNav = async () => {
     await handleRoleUpgrade();
-    navigate('/account');
+    navigate('/account/upgrade/verify');
   };
 
   const handleSellerProfileUpdateWithNav = async () => {
@@ -132,17 +133,17 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   };
 
   const roleLabelMap: Record<UserType['primaryRole'], string> = {
-    buyer: 'Buyer',
-    seller: 'Seller',
-    business: 'Business',
-    cooperative: 'Cooperative',
-    ngo: 'NGO',
+    buyer: t('account.buyer'),
+    seller: t('account.seller'),
+    business: t('account.business'),
+    cooperative: t('account.cooperative'),
+    ngo: t('account.ngo'),
   };
 
   const statusLabelMap: Record<UserType['status'], string> = {
-    basic: 'Basic Account',
-    verified: 'Verified Account',
-    premium: 'Premium Account',
+    basic: t('account.basicAccount'),
+    verified: t('account.verifiedAccount'),
+    premium: t('account.premiumAccount'),
   };
 
   const statusBadgeClassMap: Record<UserType['status'], string> = {
@@ -191,35 +192,23 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             user={user} 
             showSettings={showSettings} 
             setShowSettings={setShowSettings} 
+            t={t}
+            onAvatarUpload={handleAvatarUpload}
             settingsContent={
-              <div className="space-y-6">
-                <AccountTypeCard
-                  user={user}
-                  roleLabelMap={roleLabelMap}
-                  statusLabelMap={statusLabelMap}
-                />
-                <AccountActionsCard
-                  t={t}
-                  openSwitchRole={() => {
-                    setSelectedPrimaryRole(user.primaryRole);
-                    navigate('switch-role');
-                  }}
-                  openUpgradeRole={() => navigate('upgrade')}
-                  canSell={canSell}
-                  lang={lang}
-                  setLang={setLang}
-                  setShowTour={setShowTour}
-                  setUser={setUser}
-                />
-              </div>
+              <PersonalAccountCard
+                user={user}
+                t={t}
+                openEditPersonal={() => navigate('edit-profile')}
+                statusBadgeClassMap={statusBadgeClassMap}
+                statusLabelMap={statusLabelMap}
+              />
             }
           />
 
-          <PersonalAccountCard
+          <AccountTypeCard
             user={user}
             t={t}
-            openEditPersonal={() => navigate('edit-profile')}
-            statusBadgeClassMap={statusBadgeClassMap}
+            roleLabelMap={roleLabelMap}
             statusLabelMap={statusLabelMap}
           />
 
@@ -236,9 +225,28 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             }}
           />
 
+          <AccountActionsCard
+            user={user}
+            t={t}
+            roleLabelMap={roleLabelMap}
+            openSwitchRole={() => {
+              setSelectedPrimaryRole(user.primaryRole);
+              navigate('switch-role');
+            }}
+            openUpgradeRole={() => navigate('upgrade')}
+            openEditSeller={() => navigate('edit-seller')}
+            openEditOrganization={() => navigate('edit-org')}
+            canSell={canSell}
+            lang={lang}
+            setLang={setLang}
+            setShowTour={setShowTour}
+            setUser={setUser}
+          />
+
           {user.primaryRole === 'buyer' && (
             <MyBuyerRequestsSection
               user={user}
+              t={t}
               setActiveTab={setActiveTab}
               onUpdateBuyerRequestStatus={onUpdateBuyerRequestStatus}
             />
@@ -247,31 +255,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           {user.primaryRole === 'buyer' && (
             <SavedItemsSection
               user={user}
-            />
-          )}
-
-          {user.primaryRole === 'seller' && user.sellerProfile && (
-            <SellerProfileCard
-              user={user}
-              openEditSeller={() => navigate('edit-seller')}
-            />
-          )}
-
-          {(user.primaryRole === 'business' ||
-            user.primaryRole === 'cooperative' ||
-            user.primaryRole === 'ngo') &&
-            user.organizationProfile && (
-              <OrganizationProfileCard
-                user={user}
-                openEditOrganization={() => navigate('edit-org')}
-                organizationTypeLabelMap={organizationTypeLabelMap}
-              />
-            )}
-
-          {user.primaryRole !== 'buyer' && (
-            <VerificationCenter 
-              user={user} 
-              openUpload={() => setIsVerificationModalOpen(true)} 
+              t={t}
             />
           )}
         </div>
@@ -320,7 +304,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="edit-profile" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Edit Personal Account</h3>
+            <h3 className="text-xl font-bold">{t('account.editPersonalAccount')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -417,7 +401,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="edit-seller" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Edit Seller Profile</h3>
+            <h3 className="text-xl font-bold">{t('account.editSellerProfile')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -436,7 +420,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="edit-org" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Edit Organisation Profile</h3>
+            <h3 className="text-xl font-bold">{t('account.editOrgProfile')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -455,7 +439,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="switch-role" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Switch Primary Role</h3>
+            <h3 className="text-xl font-bold">{t('account.switchPrimaryRole')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -476,7 +460,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="upgrade" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Upgrade Account</h3>
+            <h3 className="text-xl font-bold">{t('account.upgradeAccount')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -546,7 +530,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
       <Route path="upgrade/form" element={
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-xl font-bold">Complete Role Upgrade</h3>
+            <h3 className="text-xl font-bold">{t('account.completeRoleUpgrade')}</h3>
             <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="w-5 h-5" />
             </button>
@@ -567,6 +551,31 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               malawiRegions={malawiRegions}
               malawiDistrictsByRegion={malawiDistrictsByRegion}
             />
+          </div>
+        </div>
+      } />
+
+      <Route path="upgrade/verify" element={
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[60vh]">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <h3 className="text-xl font-bold">{t('account.accountVerification')}</h3>
+            <button onClick={() => navigate('/account')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-6">
+            <VerificationCenter
+              user={user}
+              openUpload={() => setIsVerificationModalOpen(true)}
+            />
+            <div className="mt-6 flex justify-center">
+              <button 
+                onClick={() => navigate('/account')}
+                className="text-primary font-bold hover:underline"
+              >
+                Skip for now and go to Account
+              </button>
+            </div>
           </div>
         </div>
       } />

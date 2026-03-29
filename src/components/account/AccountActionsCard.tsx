@@ -5,9 +5,13 @@ import { auth } from '../../lib/firebase';
 import { toast } from 'react-hot-toast';
 
 interface AccountActionsCardProps {
+  user: UserType;
   t: (key: string) => string;
+  roleLabelMap: Record<UserType['primaryRole'], string>;
   openSwitchRole: () => void;
   openUpgradeRole: () => void;
+  openEditSeller: () => void;
+  openEditOrganization: () => void;
   canSell: boolean;
   lang: 'en' | 'ny';
   setLang: (lang: 'en' | 'ny') => void;
@@ -16,9 +20,13 @@ interface AccountActionsCardProps {
 }
 
 const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
+  user,
   t,
+  roleLabelMap,
   openSwitchRole,
   openUpgradeRole,
+  openEditSeller,
+  openEditOrganization,
   canSell,
   lang,
   setLang,
@@ -36,10 +44,35 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
     }
   };
 
+  const hasProfile = (user.primaryRole === 'seller' && user.sellerProfile) || 
+                   (['business', 'cooperative', 'ngo'].includes(user.primaryRole) && user.organizationProfile);
+
   return (
-    <div className="space-y-6">
+    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 space-y-6">
       {/* Top Section: Primary Actions (Stacked) */}
       <div className="space-y-3">
+        {hasProfile && (
+          <button 
+            onClick={user.primaryRole === 'seller' ? openEditSeller : openEditOrganization}
+            className="w-full flex items-center justify-between p-4 bg-primary/5 dark:bg-primary/10 rounded-2xl border border-primary/10 hover:bg-primary/10 transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Store className="w-5 h-5 text-primary" />
+                )}
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] font-bold text-primary uppercase tracking-wider">{t('account.activeRole')}</p>
+                <p className="font-bold text-sm">{roleLabelMap[user.primaryRole]}</p>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-primary px-3 py-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm">{t('common.manage')}</span>
+          </button>
+        )}
+
         <button 
           onClick={openUpgradeRole}
           className="w-full flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all group"
@@ -62,7 +95,15 @@ const AccountActionsCard: React.FC<AccountActionsCardProps> = ({
       </div>
 
       {/* Bottom Section: Secondary Actions (Icon Only) */}
-      <div className="flex items-center justify-around pt-2 border-t border-gray-100 dark:border-gray-700">
+      <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+        <button 
+          onClick={() => toast('Settings coming soon')}
+          title={t('common.settings')}
+          className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+        >
+          <Settings className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:rotate-90 transition-all" />
+        </button>
+
         <button 
           onClick={() => setShowTour(true)}
           title={t('account.takeTour')}
