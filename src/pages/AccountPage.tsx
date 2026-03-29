@@ -205,13 +205,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             }
           />
 
-          <AccountTypeCard
-            user={user}
-            t={t}
-            roleLabelMap={roleLabelMap}
-            statusLabelMap={statusLabelMap}
-          />
-
           <RoleDashboardSection
             user={user}
             t={t}

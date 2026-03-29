@@ -1,6 +1,14 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Settings, X, User, Camera } from 'lucide-react';
+import {
+  Camera,
+  MapPin,
+  Settings,
+  X,
+  User,
+  ShieldCheck,
+  BadgeCheck,
+} from 'lucide-react';
 import { User as UserType } from '../../types';
 
 interface AccountHeaderProps {
@@ -11,6 +19,40 @@ interface AccountHeaderProps {
   settingsContent?: React.ReactNode;
   onAvatarUpload?: (file: File) => Promise<void>;
 }
+
+const roleLabelMap: Record<UserType['primaryRole'], string> = {
+  buyer: 'Buyer',
+  seller: 'Seller',
+  business: 'Business',
+  cooperative: 'Cooperative',
+  ngo: 'NGO',
+};
+
+const statusLabelMap: Record<UserType['status'], string> = {
+  basic: 'Basic',
+  verified: 'Verified',
+  premium: 'Premium',
+};
+
+const statusClassMap: Record<UserType['status'], string> = {
+  basic: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+  verified: 'bg-emerald-500 text-white',
+  premium: 'bg-amber-500 text-white',
+};
+
+const verificationLabel = (status?: string) => {
+  if (status === 'verified') return 'Identity verified';
+  if (status === 'pending') return 'Verification pending';
+  if (status === 'rejected') return 'Verification rejected';
+  return 'Not verified';
+};
+
+const verificationClass = (status?: string) => {
+  if (status === 'verified') return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
+  if (status === 'pending') return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300';
+  if (status === 'rejected') return 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300';
+  return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+};
 
 const AccountHeader: React.FC<AccountHeaderProps> = ({
   user,
@@ -29,102 +71,158 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && onAvatarUpload) {
-      setIsUploading(true);
-      try {
-        await onAvatarUpload(file);
-      } finally {
-        setIsUploading(false);
-      }
+    if (!file || !onAvatarUpload) return;
+
+    setIsUploading(true);
+    try {
+      await onAvatarUpload(file);
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
     }
   };
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden relative">
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="image/*"
-        className="hidden"
-      />
-      
-      {/* Profile Header */}
-      <div className="h-32 bg-primary relative p-4">
-        <div className="flex justify-end">
-          <button 
-            onClick={() => setShowSettings(!showSettings)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-lg ${
-              showSettings 
-                ? 'bg-white text-primary' 
-                : 'bg-amber-400 text-primary hover:bg-amber-300'
-            }`}
-          >
-            {showSettings ? (
-              <>
-                <X className="w-4 h-4" />
-                <span>{t('common.cancel')}</span>
-              </>
-            ) : (
-              <>
-                <Settings className="w-4 h-4" />
-                <span>{t('account.manageAndEdit')}</span>
-              </>
-            )}
-          </button>
-        </div>
+  const location = [user.location, user.district, user.region].filter(Boolean).join(', ');
+  const memberSince = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString()
+    : '—';
 
-        {/* Name in the blue area, just above the line */}
-        <div className="absolute bottom-2 right-8">
-          <h2 className="text-[10px] font-black text-white uppercase tracking-[0.2em] opacity-90">
-            {user.name || 'User Name'}
-          </h2>
+  return (
+    <div className="space-y-4">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+          className="hidden"
+        />
+
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4 min-w-0">
+              <div className="relative group shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-md relative">
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name || 'User'}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <User className="w-10 h-10" />
+                    </div>
+                  )}
+
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleAvatarClick}
+                  disabled={isUploading}
+                  className="absolute inset-0 rounded-2xl bg-black/0 group-hover:bg-black/35 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all disabled:cursor-not-allowed"
+                  aria-label="Upload avatar"
+                >
+                  <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </div>
+
+              <div className="min-w-0 pt-1">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
+                  {user.name || 'User Name'}
+                </h2>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                    {roleLabelMap[user.primaryRole]}
+                  </span>
+
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusClassMap[user.status]}`}>
+                    {statusLabelMap[user.status]}
+                  </span>
+
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${verificationClass(user.verification?.status)}`}>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    {verificationLabel(user.verification?.status)}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    <span className="truncate">
+                      {location || 'Location not set'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck className="w-4 h-4 shrink-0" />
+                    <span>Member since {memberSince}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2 shrink-0">
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                  showSettings
+                    ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200'
+                    : 'bg-primary text-white hover:bg-primary/90'
+                }`}
+              >
+                {showSettings ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    <span>Close</span>
+                  </>
+                ) : (
+                  <>
+                    <Settings className="w-4 h-4" />
+                    <span>Edit profile</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <div className="px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-600 dark:text-gray-300">
+              Account: {statusLabelMap[user.status]}
+            </div>
+            <div className="px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/50 text-sm text-gray-600 dark:text-gray-300">
+              Role: {roleLabelMap[user.primaryRole]}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="px-8 pb-4">
-        <div className="relative -mt-12 mb-6 flex justify-between items-start">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-2xl border-4 border-white dark:border-gray-800 overflow-hidden shadow-lg bg-gray-100 relative">
-              {user?.avatar ? (
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <User className="w-10 h-10" />
-                </div>
-              )}
-              {isUploading && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                </div>
-              )}
-            </div>
-            <button 
-              onClick={handleAvatarClick}
-              disabled={isUploading}
-              className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"
-            >
-              <Camera className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Email in the white space */}
-          <div className="pt-14 text-right flex-1 pl-4">
-            <p className="text-sm font-bold text-gray-600 dark:text-gray-300 break-all">
-              {user.email}
+      {showSettings && settingsContent && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18 }}
+          className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden"
+        >
+          <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-gray-100 dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              Account details
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Profile information and settings.
             </p>
           </div>
-        </div>
-      </div>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="border-t border-gray-100 dark:border-gray-700 p-6 bg-gray-50/50 dark:bg-gray-900/20"
-        >
-          {settingsContent}
+          <div className="p-5 sm:p-6">
+            {settingsContent}
+          </div>
         </motion.div>
       )}
     </div>
