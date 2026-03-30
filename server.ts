@@ -147,8 +147,7 @@ async function startServer() {
         .map(doc => ({
           id: doc.id,
           ...doc.data()
-        }))
-        .filter((l: any) => l.verified === true);
+        }));
 
       // Sort in-memory to avoid composite index requirement
       listings.sort((a: any, b: any) => {

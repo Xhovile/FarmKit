@@ -516,7 +516,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({
                         item.description.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                         item.location.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
                         item.businessName.toLowerCase().includes(marketSearchQuery.toLowerCase());
-                      const matchesVerified = !verifiedOnly || item.verified;
+                      const matchesVerified = !verifiedOnly || item.verified || item.sellerId === user?.uid;
                       const matchesDelivery = selectedDeliveryMethod === 'all' || item.deliveryMethod === selectedDeliveryMethod;
                       const matchesRegion = selectedRegion === 'all' || item.locationData?.region === selectedRegion;
                       const isVisible = ((item.availableQuantity ?? item.quantity ?? 0) > 0 || item.sellerId === user?.uid) &&

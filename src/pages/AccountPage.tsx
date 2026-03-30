@@ -22,7 +22,7 @@ import { User as UserType, BuyerRequest } from '../types';
 import { malawiRegions, malawiDistrictsByRegion } from '../data/constants';
 import { useAccountPageController, AccountView } from '../hooks/useAccountPageController';
 import AccountHeader from '../components/account/AccountHeader';
-import AccountTypeCard from '../components/account/AccountTypeCard';
+import AccountHealthCard from '../components/account/AccountHealthCard';
 import PersonalAccountCard from '../components/account/PersonalAccountCard';
 import SellerProfileCard from '../components/account/SellerProfileCard';
 import OrganizationProfileCard from '../components/account/OrganizationProfileCard';
@@ -226,6 +226,13 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 )}
               </div>
             }
+          />
+
+          <AccountHealthCard
+            user={user}
+            t={t}
+            onVerify={() => navigate('upgrade/verify')}
+            onCompleteProfile={() => navigate('edit-profile')}
           />
 
           <RoleDashboardSection
